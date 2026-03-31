@@ -1,0 +1,24 @@
+# Exclude dev/full requirements files — Vercel should only use requirements.txt
+reqs2.txt
+
+# Exclude local DB data, logs, and test files
+db_data/
+*.log
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Exclude dev/test scripts
+test_*.py
+seed_*.py
+check_*.py
+populate_*.py
+verify_*.py
+ensure_admin.py
+add_pending_lawfirm.py
+undo_seed_*.py
+update_notifications.py
+
+# Exclude large static assets not needed at runtime
+uploads/
