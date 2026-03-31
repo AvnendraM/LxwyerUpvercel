@@ -1,29 +1,11 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../App';
 
-
-/* Single fixed star layer — painted ONCE by the GPU, never repainted on scroll */
-const STAR_STYLE = {
-  position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-  backgroundImage: [
-    'radial-gradient(circle, rgba(255,255,255,0.85) 1px, transparent 1px)',
-    'radial-gradient(circle, rgba(255,255,255,0.60) 1px, transparent 1px)',
-    'radial-gradient(circle, rgba(147,197,253,0.70) 1px, transparent 1px)',
-    'radial-gradient(circle, rgba(255,255,255,0.45) 1px, transparent 1px)',
-  ].join(','),
-  backgroundSize: '100px 100px, 150px 150px, 200px 200px, 280px 280px',
-  backgroundPosition: '10px 24px, 70px 90px, 140px 52px, 220px 170px',
-  willChange: 'transform',
-  transform: 'translateZ(0)',
-};
-
-/* ════════════════════════════════════════════════════════════
-   Compact Signup Form
-   ════════════════════════════════════════════════════════════ */
+/* ─── Signup Form ─────────────────────────────────────────── */
 const VisionaryForm = memo(function VisionaryForm() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', role: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [status, setStatus] = useState('idle');
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -38,9 +20,7 @@ const VisionaryForm = memo(function VisionaryForm() {
         body: JSON.stringify(form),
       });
       setStatus('success');
-    } catch {
-      setStatus('error');
-    }
+    } catch { setStatus('error'); }
   };
 
   if (status === 'success') return (
@@ -99,10 +79,9 @@ const VisionaryForm = memo(function VisionaryForm() {
           onFocus={e => e.target.style.borderColor = '#2563eb'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
       </div>
       <button type="submit" disabled={status === 'loading'} style={{
-        marginTop: 4,
-        padding: '13px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
-        background: 'linear-gradient(135deg,#1d4ed8,#4f46e5)',
-        color: '#fff', fontSize: '0.92rem', fontWeight: 700, letterSpacing: '0.02em',
+        marginTop: 4, padding: '13px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
+        background: 'linear-gradient(135deg,#1d4ed8,#4f46e5)', color: '#fff',
+        fontSize: '0.92rem', fontWeight: 700, letterSpacing: '0.02em',
         boxShadow: '0 6px 20px rgba(37,99,235,0.35)', fontFamily: 'inherit',
         transition: 'opacity 0.2s', opacity: status === 'loading' ? 0.7 : 1,
       }}>
@@ -110,22 +89,29 @@ const VisionaryForm = memo(function VisionaryForm() {
       </button>
       {status === 'error' && <p style={{ fontSize: '0.8rem', color: '#ef4444', textAlign: 'center' }}>Something went wrong. Try again.</p>}
       <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', marginTop: 2 }}>
-        Questions? <a href="mailto:avnendram.7@gmail.com" style={{ color: '#2563eb', fontWeight: 600 }}>avnendram.7@gmail.com</a>
+        Questions? <a href="mailto:avnendram.7@gmail.com" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>avnendram.7@gmail.com</a>
       </p>
     </form>
   );
 });
 
-/* ════════════════════════════════════════════════════════════
-   Main Component
-   ════════════════════════════════════════════════════════════ */
+/* ─── Main ────────────────────────────────────────────────── */
 export default function RevolutionisingSoon() {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-  const [btnHover, setBtnHover] = useState(false);
   const signupRef = useRef(null);
   const bannerRef = useRef(null);
+
+  // Spotlight — starts off-screen so watermark is invisible until mouse moves
+  const [spot, setSpot] = useState({ x: -999, y: -999, r: 56 });
+  const target = useRef({ x: -999, y: -999 });
+  const current = useRef({ x: -999, y: -999 });
+  const targetRadius = useRef(56);
+  const currentRadius = useRef(56);
+  const isTransitioningRef = useRef(false);
+  const hasMoved = useRef(false);
+  const raf = useRef(null);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 80);
@@ -134,355 +120,301 @@ export default function RevolutionisingSoon() {
 
   useEffect(() => {
     const targets = [signupRef.current, bannerRef.current].filter(Boolean);
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('rs-in'); });
-    }, { threshold: 0.06 });
+    const obs = new IntersectionObserver(entries =>
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('rs-in'); }), { threshold: 0.06 });
     targets.forEach(t => obs.observe(t));
     return () => obs.disconnect();
   }, []);
 
-  const handleDemo = (e) => {
-    setTransitioning(true);
-    setTimeout(() => navigate('/home'), 650);
+  useEffect(() => {
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const tick = () => {
+      current.current.x = lerp(current.current.x, target.current.x, 0.06);
+      current.current.y = lerp(current.current.y, target.current.y, 0.06);
+      const rLerpSpeed = isTransitioningRef.current ? 0.04 : 0.06;
+      currentRadius.current = lerp(currentRadius.current, targetRadius.current, rLerpSpeed);
+      setSpot({ x: current.current.x, y: current.current.y, r: currentRadius.current });
+      raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, []);
+
+  const onMouseMove = useCallback(e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    if (!hasMoved.current) hasMoved.current = true;
+    target.current = {
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100,
+    };
+  }, []);
+
+  const goDemo = () => { 
+    setTransitioning(true); 
+    isTransitioningRef.current = true;
+    targetRadius.current = 4000; // expand beautifully to full screen
+    setTimeout(() => navigate('/home'), 750); 
   };
+
+  const sx = spot.x.toFixed(1), sy = spot.y.toFixed(1), sr = spot.r.toFixed(1);
+  const mask = `radial-gradient(circle ${sr}px at ${sx}% ${sy}%, black 0%, transparent 100%)`;
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #000; font-family: 'Outfit','Inter',sans-serif; }
+        html, body { background: #000; font-family: 'Outfit','Inter',sans-serif; overflow-x: hidden; }
         input::placeholder, textarea::placeholder { color: #94a3b8; }
         select option { background: #fff; color: #0f172a; }
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.2); border-radius: 3px; }
 
-        /* Performant scroll reveal — only opacity + transform on compositor */
-        .rs-reveal {
-          opacity: 0;
-          transform: translate3d(0, 24px, 0);
-          transition: opacity 0.6s ease, transform 0.6s ease;
+        @keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes shimmer { from { background-position:200% center; } to { background-position:-200% center; } }
+        @keyframes floatOrb{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+        @keyframes pulse   {
+          0%  { box-shadow: 0 0 0 0 rgba(37,99,235,0.55); }
+          70% { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
+          100%{ box-shadow: 0 0 0 0 rgba(37,99,235,0); }
         }
-        .rs-reveal.rs-in {
-          opacity: 1;
-          transform: translate3d(0, 0, 0);
-        }
+        @keyframes reveal  { from{opacity:0;transform:scale(0.97);} to{opacity:1;transform:scale(1);} }
 
-        @keyframes rsFadeUp { from { opacity:0; transform:translate3d(0,18px,0); } to { opacity:1; transform:translate3d(0,0,0); } }
-        @keyframes rsReveal { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
-        @keyframes shimmer  { from { background-position:-200% center; } to { background-position:200% center; } }
-        @keyframes floatOrb { 0%,100% { transform:translate3d(0,0,0); } 50% { transform:translate3d(0,-16px,0); } }
-        @keyframes rsRingPulse {
-          0%   { box-shadow: 0 0 0 0 rgba(37,99,235,0.6); }
-          70%  { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
-          100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
-        }
-        /* Circle burst transition */
-        @keyframes rsCircleBurst {
-          0%   { clip-path: circle(0% at var(--ox) var(--oy)); }
-          100% { clip-path: circle(175% at var(--ox) var(--oy)); }
-        }
-        /* Glass utility */
-        .rs-glass {
-          backdrop-filter: blur(20px) saturate(1.5);
-          -webkit-backdrop-filter: blur(20px) saturate(1.5);
-        }
+        .rs-reveal { opacity:0; transform:translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .rs-reveal.rs-in { opacity:1; transform:translateY(0); }
 
-        /* ── Form grid: 2-col on desktop, 1-col on mobile ── */
-        .form-grid-2 {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
+        .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
-        /* ── Signup card: side-by-side on desktop, stacked on mobile ── */
         .rs-card {
-          display: flex;
-          width: 100%;
-          max-width: 880px;
-          border-radius: 22px;
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.12);
-          box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(37,99,235,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
-          flex-direction: row;
+          display:flex; width:100%; max-width:880px; border-radius:22px; overflow:hidden;
+          border:1px solid rgba(255,255,255,0.12);
+          box-shadow:0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(37,99,235,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
         }
         .rs-card-left {
-          flex: 0 0 55%;
-          background: rgba(255,255,255,0.88);
-          backdrop-filter: blur(26px) saturate(1.8);
-          -webkit-backdrop-filter: blur(26px) saturate(1.8);
-          border-right: 1px solid rgba(255,255,255,0.18);
-          padding: clamp(2rem,4vw,3.2rem);
-          display: flex;
-          flex-direction: column;
+          flex:0 0 55%; background:rgba(255,255,255,0.88);
+          backdrop-filter:blur(26px) saturate(1.8); -webkit-backdrop-filter:blur(26px) saturate(1.8);
+          border-right:1px solid rgba(255,255,255,0.18);
+          padding:clamp(2rem,4vw,3.2rem); display:flex; flex-direction:column;
         }
         .rs-card-right {
-          flex: 1;
-          background: rgba(5,12,40,0.55);
-          backdrop-filter: blur(26px) saturate(1.6);
-          -webkit-backdrop-filter: blur(26px) saturate(1.6);
-          border-left: 1px solid rgba(255,255,255,0.06);
-          padding: clamp(2rem,4vw,3.2rem);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          position: relative;
-          overflow: hidden;
+          flex:1; background:rgba(5,12,40,0.55);
+          backdrop-filter:blur(26px) saturate(1.6); -webkit-backdrop-filter:blur(26px) saturate(1.6);
+          border-left:1px solid rgba(255,255,255,0.06);
+          padding:clamp(2rem,4vw,3.2rem); display:flex; flex-direction:column;
+          justify-content:space-between; position:relative; overflow:hidden;
         }
 
-        /* ── Explore Demo button — 25% bigger ── */
-        .rs-demo-btn {
-          position: absolute;
-          bottom: 3%;
-          left: 50%;
-          transform: translate3d(calc(-50% - 38px), 0, 0);
-          z-index: 10;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          /* 25% bigger: was padding:6px 16px / font:0.68rem / icon:10px */
-          padding: 7.5px 20px;
-          border-radius: 10px;
-          border: 1.5px solid rgba(37,99,235,0.7);
-          cursor: pointer;
-          font-size: 0.85rem;
-          font-weight: 600;
-          font-family: inherit;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #fff;
-          background: rgba(0,0,0,0.38);
-          backdrop-filter: blur(16px) saturate(1.6);
-          -webkit-backdrop-filter: blur(16px) saturate(1.6);
-          box-shadow: 0 4px 24px rgba(0,0,0,0.4);
-          transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease, box-shadow 0.2s ease;
-          white-space: nowrap;
-        }
-        .rs-demo-btn:hover {
-          transform: translate3d(calc(-50% - 38px), -2px, 0) scale(1.06);
-          background: rgba(37,99,235,0.18);
-          box-shadow: 0 0 22px rgba(37,99,235,0.35);
-        }
-
-        /* ── Mobile overrides ── */
-        @media (max-width: 700px) {
-          .rs-card {
-            flex-direction: column;
-            border-radius: 16px;
-            max-width: 100%;
-          }
-          .rs-card-left {
-            flex: none;
-            border-right: none;
-            border-bottom: 1px solid rgba(255,255,255,0.18);
-          }
-          .rs-card-right {
-            flex: none;
-            border-left: none;
-            min-height: 260px;
-          }
-          .form-grid-2 {
-            grid-template-columns: 1fr;
-          }
-          .rs-demo-btn {
-            left: 50%;
-            transform: translate3d(-50%, 0, 0);
-            bottom: 4%;
-            font-size: 0.78rem;
-            padding: 7px 18px;
-          }
-          .rs-demo-btn:hover {
-            transform: translate3d(-50%, -2px, 0) scale(1.04);
-          }
-        }
-
-        @media (max-width: 400px) {
-          .rs-demo-btn {
-            font-size: 0.72rem;
-            padding: 6px 14px;
-          }
+        @media (max-width:700px) {
+          .rs-card { flex-direction:column; border-radius:16px; }
+          .rs-card-left { flex:none; border-right:none; border-bottom:1px solid rgba(255,255,255,0.18); }
+          .rs-card-right { flex:none; border-left:none; min-height:240px; }
+          .form-grid-2 { grid-template-columns:1fr; }
         }
       `}</style>
 
-      {/* ── Clean professional transition overlay ── */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        pointerEvents: transitioning ? 'all' : 'none',
-        background: 'linear-gradient(180deg,#030d1f 0%,#000 100%)',
-        opacity: transitioning ? 1 : 0,
-        transition: 'opacity 0.55s cubic-bezier(0.4,0,0.2,1)',
-      }}>
-        {/* Top progress bar */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, height: 2,
-          background: 'linear-gradient(90deg,#2563eb,#6366f1)',
-          width: transitioning ? '100%' : '0%',
-          transition: 'width 0.6s cubic-bezier(0.4,0,0.2,1)',
-          boxShadow: '0 0 12px rgba(37,99,235,0.8)',
-        }} />
-      </div>
+      {/* ══════════════════════════════════════
+          SECTION 1 — HERO
+      ══════════════════════════════════════ */}
+      <section
+        style={{ position:'relative', width:'100%', height:'100dvh', background:'#000', overflow:'hidden', cursor:'default' }}
+        onMouseMove={onMouseMove}
+      >
 
-      {/* ══════════════════════════════════════════════
-          SECTION 1 — VIDEO HERO
-      ══════════════════════════════════════════════ */}
-      {/* ── Single fixed star layer — GPU compositor, zero scroll repaint ── */}
-      <div style={STAR_STYLE} aria-hidden />
+        {/* BG watermark — fully invisible, only revealed by spotlight */}
 
-      <section style={{
-        position: 'relative', width: '100%', height: '100dvh', background: '#000', zIndex: 1,
-      }}>
-        {/* Lxwyer Up — glass header */}
+        {/* Spotlight — expands to full screen blue on transition */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
-          padding: '18px 28px',
-          background: 'rgba(0,0,0,0.30)',
-          backdropFilter: 'blur(18px) saturate(1.4)',
-          WebkitBackdropFilter: 'blur(18px) saturate(1.4)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          opacity: mounted ? 1 : 0, transition: 'opacity 0.7s ease 0.3s',
+          position: transitioning ? 'fixed' : 'absolute', 
+          inset: 0, 
+          zIndex: transitioning ? 9999 : 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          pointerEvents: transitioning ? 'all' : 'none', 
+          userSelect: 'none', overflow: 'hidden',
+          maskImage: mask,
+          WebkitMaskImage: mask,
+          backgroundColor: transitioning ? '#2563eb' : 'transparent',
+          transition: 'background-color 0.4s ease',
         }}>
-          <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>
-            Lxwyer Up
-          </span>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 'clamp(180px, 20vh, 25vh)',
+            opacity: transitioning ? 0 : 1,
+            transition: 'opacity 0.2s ease',
+          }}>
+            <span style={{
+              fontSize: 'clamp(9vw, 14vw, 16vw)',
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              whiteSpace: 'nowrap',
+              fontFamily: "'Outfit','Inter',sans-serif",
+              lineHeight: 0.85,
+              textTransform: 'uppercase',
+              background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundSize: '200% auto',
+              animation: 'shimmer 5s linear infinite',
+            }}>LxwyerUp</span>
+            <span style={{
+              fontSize: 'clamp(9vw, 14vw, 16vw)',
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              whiteSpace: 'nowrap',
+              fontFamily: "'Outfit','Inter',sans-serif",
+              lineHeight: 0.85,
+              textTransform: 'uppercase',
+              background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundSize: '200% auto',
+              animation: 'shimmer 5s linear infinite',
+            }}>LxwyerUp</span>
+          </div>
         </div>
 
-        {/* Video — 5% inset, GPU layer */}
+        {/* Center foreground — minimal text stack */}
         <div style={{
-          position: 'absolute', top: '5%', left: '5%', right: '5%', bottom: '5%',
-          borderRadius: 18, overflow: 'hidden', background: '#000',
-          boxShadow: '0 0 0 1px rgba(37,99,235,0.12), 0 40px 120px rgba(0,0,0,0.85)',
-          opacity: mounted ? 1 : 0,
-          animation: mounted ? 'rsReveal 1.2s cubic-bezier(0.22,1,0.36,1) both' : 'none',
+          position:'absolute', inset:0, zIndex:10,
+          display:'flex', flexDirection:'column',
+          alignItems:'center', justifyContent:'center',
+          textAlign:'center',
+          padding:'0 1.5rem',
+          gap:0,
         }}>
-          <video autoPlay muted loop playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}>
-            <source src="/videos/3.mp4" type="video/mp4" />
-          </video>
-          {/* Bottom vignette */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,10,0.72) 0%,transparent 28%)', pointerEvents: 'none' }} />
-        </div>
-
-        {/* ── Explore Demo button — 25% bigger, centered on mobile ── */}
-        <button
-          className="rs-demo-btn"
-          onClick={handleDemo}
-          style={{
-            animation: mounted ? 'rsFadeUp 0.7s ease 1s both, rsRingPulse 2.5s ease-out 2.2s infinite' : 'none',
+          {/* COMING SOON — cinematic reveal */}
+          <h1 style={{
+            fontSize:'clamp(1.88rem, 5vw, 5.38rem)',
+            fontWeight:900,
+            letterSpacing: mounted ? '-0.02em' : '0.12em',
+            filter: mounted ? 'blur(0px)' : 'blur(12px)',
+            transform: mounted ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.96)',
             opacity: mounted ? 1 : 0,
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="rgba(37,99,235,0.85)" strokeWidth="1.5" />
-            <polygon points="10 7.5 17 12 10 16.5" fill="white" />
-          </svg>
-          Explore Demo
-        </button>
+            transition: 'all 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s',
+            lineHeight:1,
+            textTransform:'uppercase',
+            color:'#ffffff',
+          }}>Coming Soon</h1>
+
+          {/* Tagline */}
+          <p style={{
+            marginTop:'clamp(1rem,2.5vw,1.5rem)',
+            fontSize:'clamp(0.8rem,1.6vw,0.95rem)',
+            color:'rgba(148,163,184,0.45)',
+            letterSpacing:'0.02em',
+            lineHeight:1.75,
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.7s',
+          }}>India's legal revolution — AI, Apex lawyers, SOS help, transparent fees etc.</p>
+
+          {/* Explore Demo */}
+          <div style={{
+            marginTop:'clamp(1.8rem,4vw,2.8rem)',
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.0s',
+          }}>
+            <button
+              onClick={goDemo}
+              style={{
+                display:'inline-flex', alignItems:'center', gap:8,
+                padding:'10px 26px',
+                borderRadius:10,
+                border:'1.5px solid rgba(37,99,235,0.55)',
+                background:'rgba(0,0,0,0.35)',
+                backdropFilter:'blur(14px)',
+                WebkitBackdropFilter:'blur(14px)',
+                color:'#fff',
+                fontSize:'0.82rem', fontWeight:700,
+                letterSpacing:'0.1em', textTransform:'uppercase',
+                fontFamily:'inherit',
+                cursor:'pointer',
+                boxShadow:'0 4px 20px rgba(0,0,0,0.4)',
+                transition:'background 0.2s ease, box-shadow 0.2s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+                animation:'pulse 2.5s ease-out 2s infinite',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background='rgba(37,99,235,0.18)'; e.currentTarget.style.boxShadow='0 0 22px rgba(37,99,235,0.35)'; e.currentTarget.style.transform='translateY(-2px) scale(1.05)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='rgba(0,0,0,0.35)'; e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.4)'; e.currentTarget.style.transform='none'; }}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="rgba(37,99,235,0.8)" strokeWidth="1.5" />
+                <polygon points="10 7.5 17 12 10 16.5" fill="white" />
+              </svg>
+              Explore Demo
+            </button>
+          </div>
+        </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          SECTION 2 — SIGNUP (Realize-style card)
-      ══════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════
+          SECTION 2 — SIGNUP (same as before)
+      ══════════════════════════════════════ */}
       <section style={{
-        position: 'relative', background: 'rgba(3,8,24,0.92)', zIndex: 1,
-        minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: 'clamp(3rem,6vw,5rem) clamp(1rem,4vw,3rem)',
+        position:'relative', background:'rgba(3,8,24,0.92)', zIndex:1,
+        minHeight:'100dvh', display:'flex', flexDirection:'column',
+        alignItems:'center', justifyContent:'center',
+        padding:'clamp(3rem,6vw,5rem) clamp(1rem,4vw,3rem)',
       }}>
+        {/* Ambient blobs */}
+        <div style={{ position:'absolute', top:'15%', left:'8%', width:380, height:380, borderRadius:'50%', background:'radial-gradient(circle,rgba(29,78,216,0.15) 0%,transparent 70%)', animation:'floatOrb 8s ease-in-out infinite', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', bottom:'12%', right:'6%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%)', animation:'floatOrb 10s ease-in-out 2s infinite', pointerEvents:'none' }} />
 
-        {/* Ambient glow blobs */}
-        <div style={{ position: 'absolute', top: '15%', left: '8%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle,rgba(29,78,216,0.15) 0%,transparent 70%)', animation: 'floatOrb 8s ease-in-out infinite', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '12%', right: '6%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%)', animation: 'floatOrb 10s ease-in-out 2s infinite', pointerEvents: 'none' }} />
+        <div ref={signupRef} className="rs-reveal rs-card">
 
-        {/* ─── THE CARD (Realize layout) ─── */}
-        <div
-          ref={signupRef}
-          className="rs-reveal rs-card"
-        >
-          {/* LEFT: frosted glass form panel */}
+          {/* LEFT — white form panel */}
           <div className="rs-card-left">
-            {/* Brand — text only, once */}
-            <p style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1e40af', marginBottom: '1.8rem', letterSpacing: '0.01em' }}>
-              Lxwyer Up
-            </p>
-
-            <h2 style={{ fontSize: 'clamp(1.4rem,2.6vw,2rem)', fontWeight: 800, color: '#0f172a', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
+            <p style={{ fontSize:'0.88rem', fontWeight:700, color:'#1e40af', marginBottom:'1.8rem', letterSpacing:'0.01em' }}>Lxwyer Up</p>
+            <h2 style={{ fontSize:'clamp(1.4rem,2.6vw,2rem)', fontWeight:800, color:'#0f172a', lineHeight:1.15, letterSpacing:'-0.02em', marginBottom:'0.5rem' }}>
               Sign up for<br />Early Access
             </h2>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: '1.8rem', maxWidth: 340 }}>
+            <p style={{ color:'#64748b', fontSize:'0.85rem', lineHeight:1.7, marginBottom:'1.8rem', maxWidth:340 }}>
               Join India's future legal platform. Get priority access and be first to experience smarter justice.
             </p>
-
             <VisionaryForm />
           </div>
 
-          {/* RIGHT: dark glass brand panel */}
+          {/* RIGHT — dark brand panel */}
           <div className="rs-card-right">
-            {/* Decorative rings */}
-            <div style={{ position: 'absolute', top: '50%', left: '50%', width: 340, height: 340, borderRadius: '50%', border: '1px solid rgba(37,99,235,0.1)', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '50%', left: '50%', width: 500, height: 500, borderRadius: '50%', border: '1px solid rgba(37,99,235,0.05)', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '12%', right: '-12%', width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(37,99,235,0.28) 0%,transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position:'absolute', top:'50%', left:'50%', width:340, height:340, borderRadius:'50%', border:'1px solid rgba(37,99,235,0.1)', transform:'translate(-50%,-50%)', pointerEvents:'none' }} />
+            <div style={{ position:'absolute', top:'50%', left:'50%', width:500, height:500, borderRadius:'50%', border:'1px solid rgba(37,99,235,0.05)', transform:'translate(-50%,-50%)', pointerEvents:'none' }} />
+            <div style={{ position:'absolute', top:'12%', right:'-12%', width:240, height:240, borderRadius:'50%', background:'radial-gradient(circle,rgba(37,99,235,0.28) 0%,transparent 70%)', pointerEvents:'none' }} />
 
-            {/* Copy */}
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(147,197,253,0.55)', marginBottom: '1rem' }}>
-                For Visionaries
-              </p>
-              <h3 style={{ fontSize: 'clamp(1.4rem,2.5vw,2.1rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff', marginBottom: '1rem' }}>
+            <div style={{ position:'relative', zIndex:2 }}>
+              <p style={{ fontSize:9, fontWeight:700, letterSpacing:'0.35em', textTransform:'uppercase', color:'rgba(147,197,253,0.55)', marginBottom:'1rem' }}>For Visionaries</p>
+              <h3 style={{ fontSize:'clamp(1.4rem,2.5vw,2.1rem)', fontWeight:800, lineHeight:1.1, letterSpacing:'-0.02em', color:'#fff', marginBottom:'1rem' }}>
                 Revolutionise<br />
-                <span style={{
-                  backgroundImage: 'linear-gradient(135deg,#93c5fd,#60a5fa,#818cf8)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text', backgroundSize: '200% auto',
-                  animation: 'shimmer 4s linear infinite',
-                }}>
+                <span style={{ backgroundImage:'linear-gradient(135deg,#93c5fd,#60a5fa,#818cf8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', backgroundSize:'200% auto', animation:'shimmer 4s linear infinite' }}>
                   Legal Justice
                 </span>
               </h3>
-              <p style={{ color: 'rgba(148,163,184,0.6)', lineHeight: 1.8, fontSize: '0.85rem', marginBottom: '1.6rem' }}>
+              <p style={{ color:'rgba(148,163,184,0.6)', lineHeight:1.8, fontSize:'0.85rem', marginBottom:'1.6rem' }}>
                 AI-matched lawyers, SOS legal help, transparent fees — justice that truly works.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                {[
-                  'SOS Legal Help — instant 24/7 access',
-                  'AI Lawyer Matching — perfect fit every time',
-                  '1000+ Apex Lawyers — coming soon',
-                  'Transparent Fees — zero hidden charges',
-                ].map(tx => (
-                  <div key={tx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 2, height: 14, borderRadius: 2, background: 'linear-gradient(180deg,#3b82f6,#6366f1)', flexShrink: 0 }} />
-                    <span style={{ fontSize: '0.82rem', color: 'rgba(203,213,225,0.72)', lineHeight: 1.4 }}>{tx}</span>
+              <div style={{ display:'flex', flexDirection:'column', gap:11 }}>
+                {['SOS Legal Help — instant 24/7 access','AI Lawyer Matching — perfect fit every time','1000+ Apex Lawyers — coming soon','Transparent Fees — zero hidden charges'].map(tx => (
+                  <div key={tx} style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <div style={{ width:2, height:14, borderRadius:2, background:'linear-gradient(180deg,#3b82f6,#6366f1)', flexShrink:0 }} />
+                    <span style={{ fontSize:'0.82rem', color:'rgba(203,213,225,0.72)', lineHeight:1.4 }}>{tx}</span>
                   </div>
                 ))}
               </div>
             </div>
-
-            <p style={{ fontSize: 10, color: 'rgba(148,163,184,0.22)', letterSpacing: '0.15em', textTransform: 'uppercase', position: 'relative', zIndex: 2, marginTop: '1.5rem' }}>
-              Made in India — AI-Powered
-            </p>
+            <p style={{ fontSize:10, color:'rgba(148,163,184,0.22)', letterSpacing:'0.15em', textTransform:'uppercase', position:'relative', zIndex:2, marginTop:'1.5rem' }}>Made in India — AI-Powered</p>
           </div>
         </div>
 
-        {/* ── India badge — absolute bottom of blue section ── */}
-        <div ref={bannerRef} style={{ position: 'absolute', bottom: '2rem', left: 0, right: 0, textAlign: 'center', zIndex: 2 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 12,
-            padding: '9px 24px', borderRadius: 999,
-            border: '1px solid rgba(147,197,253,0.22)',
-            background: 'rgba(14,20,60,0.45)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
-          }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px #3b82f6' }} />
-            <span style={{
-              fontSize: 'clamp(0.6rem,1.5vw,0.72rem)', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase',
-              background: 'linear-gradient(90deg,#93c5fd,#60a5fa,#818cf8)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text', backgroundSize: '200% auto',
-              animation: 'shimmer 4s linear infinite',
-            }}>
+        {/* India badge */}
+        <div ref={bannerRef} className="rs-reveal" style={{ position:'absolute', bottom:'2rem', left:0, right:0, textAlign:'center', zIndex:2 }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:12, padding:'9px 24px', borderRadius:999, border:'1px solid rgba(147,197,253,0.22)', background:'rgba(14,20,60,0.45)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', boxShadow:'0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+            <div style={{ width:5, height:5, borderRadius:'50%', background:'#3b82f6', boxShadow:'0 0 6px #3b82f6' }} />
+            <span style={{ fontSize:'clamp(0.6rem,1.5vw,0.72rem)', fontWeight:700, letterSpacing:'0.28em', textTransform:'uppercase', background:'linear-gradient(90deg,#93c5fd,#60a5fa,#818cf8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', backgroundSize:'200% auto', animation:'shimmer 4s linear infinite' }}>
               India's First Legal Tech Ecosystem
             </span>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px #3b82f6' }} />
+            <div style={{ width:5, height:5, borderRadius:'50%', background:'#3b82f6', boxShadow:'0 0 6px #3b82f6' }} />
           </div>
         </div>
       </section>
