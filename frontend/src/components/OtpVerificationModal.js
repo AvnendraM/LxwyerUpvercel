@@ -220,7 +220,7 @@ const OtpVerificationModal = ({ isOpen, onClose, onVerified, email, phone, darkM
                                                         <InputOTPSlot
                                                             key={idx}
                                                             index={idx}
-                                                            className="w-12 h-14 sm:w-14 sm:h-16 text-2xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600 focus:ring-blue-500 focus:border-blue-500 transition-all rounded-md mx-0.5 sm:mx-1"
+                                                            className="w-10 h-12 sm:w-14 sm:h-16 text-xl sm:text-2xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600 focus:ring-blue-500 focus:border-blue-500 transition-all rounded-md mx-[2px] sm:mx-1"
                                                         />
                                                     ))}
                                                 </InputOTPGroup>
