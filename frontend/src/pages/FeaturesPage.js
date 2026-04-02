@@ -37,15 +37,15 @@ const FEATURES = [
     description: 'Provides immediate access to verified lawyers during urgent legal situations. With one click, connect quickly, receive timely guidance, and understand your next steps — reducing panic and helping you respond confidently.',
     tag: 'Clients',
     color: 'red',
-    badge: '🆕 Live Now',
+    badge: 'Live Now',
   },
   {
     icon: Fingerprint,
     title: 'Lxwyer Up Signature',
     description: 'Lxwyer Up Signature for users provides access to highly verified, premium lawyers with proven expertise and strong track records. It ensures trusted, high-quality legal consultation for complex or high-stakes matters, offering users greater confidence, reliability, and professional support when precision and experience matter most.',
     tag: 'Both',
-    color: 'purple',
-    badge: '✨ Coming Soon',
+    color: 'blue',
+    badge: 'Coming Soon',
   },
   {
     icon: MessageSquare,
@@ -59,49 +59,49 @@ const FEATURES = [
     title: 'Consultation Booking',
     description: 'Book video or in-person consultations with verified lawyers in seconds. Manage all appointments in one calendar.',
     tag: 'Clients',
-    color: 'violet',
+    color: 'blue',
   },
   {
     icon: FileText,
     title: 'Case Tracking',
     description: 'Monitor your case status, stages, and key deadlines in real-time. Never miss an update or hearing.',
     tag: 'Clients',
-    color: 'cyan',
+    color: 'blue',
   },
   {
     icon: Shield,
     title: 'Document Management',
     description: 'Securely upload, organise, and share legal documents. Everything encrypted and accessible from any device.',
     tag: 'Both',
-    color: 'emerald',
+    color: 'blue',
   },
   {
     icon: Users,
     title: 'Client Management',
     description: 'Lawyers can manage multiple clients, track case progress, and maintain professional communication — all in one place.',
     tag: 'Lawyers',
-    color: 'amber',
+    color: 'blue',
   },
   {
     icon: Bell,
     title: 'Smart Notifications',
     description: 'Automated alerts for case updates, upcoming hearings, document requests, and important deadlines.',
     tag: 'Both',
-    color: 'rose',
+    color: 'blue',
   },
   {
     icon: BarChart,
     title: 'Case Analytics',
     description: 'Insights into case progress, success patterns, and AI-powered recommendations for your next step.',
     tag: 'Both',
-    color: 'indigo',
+    color: 'blue',
   },
   {
     icon: Clock,
     title: '24/7 Availability',
     description: 'Your dashboard, documents, and AI assistant are always on — from any device, at any hour.',
     tag: 'Both',
-    color: 'teal',
+    color: 'blue',
   },
 ];
 
@@ -299,28 +299,28 @@ export default function FeaturesPage() {
 
         {/* ── APEX System Hero Card ── */}
         <div
-          className="relative overflow-hidden rounded-3xl border border-yellow-500/25 bg-gradient-to-br from-[#0d0a00] via-[#1a1200] to-[#0a0d1a] mb-8 shadow-2xl shadow-yellow-500/10"
+          className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-[#00100a] via-[#001a10] to-[#000d08] mb-8 shadow-2xl shadow-emerald-500/8"
           style={{ animationName: 'cardEnter', animationDuration: '0.6s', animationTimingFunction: 'cubic-bezier(.22,.68,0,1.2)', animationFillMode: 'both' }}
         >
           {/* Background radial glows */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-600/8 rounded-full blur-3xl" />
-            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, rgba(234,179,8,0.05) 0%, transparent 60%)' }} />
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/8 rounded-full blur-3xl" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-green-600/6 rounded-full blur-3xl" />
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, rgba(16,185,129,0.04) 0%, transparent 60%)' }} />
           </div>
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-0">
 
             {/* ── Left: Visionary copy ── */}
             <div className="p-10 lg:p-12 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 text-[11px] font-bold tracking-widest uppercase mb-6 w-fit">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px] font-bold tracking-widest uppercase mb-6 w-fit">
                 <Award className="w-3.5 h-3.5" />
                 Lxwyer Up — APEX System
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-5">
                 Not every lawyer makes it{' '}
-                <span className="bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-clip-text text-transparent">
                   through APEX.
                 </span>
               </h2>
@@ -329,22 +329,22 @@ export default function FeaturesPage() {
                 APEX is our proprietary, multi-stage verification framework — the most rigorous evaluation system in Indian legal tech today. Every lawyer on Lxwyer Up has been put through credential checks, peer reviews, conduct audits, and AI-driven performance scoring before they ever appear in your results.
               </p>
 
-              <p className="text-slate-400 text-sm leading-relaxed mb-8 italic border-l-2 border-yellow-500/40 pl-4">
+              <p className="text-slate-400 text-sm leading-relaxed mb-8 italic border-l-2 border-emerald-500/40 pl-4">
                 "We do not promise volume. We promise precision. The right lawyer for your exact situation — verified, accountable, and held to the highest standard we know."
-                <span className="block mt-1 text-yellow-600/60 not-italic font-semibold text-xs">— Lxwyer Up</span>
+                <span className="block mt-1 text-emerald-600/80 not-italic font-semibold text-xs">— Lxwyer Up</span>
               </p>
 
-              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl bg-yellow-500/8 border border-yellow-500/20 w-fit max-w-sm">
-                <BadgeCheck className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
-                <span className="text-yellow-100 text-sm font-medium leading-relaxed">
+              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl bg-emerald-500/8 border border-emerald-500/20 w-fit max-w-sm">
+                <BadgeCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <span className="text-emerald-100 text-sm font-medium leading-relaxed">
                   Our APEX Promise — if a match doesn't serve you, we find you a better one. No compromise, no shortcuts.
                 </span>
               </div>
             </div>
 
             {/* ── Right: 6-stage pipeline ── */}
-            <div className="p-10 lg:p-12 border-t lg:border-t-0 lg:border-l border-yellow-500/10 flex flex-col justify-center gap-5">
-              <p className="text-[10px] font-black text-yellow-500/60 uppercase tracking-[0.2em] mb-1">
+            <div className="p-10 lg:p-12 border-t lg:border-t-0 lg:border-l border-emerald-500/10 flex flex-col justify-center gap-5">
+              <p className="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.2em] mb-1">
                 The 6-Stage APEX Verification Pipeline
               </p>
 
@@ -357,12 +357,12 @@ export default function FeaturesPage() {
                 { icon: BadgeCheck,     step: '06', title: 'APEX Seal Awarded',         desc: 'Only lawyers who pass every stage earn the APEX seal displayed proudly on their profile.' },
               ].map(({ icon: Icon, step, title, desc }) => (
                 <div key={step} className="flex items-start gap-4 group">
-                  <div className="shrink-0 w-9 h-9 rounded-xl bg-yellow-500/12 border border-yellow-500/25 flex items-center justify-center group-hover:bg-yellow-500/22 transition-colors duration-200">
-                    <Icon className="w-4 h-4 text-yellow-400" />
+                  <div className="shrink-0 w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/18 transition-colors duration-200">
+                    <Icon className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black text-yellow-700/70 tracking-widest">{step}</span>
+                      <span className="text-[9px] font-black text-emerald-600/80 tracking-widest">{step}</span>
                       <span className="text-sm font-bold text-white">{title}</span>
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
@@ -381,29 +381,31 @@ export default function FeaturesPage() {
       </section>
 
       <section className="max-w-4xl mx-auto px-6 pb-28 text-center">
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-blue-500/20 bg-slate-50 dark:bg-gradient-to-br dark:from-blue-950/40 dark:to-slate-950 p-12 transition-colors duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#03060f] via-[#060d1e] to-[#030609] p-12">
+          {/* Ambient glow */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-40 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/3 to-transparent pointer-events-none rounded-3xl" />
           {/* Decorative scales icon */}
           <div className="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-6">
-            <Scale className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+            <Scale className="w-7 h-7 text-blue-400" />
           </div>
           <div className="relative">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 text-slate-900 dark:text-white transition-colors">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 text-white">
               Ready to Get Started?
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-lg mb-8 max-w-xl mx-auto transition-colors">
+            <p className="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
               Join thousands of clients and lawyers already using LxwyerUp to navigate India's legal system with confidence.
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <button
                 onClick={() => navigate('/user-get-started')}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-xl flex items-center gap-2 transition-all hover:gap-3 text-sm"
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-xl flex items-center gap-2 transition-all hover:gap-3 text-sm shadow-lg shadow-blue-600/20"
               >
                 Consult Now <ArrowRight size={16} />
               </button>
               <button
                 onClick={() => navigate('/contact')}
-                className="border border-slate-300 dark:border-slate-700 hover:border-slate-500 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all"
+                className="border border-slate-700 hover:border-blue-500/50 text-slate-400 hover:text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all"
               >
                 Contact Us
               </button>

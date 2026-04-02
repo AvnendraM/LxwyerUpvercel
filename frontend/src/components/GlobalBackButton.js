@@ -24,6 +24,7 @@ export default function GlobalBackButton() {
     <button
       onClick={() => navigate(-1)}
       title="Go back"
+      className="hidden md:flex items-center gap-1"
       style={{
         position: 'fixed',
         /* Sits in the far top-left corner of the CONTENT area (below navbar).
@@ -31,9 +32,6 @@ export default function GlobalBackButton() {
         top: 72,
         left: 18,
         zIndex: 999,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
         padding: '5px 12px 5px 8px',
         borderRadius: 8,
         border: '1px solid rgba(255,255,255,0.09)',

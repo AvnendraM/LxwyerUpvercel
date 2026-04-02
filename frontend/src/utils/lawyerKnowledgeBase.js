@@ -73,13 +73,22 @@ export function buildKnowledgeBase(lawyers) {
 export function lookupByName(kb, message) {
   const msg = message.toLowerCase();
 
-  // Patterns: "who is Sarthak", "find lawyer named Priya", "is Sharma in your list",
-  //            "show me Rahul's profile", "lawyer Sarthak Delhi"
+  // ── Early bail-out: if the query has clear SEARCH intent, skip name lookup ──
+  const searchIntentKeywords = [
+    'need', 'want', 'looking', 'help me', 'please', 'can you',
+    'criminal', 'property', 'divorce', 'family', 'corporate', 'cyber', 'labour', 'tax',
+    'experience', 'years', 'more than', 'lawyer in', 'advocate in',
+    'best', 'good', 'recommend', 'suggest', 'urgent', 'asap', 'experienced',
+    'case', 'court', 'fir', 'bail', 'fraud', 'dispute', 'legal help',
+  ];
+  if (searchIntentKeywords.some(kw => msg.includes(kw))) {
+    return { found: false, results: [], extractedName: '' };
+  }
+
+  // Strict name patterns — only explicit "who is X", "lawyer named X", etc.
   const patterns = [
-    /(?:who is|find|search for|look up|locate|about|show me|lawyer named|advocate named|is there a|find a lawyer called|check)(?: a| an| lawyer| advocate| vakeel)? ([a-z][a-z\s]{1,30}?)(?:\?|$| in | at | for | from )/i,
+    /(?:who is|about|show me|lawyer named|advocate named|find a lawyer called)(?: a| an| lawyer| advocate| vakeel)? ([a-z][a-z\s]{1,30}?)(?:\?|$| in | at | for | from )/i,
     /(?:named|called|known as) ([a-z][a-z\s]{1,25}?)(?:\?|$| in | at )/i,
-    /^([a-z][a-z\s]{2,20}?)\s+(?:lawyer|advocate|vakeel|attorney)\b/i,
-    /^([a-z][a-z\s]{2,20}?)\s+(?:in|at|from)\b/i,
     /lawyer ([a-z][a-z\s]{2,20}?)\b/i,
   ];
 
@@ -88,6 +97,10 @@ export function lookupByName(kb, message) {
     if (!m) continue;
     const extracted = m[1].trim().replace(/\s+/g, ' ');
     if (extracted.length < 2) continue;
+
+    // Reject if extracted text contains legal/action words
+    const legalWords = ['criminal', 'property', 'family', 'divorce', 'lawyer', 'advocate', 'need', 'help', 'case', 'legal', 'court', 'experience', 'years'];
+    if (legalWords.some(w => extracted.includes(w))) continue;
 
     // Try full name first
     if (kb.nameIndex[extracted]) {
@@ -100,8 +113,10 @@ export function lookupByName(kb, message) {
         return { found: true, results: kb.nameIndex[word], extractedName: word };
       }
     }
-    // Not found but we DID extract a name
-    return { found: false, results: [], extractedName: extracted };
+    // Not found but we DID extract a name — only surface if looks like a proper noun (initial cap)
+    if (/^[A-Z]/.test(m[1])) {
+      return { found: false, results: [], extractedName: extracted };
+    }
   }
 
   return { found: false, results: [], extractedName: '' };

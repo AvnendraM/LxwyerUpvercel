@@ -216,7 +216,8 @@ def extract_intent(query: str) -> dict:
             consult = mode
             break
 
-    # Experience (e.g., "5+ years", "10 years")
+    # Experience (e.g., "5+ years", "10 years", "3 years")
+    # Matches: "3 years", "3+ years", "more than 3 years", "3 yrs", "minimum 3 years"
     exp_match = re.search(r'(\d+)\+?\s*(?:year|yr)s?', q)
     min_exp = int(exp_match.group(1)) if exp_match else None
 
@@ -297,14 +298,25 @@ def score_lawyer(lawyer: dict, intent: dict, session_id: str) -> tuple[int, list
             score += 10
             reasons.append(f"Language: {lang}")
 
-    # 4. Experience (10 pts max, 1 pt per 2 years capped at 20 yrs)
+    # 4. Experience (15 pts max)
     exp = lawyer.get("experience_years") or lawyer.get("experience") or 0
     try:
         exp = int(exp)
     except (ValueError, TypeError):
         exp = 0
-    score += min(exp, 20) // 2
-    if exp >= 15:
+
+    score += min(exp, 15) // 2
+
+    # Boost for explicitly requested experience
+    min_exp = intent.get("min_experience")
+    if min_exp:
+        if exp >= min_exp:
+            score += 15
+            reasons.append(f"{min_exp}+ yrs Experience")
+        else:
+            # Penalty for missing criteria
+            score -= 10
+    elif exp >= 15:
         reasons.append("Senior Advocate")
 
     # 5. Budget fit (5 pts)
@@ -342,15 +354,7 @@ def score_lawyer(lawyer: dict, intent: dict, session_id: str) -> tuple[int, list
 
 def passes_hard_filters(lawyer: dict, intent: dict) -> bool:
     """Hard filter — must pass ALL specified constraints."""
-    # Minimum experience
-    min_exp = intent.get("min_experience")
-    if min_exp is not None:
-        exp = lawyer.get("experience_years") or lawyer.get("experience") or 0
-        try:
-            if int(exp) < min_exp:
-                return False
-        except (ValueError, TypeError):
-            return False
+    # Experience is now handled entirely securely in the scoring algorithm to prevent 0-match outcomes.
 
     # Budget hard cap
     budget = intent.get("budget")

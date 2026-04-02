@@ -112,11 +112,7 @@ const pageKeyframes = `
   100% { transform: rotate(360deg); }
 }
 
-@keyframes triangleSplashZoom {
-  0% { -webkit-mask-size: 60px, 100%; mask-size: 60px, 100%; }
-  25% { -webkit-mask-size: 50px, 100%; mask-size: 50px, 100%; }
-  100% { -webkit-mask-size: 10000px, 100%; mask-size: 10000px, 100%; }
-}
+
 
 
 /* ── 3D Animated Sphere ── */
@@ -390,8 +386,11 @@ const ScalesOfJusticeIntro = React.memo(() => {
         return () => clearTimeout(t);
     }, []);
 
+    // On mobile (≤768px) use 100vh so it doesn't waste 2 full screens
+    const sectionHeight = typeof window !== 'undefined' && window.innerWidth <= 768 ? '100vh' : '160vh';
+
     return (
-        <section ref={ref} className="relative bg-[#f8faff] dark:bg-black transition-colors duration-500" style={{ height: '160vh' }}>
+        <section ref={ref} className="relative bg-[#f8faff] dark:bg-black transition-colors duration-500" style={{ height: sectionHeight }}>
             <div
                 className="sticky top-0 flex items-center justify-center"
                 style={{ height: '100vh', zIndex: 20, pointerEvents: 'none', overflow: 'visible' }}
@@ -633,22 +632,7 @@ const ScalesOfJusticeIntro = React.memo(() => {
                 </motion.div>
             </div >
 
-            {/* X.com-style Triangle Splash Screen Transition */}
-            <div style={{
-                position: 'fixed', inset: 0, zIndex: 99999,
-                background: '#2563eb',
-                WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Cpolygon points=\'50,20 80,80 20,80\' fill=\'%23000\' /%3E%3C/svg%3E"), linear-gradient(#fff, #fff)',
-                WebkitMaskPosition: 'center, center',
-                WebkitMaskRepeat: 'no-repeat, no-repeat',
-                WebkitMaskComposite: 'destination-out',
-                maskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Cpolygon points=\'50,20 80,80 20,80\' fill=\'%23000\' /%3E%3C/svg%3E"), linear-gradient(#fff, #fff)',
-                maskPosition: 'center, center',
-                maskRepeat: 'no-repeat, no-repeat',
-                maskComposite: 'exclude',
-                transform: 'translateZ(0)',
-                animation: 'triangleSplashZoom 0.9s cubic-bezier(0.8, 0, 0.2, 1) forwards',
-                pointerEvents: 'none'
-            }} />
+
         </section >
     );
 });
@@ -1362,7 +1346,7 @@ const HeroSection = () => {
     ];
 
     return (
-        <section className="relative py-28 px-6 lg:px-8 bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500 overflow-hidden">
+        <section className="relative py-16 sm:py-28 px-6 lg:px-8 bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500 overflow-hidden">
             {/* Animated ambient blobs */}
             {blobs.map((b, i) => (
                 <div key={i} style={{
@@ -2025,12 +2009,23 @@ const FloatingEmergencyButton = () => {
    ───────────────────────────────────────────── */
 
 const LandingPageWave = () => {
+    const [justTransitioned, setJustTransitioned] = useState(false);
+
     useEffect(() => {
+        if (sessionStorage.getItem('fromLanding') === 'true') {
+            setJustTransitioned(true);
+            sessionStorage.removeItem('fromLanding');
+        }
         window.scrollTo(0, 0);
     }, []);
 
     return (
-        <div className="min-h-screen relative bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500">
+        <motion.div
+            initial={justTransitioned ? { opacity: 0, scale: 0.98, y: 20 } : false}
+            animate={justTransitioned ? { opacity: 1, scale: 1, y: 0 } : false}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            className="min-h-screen relative bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500"
+        >
             <StyleInjector />
             <SmoothScrolling />
             <GradientOrbs />
@@ -2049,7 +2044,7 @@ const LandingPageWave = () => {
                 <CTASection />
                 <Footer />
             </div>
-        </div>
+        </motion.div>
     );
 };
 

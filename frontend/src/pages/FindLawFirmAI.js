@@ -48,7 +48,7 @@ const ChatMessage = ({ message, isBot }) => (
         ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm'
         : 'bg-slate-700 text-white rounded-tr-sm'
     }`}>
-      <p className="whitespace-pre-wrap leading-relaxed text-sm">{message.content?.replace(/\*\*(.*?)\*\*/g, (_, t) => t)}</p>
+      <p className="whitespace-pre-wrap leading-relaxed text-sm break-words">{message.content?.replace(/\*\*(.*?)\*\*/g, (_, t) => t)}</p>
     </div>
   </div>
 );
@@ -359,9 +359,16 @@ export default function FindLawFirmAI() {
 
       const locationText = location || (matchData?.query_summary?.location?.city) || 'India';
       const areaText = practiceArea || 'your requirement';
-      let responseContent = `Smart match complete:\n\n📋 ${areaText}\n📍 ${locationText}`;
-      if (urgent) responseContent += `\n⚡ Urgent — prioritised by size`;
-      responseContent += `\n\n✅ Found ${enriched.length} law firm${enriched.length > 1 ? 's' : ''}! Want better results? I can refine by firm size, consultation mode, or budget.`;
+      
+      let responseContent = `I’ve gathered some excellent matches for you! Here are the top ${enriched.length} highly rated law firms specializing in ${areaText.toLowerCase()} in ${locationText} that fit your needs. ⚖️\n\n`;
+      const requirements = [];
+      if (memory.budget) requirements.push(`💰 Under ₹${memory.budget.max}`);
+      if (memory.language) requirements.push(`🗣️ ${memory.language}`);
+      if (memory.mode) requirements.push(`📺 ${memory.mode === 'in_person' ? 'In-Person' : 'Video'}`);
+      if (urgent) requirements.push(`⚡ Urgent Help`);
+      if (requirements.length) responseContent += `*Applied filters: ${requirements.join(' · ')}*\n\n`;
+
+      responseContent += `👉 You can view their verified firm profiles in the panel. Let me know if you want to refine this list further!`;
 
       // Build follow-up queue
       const missingFollowUps = FIRM_FOLLOWUP.filter(fq => {
@@ -478,10 +485,10 @@ export default function FindLawFirmAI() {
           <div className="px-4 pb-6 pt-3 bg-gradient-to-t from-black via-black/90 to-transparent">
             {/* Typing-suggestion chips — real-time from KB */}
             {typingChips.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-nowrap overflow-x-auto pb-2 gap-2 mb-1 scrollbar-hide w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {typingChips.map((chip, i) => (
                   <button key={i} onClick={() => handleSendMessage(chip)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-indigo-800/50 bg-indigo-950/40 text-indigo-400 hover:border-indigo-500 hover:text-indigo-300 text-xs font-medium transition-all hover:scale-[1.02]">
+                    className="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-indigo-800/50 bg-indigo-950/40 text-indigo-400 hover:border-indigo-500 hover:text-indigo-300 text-[11px] sm:text-xs font-medium transition-all hover:scale-[1.02]">
                     <Sparkles className="w-3 h-3" /> {chip}
                   </button>
                 ))}
@@ -489,10 +496,10 @@ export default function FindLawFirmAI() {
             )}
             {/* Quick chips */}
             {quickChips.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex flex-nowrap overflow-x-auto pb-3 gap-2 mb-1 scrollbar-hide w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {quickChips.map((chip, i) => (
                   <button key={i} onClick={() => handleSendMessage(chip)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-500 hover:text-slate-300 text-xs font-medium transition-all hover:scale-[1.02]">
+                    className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-500 hover:text-slate-300 text-[11px] sm:text-xs font-medium transition-all hover:scale-[1.02]">
                     <ArrowRight className="w-3 h-3" /> {chip}
                   </button>
                 ))}

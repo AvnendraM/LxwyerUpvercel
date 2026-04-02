@@ -100,6 +100,7 @@ export default function RevolutionisingSoon() {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [trianglePhase, setTrianglePhase] = useState('idle'); // 'idle' | 'zoom' | 'done'
   const signupRef = useRef(null);
   const bannerRef = useRef(null);
 
@@ -150,10 +151,15 @@ export default function RevolutionisingSoon() {
   }, []);
 
   const goDemo = () => { 
-    setTransitioning(true); 
-    isTransitioningRef.current = true;
-    targetRadius.current = 4000; // expand beautifully to full screen
-    setTimeout(() => navigate('/home'), 750); 
+    if (transitioning) return;
+    setTransitioning(true);
+    // Start the triangle zoom animation after a short delay (let overlay appear first)
+    setTimeout(() => setTrianglePhase('zoom'), 50);
+    // Navigate to /home after the triangle animation completes (~2.2s)
+    setTimeout(() => {
+        sessionStorage.setItem('fromLanding', 'true');
+        navigate('/home');
+    }, 2200);
   };
 
   const sx = spot.x.toFixed(1), sy = spot.y.toFixed(1), sr = spot.r.toFixed(1);
@@ -179,6 +185,8 @@ export default function RevolutionisingSoon() {
           100%{ box-shadow: 0 0 0 0 rgba(37,99,235,0); }
         }
         @keyframes reveal  { from{opacity:0;transform:scale(0.97);} to{opacity:1;transform:scale(1);} }
+        @keyframes mirrorShimmer { 0%{opacity:0.08;} 50%{opacity:0.18;} 100%{opacity:0.08;} }
+        @keyframes reflectionReveal { from{opacity:0;transform:scaleY(0.7);} to{opacity:1;transform:scaleY(1);} }
 
         .rs-reveal { opacity:0; transform:translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .rs-reveal.rs-in { opacity:1; transform:translateY(0); }
@@ -210,7 +218,47 @@ export default function RevolutionisingSoon() {
           .rs-card-right { flex:none; border-left:none; min-height:240px; }
           .form-grid-2 { grid-template-columns:1fr; }
         }
+
+        /* ── Triangle transition overlay ── */
+        @keyframes triangleZoomOut {
+          0%   { transform: scale(0.08); opacity: 0; stroke-width: 6px; }
+          15%  { opacity: 1; }
+          30%  { transform: scale(1.2); opacity: 1; stroke-width: 4px; }
+          100% { transform: scale(120); opacity: 0; stroke-width: 0.2px; }
+        }
+        @keyframes overlayFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        .tri-overlay {
+          position: fixed; inset: 0; z-index: 99999;
+          background: #000;
+          display: flex; align-items: center; justify-content: center;
+          animation: overlayFadeIn 0.3s ease forwards;
+          pointer-events: all;
+        }
+        .tri-svg {
+          width: 120px; height: 120px;
+          transform-origin: center center;
+          animation: triangleZoomOut 2.2s cubic-bezier(0.25, 1, 0.4, 1) forwards;
+        }
       `}</style>
+
+      {/* ── Triangle transition overlay (black screen + blue triangle) ── */}
+      {transitioning && (
+        <div className="tri-overlay">
+          <svg className="tri-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon
+              points="50,10 90,85 10,85"
+              fill="none"
+              stroke="#2563eb"
+              strokeWidth="4"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════
           SECTION 1 — HERO
@@ -220,63 +268,82 @@ export default function RevolutionisingSoon() {
         onMouseMove={onMouseMove}
       >
 
-        {/* BG watermark — fully invisible, only revealed by spotlight */}
 
-        {/* Spotlight — expands to full screen blue on transition */}
-        <div style={{
-          position: transitioning ? 'fixed' : 'absolute', 
-          inset: 0, 
-          zIndex: transitioning ? 9999 : 2,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          pointerEvents: transitioning ? 'all' : 'none', 
-          userSelect: 'none', overflow: 'hidden',
-          maskImage: mask,
-          WebkitMaskImage: mask,
-          backgroundColor: transitioning ? '#2563eb' : 'transparent',
-          transition: 'background-color 0.4s ease',
-        }}>
+        {/* BG spotlight reveal — only shown when NOT transitioning */}
+        {!transitioning && (
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 'clamp(180px, 20vh, 25vh)',
-            opacity: transitioning ? 0 : 1,
-            transition: 'opacity 0.2s ease',
+            position: 'absolute',
+            inset: 0,
+            zIndex: 2,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            overflow: 'hidden',
+            maskImage: mask,
+            WebkitMaskImage: mask,
           }}>
-            <span style={{
-              fontSize: 'clamp(9vw, 14vw, 16vw)',
-              fontWeight: 900,
-              letterSpacing: '-0.02em',
-              whiteSpace: 'nowrap',
-              fontFamily: "'Outfit','Inter',sans-serif",
-              lineHeight: 0.85,
-              textTransform: 'uppercase',
-              background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundSize: '200% auto',
-              animation: 'shimmer 5s linear infinite',
-            }}>LxwyerUp</span>
-            <span style={{
-              fontSize: 'clamp(9vw, 14vw, 16vw)',
-              fontWeight: 900,
-              letterSpacing: '-0.02em',
-              whiteSpace: 'nowrap',
-              fontFamily: "'Outfit','Inter',sans-serif",
-              lineHeight: 0.85,
-              textTransform: 'uppercase',
-              background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundSize: '200% auto',
-              animation: 'shimmer 5s linear infinite',
-            }}>LxwyerUp</span>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              position: 'absolute',
+              inset: 0,
+              justifyContent: 'center',
+              gap: 'clamp(180px, 20vh, 25vh)',
+            }}>
+              <span style={{
+                fontSize: 'clamp(9vw, 14vw, 16vw)',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                whiteSpace: 'nowrap',
+                fontFamily: "'Outfit','Inter',sans-serif",
+                lineHeight: 0.85,
+                textTransform: 'uppercase',
+                background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundSize: '200% auto',
+                animation: 'shimmer 5s linear infinite',
+              }}>LxwyerUp</span>
+              <span style={{
+                fontSize: 'clamp(9vw, 14vw, 16vw)',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                whiteSpace: 'nowrap',
+                fontFamily: "'Outfit','Inter',sans-serif",
+                lineHeight: 0.85,
+                textTransform: 'uppercase',
+                background: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 50%,#3b82f6 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundSize: '200% auto',
+                animation: 'shimmer 5s linear infinite',
+              }}>LxwyerUp</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Center foreground — minimal text stack */}
+        {/* Top brand bar — always visible, anchors the page */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 11,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '1.25rem 1.5rem',
+        }}>
+          <span style={{
+            fontSize: '1rem', fontWeight: 800, letterSpacing: '-0.02em',
+            fontFamily: "'Outfit','Inter',sans-serif",
+            color: '#fff', opacity: 0.85,
+          }}>Lxwyer Up</span>
+          <span style={{
+            fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'rgba(148,163,184,0.45)',
+          }}>Legal Tech Platform</span>
+        </div>
+
+        {/* Center content — perfectly centered vertically */}
         <div style={{
           position:'absolute', inset:0, zIndex:10,
           display:'flex', flexDirection:'column',
@@ -285,44 +352,95 @@ export default function RevolutionisingSoon() {
           padding:'0 1.5rem',
           gap:0,
         }}>
-          {/* COMING SOON — cinematic reveal */}
-          <h1 style={{
-            fontSize:'clamp(1.88rem, 5vw, 5.38rem)',
-            fontWeight:900,
-            letterSpacing: mounted ? '-0.02em' : '0.12em',
-            filter: mounted ? 'blur(0px)' : 'blur(12px)',
-            transform: mounted ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.96)',
-            opacity: mounted ? 1 : 0,
-            transition: 'all 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s',
-            lineHeight:1,
+
+          {/* Brand name above */}
+          <div style={{
+            fontSize:'clamp(0.7rem,1.8vw,0.95rem)',
+            fontWeight:700,
+            letterSpacing:'0.24em',
             textTransform:'uppercase',
-            color:'#ffffff',
-          }}>Coming Soon</h1>
+            color:'rgba(148,163,184,0.4)',
+            marginBottom:'clamp(1.2rem,4vh,2rem)',
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(-8px)',
+            transition: 'all 1.0s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s',
+          }}>Lxwyer Up</div>
+
+          {/* COMING SOON + Mirror reflection block */}
+          <div style={{ position:'relative', display:'flex', flexDirection:'column', alignItems:'center' }}>
+
+            {/* Primary COMING SOON text */}
+            <h1 style={{
+              fontSize:'clamp(2.4rem, 6vw, 6rem)',
+              fontWeight:900,
+              letterSpacing: mounted ? '-0.02em' : '0.12em',
+              filter: mounted ? 'blur(0px)' : 'blur(12px)',
+              transform: mounted ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.96)',
+              opacity: mounted ? 1 : 0,
+              transition: 'all 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s',
+              lineHeight:1,
+              textTransform:'uppercase',
+              color:'#ffffff',
+              margin:0,
+              padding:0,
+            }}>Coming Soon</h1>
+
+            {/* Thin divider line — mirror horizon */}
+            <div style={{
+              width:'100%',
+              height:'1px',
+              background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),rgba(37,99,235,0.35),rgba(255,255,255,0.12),transparent)',
+              marginTop:'clamp(4px,1vw,8px)',
+              opacity: mounted ? 1 : 0,
+              transition: 'opacity 1.2s ease 0.8s',
+            }} />
+
+            {/* Mirror reflection — flipped, fades out downward */}
+            <div style={{
+              fontSize:'clamp(2.4rem, 6vw, 6rem)',
+              fontWeight:900,
+              letterSpacing:'-0.02em',
+              lineHeight:1,
+              textTransform:'uppercase',
+              color:'#ffffff',
+              transform:'scaleY(-1)',
+              opacity: mounted ? 1 : 0,
+              transition: 'opacity 1.8s cubic-bezier(0.2,0.8,0.2,1) 0.5s',
+              maskImage:'linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, transparent 65%)',
+              WebkitMaskImage:'linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, transparent 65%)',
+              pointerEvents:'none',
+              userSelect:'none',
+              animation: mounted ? 'mirrorShimmer 4s ease-in-out infinite' : 'none',
+              animationDelay:'1.8s',
+              marginTop:'clamp(2px,0.5vw,4px)',
+            }}>Coming Soon</div>
+          </div>
 
           {/* Tagline */}
           <p style={{
-            marginTop:'clamp(1rem,2.5vw,1.5rem)',
-            fontSize:'clamp(0.8rem,1.6vw,0.95rem)',
-            color:'rgba(148,163,184,0.45)',
-            letterSpacing:'0.02em',
+            marginTop:'clamp(1.2rem,3vw,2rem)',
+            fontSize:'clamp(0.75rem,1.8vw,0.9rem)',
+            color:'rgba(148,163,184,0.5)',
+            letterSpacing:'0.04em',
             lineHeight:1.75,
             opacity: mounted ? 1 : 0,
             transform: mounted ? 'translateY(0)' : 'translateY(8px)',
-            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.7s',
-          }}>India's legal revolution — AI, Apex lawyers, SOS help, transparent fees etc.</p>
+            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.9s',
+            maxWidth: '26rem',
+          }}>India's legal revolution — AI, Dashboard, Apex lawyers, SOS help, transparent fees and more.</p>
 
           {/* Explore Demo */}
           <div style={{
-            marginTop:'clamp(1.8rem,4vw,2.8rem)',
+            marginTop:'clamp(1.6rem,3.5vw,2.4rem)',
             opacity: mounted ? 1 : 0,
             transform: mounted ? 'translateY(0)' : 'translateY(8px)',
-            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.0s',
+            transition: 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.2s',
           }}>
             <button
               onClick={goDemo}
               style={{
                 display:'inline-flex', alignItems:'center', gap:8,
-                padding:'10px 26px',
+                padding:'12px 28px',
                 borderRadius:10,
                 border:'1.5px solid rgba(37,99,235,0.55)',
                 background:'rgba(0,0,0,0.35)',
@@ -335,7 +453,7 @@ export default function RevolutionisingSoon() {
                 cursor:'pointer',
                 boxShadow:'0 4px 20px rgba(0,0,0,0.4)',
                 transition:'background 0.2s ease, box-shadow 0.2s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
-                animation:'pulse 2.5s ease-out 2s infinite',
+                animation:'pulse 2.5s ease-out 2.5s infinite',
               }}
               onMouseEnter={e => { e.currentTarget.style.background='rgba(37,99,235,0.18)'; e.currentTarget.style.boxShadow='0 0 22px rgba(37,99,235,0.35)'; e.currentTarget.style.transform='translateY(-2px) scale(1.05)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='rgba(0,0,0,0.35)'; e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.4)'; e.currentTarget.style.transform='none'; }}
@@ -355,10 +473,11 @@ export default function RevolutionisingSoon() {
       ══════════════════════════════════════ */}
       <section style={{
         position:'relative', background:'rgba(3,8,24,0.92)', zIndex:1,
-        minHeight:'100dvh', display:'flex', flexDirection:'column',
+        minHeight:'auto', display:'flex', flexDirection:'column',
         alignItems:'center', justifyContent:'center',
-        padding:'clamp(3rem,6vw,5rem) clamp(1rem,4vw,3rem)',
+        padding:'clamp(2.5rem,6vw,5rem) clamp(1rem,4vw,3rem)',
       }}>
+
         {/* Ambient blobs */}
         <div style={{ position:'absolute', top:'15%', left:'8%', width:380, height:380, borderRadius:'50%', background:'radial-gradient(circle,rgba(29,78,216,0.15) 0%,transparent 70%)', animation:'floatOrb 8s ease-in-out infinite', pointerEvents:'none' }} />
         <div style={{ position:'absolute', bottom:'12%', right:'6%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%)', animation:'floatOrb 10s ease-in-out 2s infinite', pointerEvents:'none' }} />

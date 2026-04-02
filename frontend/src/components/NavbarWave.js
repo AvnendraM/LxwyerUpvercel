@@ -351,14 +351,14 @@ export const NavbarWave = () => {
                                 <span className="lxwyer-text text-white font-black tracking-[0.05em]">Lxwyer<span className="text-blue-400">AI</span></span>
                               </button>
                             </div>
-                            <div className="flex gap-2 pt-1">
+                            <div className="flex flex-col gap-2 pt-1">
                                 <button onClick={() => { setMenuOpen(false); navigate('/lawyer-application'); }}
-                                    className="flex-1 rounded-full px-3 py-2 text-xs font-semibold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-center gap-1.5">
-                                    <Scale className="w-3.5 h-3.5" /> As Lawyer
+                                    className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-start gap-3">
+                                    <Scale className="w-4 h-4 text-blue-500" /> Register as Lawyer
                                 </button>
-                                <button onClick={() => { setMenuOpen(false); navigate('/register'); }}
-                                    className="flex-1 rounded-full px-3 py-2 text-xs font-semibold bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/20 flex items-center justify-center gap-1.5">
-                                    <Building2 className="w-3.5 h-3.5" /> Register
+                                <button onClick={() => { setMenuOpen(false); navigate('/lawfirm-application'); }}
+                                    className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-start gap-3">
+                                    <Building2 className="w-4 h-4 text-blue-500" /> Register as Law Firm
                                 </button>
                             </div>
                             <button onClick={() => { setMenuOpen(false); navigate('/login'); }}
