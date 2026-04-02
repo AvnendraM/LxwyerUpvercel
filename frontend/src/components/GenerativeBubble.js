@@ -43,22 +43,47 @@ float cnoise(vec3 P){
 
 const vertexShader = `
 ${noiseGLSL}
+attribute vec3 target1;
+attribute vec3 target2;
 uniform float uTime;
+uniform float uMorph;
 uniform float uNoiseDensity;
 uniform float uNoiseStrength;
 varying float vNoise;
 
+float easeInOutCubic(float x) {
+  return x < 0.5 ? 4.0 * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 3.0) / 2.0;
+}
+
 void main(){
-  float noise = cnoise(position * uNoiseDensity + uTime * 0.08);
+  // Smoothly interpolate between shapes using sigmoid/ease
+  vec3 basePos = position;
+  float m = mod(uMorph, 3.0);
+  
+  // Create defined stops mapping m to specific shapes
+  // 0 -> Bubble (position)
+  // 1 -> Triangle (target1)
+  // 2 -> Scale (target2)
+  if (m < 1.0) {
+      basePos = mix(position, target1, easeInOutCubic(m));
+  } else if (m < 2.0) {
+      basePos = mix(target1, target2, easeInOutCubic(m - 1.0));
+  } else {
+      basePos = mix(target2, position, easeInOutCubic(m - 2.0));
+  }
+
+  // Vary noise based on morph so shape is clear when settled
+  float dynamicStr = uNoiseStrength * (0.5 + 0.5 * sin(uMorph * 3.14159));
+  
+  float noise = cnoise(basePos * uNoiseDensity + uTime * 0.1);
   vNoise = noise * 0.5 + 0.5;
-  vec3 displaced = position + normal * noise * uNoiseStrength;
+  vec3 displaced = basePos + normal * noise * dynamicStr;
   vec4 mvPos = modelViewMatrix * vec4(displaced, 1.0);
   gl_Position = projectionMatrix * mvPos;
-  gl_PointSize = 2.2;
+  gl_PointSize = max(2.2, 2.8 * (1.0 / length(mvPos.xyz)));
 }
 `;
 
-// Fragment shader now accepts a uColor uniform
 const fragmentShader = `
 uniform vec3 uColor;
 varying float vNoise;
@@ -66,7 +91,8 @@ void main(){
   vec2 uv = gl_PointCoord - 0.5;
   float d = length(uv) * 2.0;
   if(d > 1.0) discard;
-  float alpha = smoothstep(1.0, 0.0, d) * mix(0.25, 0.58, vNoise);
+  // glow effect based on noise
+  float alpha = smoothstep(1.0, 0.0, d) * mix(0.15, 0.9, vNoise);
   gl_FragColor = vec4(uColor, alpha);
 }
 `;
@@ -78,7 +104,6 @@ export default function GenerativeBubble({ active, typing, color }) {
     const el = mountRef.current;
     if (!el) return;
 
-    // Parse hex color string like '#3b82f6' or default to white
     let r = 1.0, g = 1.0, b = 1.0;
     if (color) {
       const hex = color.replace('#', '');
@@ -87,26 +112,106 @@ export default function GenerativeBubble({ active, typing, color }) {
       b = parseInt(hex.substring(4, 6), 16) / 255;
     }
 
-    // ── Renderer — cap DPR at 1 for performance ──────────────────────
-    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.0));
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(el.clientWidth, el.clientHeight);
     renderer.setClearColor(0x000000, 0);
     el.appendChild(renderer.domElement);
 
-    // ── Scene / Camera ───────────────────────────────────────────────
     const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, el.clientWidth / el.clientHeight, 0.1, 100);
-    camera.position.z = 6;
+    const isMobile = el.clientWidth < 600;
+    const camera = new THREE.PerspectiveCamera(isMobile ? 55 : 42, el.clientWidth / el.clientHeight, 0.1, 100);
+    camera.position.z = isMobile ? 8 : 7;
 
-    // ── Geometry — detail=14 → ~1200 vertices, smooth but lighter ──
-    const geo = new THREE.IcosahedronGeometry(1.68, 14);
+    // ── Generate Morphing Geometries ─────────────────────────────────
+    // Scale factor: keep everything within ±1.4 so the full shape is always visible
+    const SC = 1.0; // overall geometry scale
+    const count = 8000;
+    const geo = new THREE.BufferGeometry();
+    const posBubble = new Float32Array(count * 3);
+    const posTriangle = new Float32Array(count * 3);
+    const posScale = new Float32Array(count * 3);
+    const normals = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      // 1) Bubble: Points on a sphere
+      const u = Math.random();
+      const v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const radius = 1.5 * SC;
+      const bx = radius * Math.sin(phi) * Math.cos(theta);
+      const by = radius * Math.sin(phi) * Math.sin(theta);
+      const bz = radius * Math.cos(phi);
+      posBubble[i*3] = bx; posBubble[i*3+1] = by; posBubble[i*3+2] = bz;
+      normals[i*3] = bx; normals[i*3+1] = by; normals[i*3+2] = bz;
+
+      // 2) Triangle (equilateral, centered)
+      let r1 = Math.random(), r2 = Math.random();
+      if (r1 + r2 > 1) { r1 = 1-r1; r2 = 1-r2; }
+      const tw = 1.4 * SC;
+      posTriangle[i*3]   = r1 * (-tw) + r2 * (tw);
+      posTriangle[i*3+1] = r1 * (-tw*0.85) + r2 * (-tw*0.85) + (1-r1-r2) * (tw*1.15);
+      posTriangle[i*3+2] = (Math.random() - 0.5) * 0.3;
+
+      // 3) Scale of Justice — scaled to fit visible area
+      // Height: pillar from -1.3 to +1.1 (total 2.4), beam at +1.1, bowls at -0.4
+      const s = Math.random();
+      let sx = 0, sy = 0;
+      const bw = 1.2 * SC; // beam half-width
+      const bh = 1.1 * SC; // beam y
+      const pb = -1.3 * SC; // pillar bottom
+      const bowlY = -0.4 * SC;
+      const bowlR = 0.5 * SC;
+      const strH = 0.7 * SC; // string height drop
+
+      if (s < 0.22) { // Center Pillar
+        sx = (Math.random() - 0.5) * 0.08;
+        sy = pb + Math.random() * (bh - pb);
+      } else if (s < 0.42) { // Top Beam
+        sx = -bw + Math.random() * 2 * bw;
+        sy = bh + (Math.random() - 0.5) * 0.08;
+      } else if (s < 0.50) { // Left string – front
+        const t = Math.random();
+        sx = -bw + t * bowlR * 0.5;
+        sy = bh - t * strH;
+      } else if (s < 0.58) { // Left string – back
+        const t = Math.random();
+        sx = -bw - t * bowlR * 0.5;
+        sy = bh - t * strH;
+      } else if (s < 0.66) { // Right string – front
+        const t = Math.random();
+        sx = bw - t * bowlR * 0.5;
+        sy = bh - t * strH;
+      } else if (s < 0.74) { // Right string – back
+        const t = Math.random();
+        sx = bw + t * bowlR * 0.5;
+        sy = bh - t * strH;
+      } else if (s < 0.87) { // Left Bowl (semi-circle)
+        const t = Math.random() * Math.PI;
+        sx = -bw + bowlR * Math.cos(t);
+        sy = bowlY - bowlR * 0.45 * Math.sin(t);
+      } else { // Right Bowl
+        const t = Math.random() * Math.PI;
+        sx = bw + bowlR * Math.cos(t);
+        sy = bowlY - bowlR * 0.45 * Math.sin(t);
+      }
+      posScale[i*3]   = sx;
+      posScale[i*3+1] = sy;
+      posScale[i*3+2] = (Math.random() - 0.5) * 0.2;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(posBubble, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+    geo.setAttribute('target1', new THREE.BufferAttribute(posTriangle, 3));
+    geo.setAttribute('target2', new THREE.BufferAttribute(posScale, 3));
 
     // ── Uniforms ─────────────────────────────────────────────────────
     const uniforms = {
       uTime:          { value: 0 },
+      uMorph:         { value: 0 },
       uNoiseDensity:  { value: 1.2 },
-      uNoiseStrength: { value: 0.50 },
+      uNoiseStrength: { value: 0.3 },
       uColor:         { value: new THREE.Vector3(r, g, b) },
     };
 
@@ -124,11 +229,10 @@ export default function GenerativeBubble({ active, typing, color }) {
     group.add(points);
     scene.add(group);
 
-    // ── Animation — throttled to ~45fps for smooth feel without overload ──
     const clock = new THREE.Clock();
     let raf;
     let lastTime = 0;
-    const TARGET_INTERVAL = 1000 / 45; // ~45fps
+    const TARGET_INTERVAL = 1000 / 45;
 
     const tick = (now) => {
       raf = requestAnimationFrame(tick);
@@ -137,14 +241,19 @@ export default function GenerativeBubble({ active, typing, color }) {
 
       const t = clock.getElapsedTime();
       uniforms.uTime.value = t;
-      group.rotation.y = t * 0.030;
-      group.rotation.x = Math.sin(t * 0.018) * 0.13;
+      // Morph slowly cycles: Bubble (0) -> Triangle (1) -> Scale (2) -> Bubble (3=0)
+      uniforms.uMorph.value = (t * 0.18) % 3.0; 
+      
+      group.rotation.y = t * 0.15;
+      group.rotation.x = Math.sin(t * 0.1) * 0.15;
       renderer.render(scene, camera);
     };
     raf = requestAnimationFrame(tick);
 
-    // ── Resize ───────────────────────────────────────────────────────
     const onResize = () => {
+      const mobile = el.clientWidth < 600;
+      camera.fov = mobile ? 55 : 42;
+      camera.position.z = mobile ? 8 : 7;
       camera.aspect = el.clientWidth / el.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(el.clientWidth, el.clientHeight);
@@ -167,7 +276,7 @@ export default function GenerativeBubble({ active, typing, color }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       pointerEvents: 'none',
       zIndex: 0,
-      opacity: typing ? 0.87 : active ? 0.14 : 0.72,
+      opacity: typing ? 0.87 : active ? 0.45 : 0.72,
       transition: 'opacity 1.8s ease-in-out',
     }}>
       <div ref={mountRef} style={{ width: '100%', height: '100%' }} />

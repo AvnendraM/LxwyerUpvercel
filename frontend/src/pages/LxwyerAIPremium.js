@@ -12,6 +12,9 @@ import {
 import { dummyLawyers } from '../data/lawyersData'
 import { dummyLawFirms } from '../data/lawFirmsData'
 import { API } from '../App'
+import FirmCard from '../components/FirmCard'
+import LawyerCard from '../components/LawyerCard'
+import { smartMatchLawyers, smartMatchFirms } from '../utils/aiMatchingEngine'
 
 import GenerativeBubble from '../components/GenerativeBubble'
 
@@ -189,36 +192,20 @@ export default function LxwyerAIPremium({ embedded = false, darkMode: darkModePr
       const spec = extractSpecialization(query)
       try {
         if (recIntent === 'lawyer') {
-          // Fetch lawyers from API, fall back to dummy
-          let lawyers = []
-          try {
-            const res = await axios.get(`${API}/lawyers`)
-            lawyers = res.data.map(l => ({
-              ...l,
-              name: l.full_name || l.name,
-              city: l.city,
-              state: l.state,
-              specialization: Array.isArray(l.specialization) ? l.specialization[0] : l.specialization,
-              fee: l.consultation_fee || 'Contact for fee',
-              rating: 4.8,
-              photo: l.photo
-                ? (l.photo.startsWith('http') ? l.photo : `http://localhost:8000${l.photo.startsWith('/') ? '' : '/'}${l.photo}`)
-                : null,
-              isReal: true,
-            }))
-          } catch { lawyers = [] }
-          // Merge with dummy, shuffle, filter
-          const all = [...lawyers, ...dummyLawyers]
-          let filtered = all
-          if (city) filtered = filtered.filter(l => (l.city || '').toLowerCase().includes(city))
-          if (spec) filtered = filtered.filter(l => (l.specialization || '').toLowerCase().includes(spec))
-          const results = filtered.slice(0, 5)
+          const matchData = await smartMatchLawyers(query);
+          let results = [];
+          if (matchData && matchData.results && matchData.results.length > 0) {
+            results = matchData.results;
+          } else {
+            const all = dummyLawyers;
+            results = city ? all.filter(l => (l.city || '').toLowerCase().includes(city)) : all;
+          }
           setMessages(prev => [...prev, {
             role: 'assistant',
             id: Date.now() + 1,
             is_recommendation: true,
             rec_type: 'lawyer',
-            rec_items: results,
+            rec_items: results.slice(0, 5),
             rec_query: query,
             city, spec,
             intentLabel: 'Lawyer Finder',
@@ -227,31 +214,20 @@ export default function LxwyerAIPremium({ embedded = false, darkMode: darkModePr
             sources: [],
           }])
         } else {
-          // Fetch firms from API, fall back to dummy
-          let firms = []
-          try {
-            const res = await axios.get(`${API}/lawfirms`)
-            firms = res.data.map(f => ({
-              ...f,
-              name: f.firm_name || f.name,
-              city: f.city,
-              state: f.state,
-              practiceAreas: f.practice_areas || f.practiceAreas || [],
-              lawyersCount: f.total_lawyers || f.lawyersCount || 0,
-              isReal: true,
-            }))
-          } catch { firms = [] }
-          const all = [...firms, ...dummyLawFirms]
-          let filtered = all
-          if (city) filtered = filtered.filter(f => (f.city || '').toLowerCase().includes(city))
-          if (spec) filtered = filtered.filter(f => (f.practiceAreas || []).some(a => a.toLowerCase().includes(spec)))
-          const results = filtered.slice(0, 5)
+          const matchData = await smartMatchFirms(query);
+          let results = [];
+          if (matchData && matchData.results && matchData.results.length > 0) {
+            results = matchData.results;
+          } else {
+            const all = dummyLawFirms;
+            results = city ? all.filter(f => (f.city || '').toLowerCase().includes(city)) : all;
+          }
           setMessages(prev => [...prev, {
             role: 'assistant',
             id: Date.now() + 1,
             is_recommendation: true,
             rec_type: 'firm',
-            rec_items: results,
+            rec_items: results.slice(0, 5),
             rec_query: query,
             city, spec,
             intentLabel: 'Firm Finder',
@@ -523,149 +499,24 @@ export default function LxwyerAIPremium({ embedded = false, darkMode: darkModePr
                     {/* ASSISTANT — recommendation cards */}
                     {msg.role === 'assistant' && msg.is_recommendation && (
                       <div className="w-full space-y-3 max-w-full">
-                        <div className={`px-4 py-3 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${dm ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'}`}
-                          <p className={`text-sm ${textMuted}`}>
+                        {/* Humanized intro */}
+                        <div className={`px-4 py-3.5 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
+                          <p className={`text-sm leading-relaxed ${dm ? 'text-slate-200' : 'text-slate-700'}`}>
                             {msg.rec_items.length > 0
-                              ? `Found ${msg.rec_items.length} ${msg.rec_type === 'lawyer' ? 'lawyer' : 'law firm'}${msg.rec_items.length > 1 ? 's' : ''}${msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : ''}.`
-                              : `No ${msg.rec_type === 'lawyer' ? 'lawyers' : 'law firms'} found matching your criteria. Try broadening your search.`}
+                              ? msg.rec_type === 'lawyer'
+                                ? `Great news! I found ${msg.rec_items.length} lawyer${msg.rec_items.length > 1 ? 's' : ''}` + (msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : '') + ` who match your needs. Here are the best options for you:`
+                                : `I found ${msg.rec_items.length} law firm${msg.rec_items.length > 1 ? 's' : ''}` + (msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : '') + ` that could be a great fit:`
+                              : msg.rec_type === 'lawyer'
+                                ? `I wasn't able to find lawyers matching that exact criteria. Try a different city or specialization and I'll search again!`
+                                : `No law firms matched that search right now. Try adjusting the location or practice area.`
+                            }
                           </p>
                         </div>
-                        {msg.rec_items.map((item, i) => {
-                          const GRADIENTS = [
-                            'from-blue-600 to-indigo-700',
-                            'from-violet-600 to-purple-700',
-                            'from-rose-500 to-pink-600',
-                            'from-emerald-500 to-teal-600',
-                            'from-orange-500 to-amber-600',
-                            'from-cyan-500 to-sky-600',
-                            'from-fuchsia-500 to-violet-600',
-                            'from-green-500 to-emerald-600',
-                          ]
-                          const grad = GRADIENTS[i % GRADIENTS.length]
-                          const photoSrc = item.photo && item.photo.length > 5
-                            ? item.photo
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'L')}&background=3b82f6&color=fff&size=128`
-
-                          return msg.rec_type === 'lawyer' ? (
-                            <div key={item.id || i} className={`rounded-3xl overflow-hidden border ${dm ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'} shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}>
-                              {/* Gradient header */}
-                              <div className={`relative h-20 bg-gradient-to-br ${grad}`}>
-                                <div className="absolute inset-0 opacity-[0.08]"
-                                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '12px 12px' }} />
-                                <span className="absolute top-3 right-4 text-white/20 font-black text-base tracking-widest uppercase select-none">LXWYER UP</span>
-                                {/* Photo — overlaps header/body */}
-                                <div className="absolute bottom-0 left-4 translate-y-1/2">
-                                  <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-slate-900 shadow-lg">
-                                    <img src={photoSrc} alt={item.name}
-                                      className="w-full h-full object-cover"
-                                      onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'L')}&background=3b82f6&color=fff&size=128` }} />
-                                  </div>
-                                  {item.verified && (
-                                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center shadow">
-                                      <span className="text-white text-[9px] font-bold">✓</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Card body */}
-                              <div className="pt-12 px-4 pb-4">
-                                <div className="mb-3">
-                                  <div className="flex items-center justify-between">
-                                    <h3 className={`font-bold text-lg leading-tight ${dm ? 'text-white' : 'text-slate-900'}`}>{item.name}</h3>
-                                    {item.verified && (
-                                      <span className="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-600 border border-green-500/20 rounded-full font-semibold">✓ Verified</span>
-                                    )}
-                                  </div>
-                                  {item.specialization && (
-                                    <p className={`text-sm font-semibold mt-0.5 ${dm ? 'text-blue-400' : 'text-blue-600'}`}>{item.specialization}</p>
-                                  )}
-                                </div>
-
-                                {/* Info tiles */}
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                  {item.experience && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Experience</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.experience} Years</p>
-                                    </div>
-                                  )}
-                                  {item.city && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Location</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{item.city}</p>
-                                    </div>
-                                  )}
-                                  {item.education && (
-                                    <div className={`rounded-xl px-3 py-2.5 border col-span-2 ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Education</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{item.education}</p>
-                                    </div>
-                                  )}
-                                  <div className={`rounded-xl px-3 py-2.5 border ${item.education ? 'col-span-2' : ''} ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                    <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Consultation Fee</p>
-                                    <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.fee ? `₹${item.fee}/hr` : 'Contact for fee'}</p>
-                                  </div>
-                                </div>
-
-                                <button
-                                  onClick={() => navigate(`/lawyer/${item.id || item.unique_id}`)}
-                                  className={`w-full py-2.5 rounded-2xl bg-gradient-to-r ${grad} hover:opacity-90 text-white text-sm font-bold transition-all shadow-sm`}
-                                >
-                                  View Profile →
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div key={item.id || i} className={`rounded-3xl overflow-hidden border ${dm ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'} shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}>
-                              <div className={`relative h-20 bg-gradient-to-br ${grad}`}>
-                                <div className="absolute inset-0 opacity-[0.08]"
-                                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '12px 12px' }} />
-                                <span className="absolute top-3 right-4 text-white/20 font-black text-base tracking-widest uppercase select-none">LXWYER UP</span>
-                                <div className="absolute bottom-0 left-4 translate-y-1/2">
-                                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${grad} ring-4 ring-white dark:ring-slate-900 shadow-lg flex items-center justify-center`}>
-                                    <Building2 size={28} className="text-white" />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="pt-12 px-4 pb-4">
-                                <div className="mb-3">
-                                  <h3 className={`font-bold text-lg leading-tight ${dm ? 'text-white' : 'text-slate-900'}`}>{item.name}</h3>
-                                  {item.city && <p className={`text-sm font-semibold mt-0.5 ${dm ? 'text-slate-400' : 'text-slate-500'}`}>{item.city}{item.state ? `, ${item.state}` : ''}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                  {item.lawyersCount > 0 && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Team Size</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.lawyersCount} Lawyers</p>
-                                    </div>
-                                  )}
-                                  <div className={`rounded-xl px-3 py-2.5 border ${!item.lawyersCount ? 'col-span-2' : ''} ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                    <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Practice</p>
-                                    <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{(item.practiceAreas || [])[0] || 'General Law'}</p>
-                                  </div>
-                                  {(item.practiceAreas || []).length > 1 && (
-                                    <div className={`rounded-xl px-3 py-2.5 border col-span-2 ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-1`}>Areas of Expertise</p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {(item.practiceAreas || []).slice(1, 4).map((a, j) => (
-                                          <span key={j} className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${dm ? 'bg-indigo-900/40 text-indigo-300' : 'bg-indigo-50 text-indigo-700'}`}>{a}</span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                                <button
-                                  onClick={() => navigate(`/firm/${item.id || item._id}`)}
-                                  className={`w-full py-2.5 rounded-2xl bg-gradient-to-r ${grad} hover:opacity-90 text-white text-sm font-bold transition-all shadow-sm`}
-                                >
-                                  View Firm →
-                                </button>
-                              </div>
-                            </div>
-                          )
-                        })}
+                        {msg.rec_items.map((item, i) => (
+                          msg.rec_type === 'lawyer'
+                            ? <LawyerCard key={item.id || item._id || i} lawyer={item} expanded={true} dm={dm} />
+                            : <FirmCard key={item.id || item._id || i} firm={item} expanded={true} dm={dm} />
+                        ))}
                         {msg.rec_items.length > 0 && (
                           <button
                             onClick={() => navigate(msg.rec_type === 'lawyer' ? '/find-lawyer/manual' : '/find-lawfirm/manual')}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sparkles, ChevronDown, Scale, Building2, ArrowRight, Zap, Languages } from 'lucide-react';
+import { Menu, X, Sparkles, ChevronDown, Scale, Building2, ArrowRight, Zap, Languages, Search } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 
 /* Cinematic animated — border pulse + shimmer + text flicker */
@@ -62,6 +62,11 @@ const neonStyle = `
 }
 .lxwyer-text { animation: textFlicker 6s ease-in-out infinite; }
 .lxwyer-w-full { display: flex; width: 100%; }
+@keyframes arrowPulseBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+.moving-arrow { animation: arrowPulseBounce 1.2s ease-in-out infinite; }
 `;
 
 
@@ -264,14 +269,34 @@ export const NavbarWave = () => {
                         >
                             <span className="hidden xl:inline">{t('nav_find_lawyer')}</span>
                             <span className="xl:hidden">{t('nav_match')}</span>
-                            <ArrowRight className="w-3 h-3 xl:w-3.5 xl:h-3.5" />
+                            <ArrowRight className="w-3 h-3 xl:w-3.5 xl:h-3.5 moving-arrow" />
                         </button>
 
 
                     </div>
 
                     {/* ── Mobile Toggle ─────────────────────────────────── */}
-                    <div className="md:hidden flex items-center gap-2">
+                    <div className="md:hidden flex items-center gap-1.5">
+                        {/* LxwyerAI mobile inline */}
+                        <div className="lxwyer-wrap scale-[0.8] origin-right">
+                          <div className="lxwyer-spin" />
+                          <button
+                            onClick={() => navigate('/lxwyerai')}
+                            className="lxwyer-inner px-2 py-1 flex items-center"
+                          >
+                            <Sparkles className="w-4 h-4 text-white/70" />
+                          </button>
+                        </div>
+
+                        {/* Find Lawyer mobile inline */}
+                        <button
+                            onClick={() => navigate('/user-get-started')}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 whitespace-nowrap"
+                        >
+                            {t('nav_find_lawyer')}
+                            <ArrowRight className="w-3 h-3 moving-arrow" />
+                        </button>
+
                         {/* Language toggle mobile */}
                         <button
                             onClick={toggleLang}

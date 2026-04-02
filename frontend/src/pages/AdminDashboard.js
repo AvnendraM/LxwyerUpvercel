@@ -1407,8 +1407,8 @@ export default function AdminDashboard() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-                <p className="text-xs text-slate-400">Lxwyer Up Platform</p>
+                <h1 className="text-base sm:text-xl font-bold text-white">Admin Dashboard</h1>
+                <p className="text-xs text-slate-400 hidden sm:block">Lxwyer Up Platform</p>
               </div>
             </div>
 
@@ -1438,12 +1438,12 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10">
         {/* Welcome Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 rounded-3xl p-8 mb-8"
+          className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-6 sm:mb-8"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
           <div className="relative z-10 flex items-center justify-between">
@@ -1452,8 +1452,8 @@ export default function AdminDashboard() {
                 <Sparkles className="w-5 h-5 text-amber-400" />
                 <span className="text-amber-400 text-sm font-medium">Welcome back, Admin</span>
               </div>
-              <h2 className="text-3xl font-bold text-white mb-2">Platform Overview</h2>
-              <p className="text-slate-400 max-w-lg">
+              <h2 className="text-xl sm:text-3xl font-bold text-white mb-2">Platform Overview</h2>
+              <p className="text-slate-400 max-w-lg text-sm sm:text-base">
                 Manage applications, approve new members, and keep the platform running smoothly.
               </p>
             </div>
@@ -1466,7 +1466,7 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <StatCard icon={Clock} label="Pending Review" value={totalPending} trend={5} color="amber" delay={0} />
           <StatCard icon={CheckCircle} label="Approved" value={totalApproved} trend={12} color="emerald" delay={0.1} />
           <StatCard icon={XCircle} label="Rejected" value={totalRejected} color="pink" delay={0.2} />
@@ -1474,7 +1474,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <QuickActionCard
             icon={Scale}
             description={`${lawfirmStats.pending} pending`}
@@ -1515,8 +1515,8 @@ export default function AdminDashboard() {
         {/* Main Content */}
         <div className="bg-slate-900/50 border border-slate-700/50 rounded-3xl overflow-hidden">
           {/* Section Navigation */}
-          <div className="p-6 border-b border-slate-700/50">
-            <div className="flex flex-wrap gap-3 mb-6">
+          <div className="p-3 sm:p-6 border-b border-slate-700/50">
+            <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6 overflow-x-auto pb-1">
               <NavTab
                 icon={Scale}
                 label="Lawyers"
@@ -1658,7 +1658,7 @@ export default function AdminDashboard() {
             ) : (
               <>
                 {/* Applications Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-stretch">
                   {filteredApps.length === 0 ? (
                     <div className="col-span-full text-center py-16">
                       <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">

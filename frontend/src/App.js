@@ -54,9 +54,9 @@ import LawFirmRegisterInfoPage from './pages/LawFirmRegisterInfoPage';
 import ScrollToTop from './components/ScrollToTop';
 import GlobalBackButton from './components/GlobalBackButton';
 
-const BACKEND_URL = process.env.NODE_ENV === 'production' 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || (process.env.NODE_ENV === 'production' 
   ? "https://lxwyerup.vercel.app" 
-  : "http://localhost:8000";
+  : "http://localhost:8000");
 export const API = `${BACKEND_URL}/api`;
 
 // Auth Context

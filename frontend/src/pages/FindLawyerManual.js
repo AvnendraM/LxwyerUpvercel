@@ -227,11 +227,11 @@ export default function FindLawyerManual() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 relative z-10">
 
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6 sm:mb-12">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight"
+            className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-6 tracking-tight"
           >
             {t('fl_title')} <span className="text-blue-600 dark:text-slate-200">{t('fl_title_2')}</span>
           </motion.h1>
@@ -240,7 +240,7 @@ export default function FindLawyerManual() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-6"
+            className="text-sm sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-4 sm:mb-6 px-2 sm:px-0"
           >
             {t('fl_sub')}
           </motion.p>
@@ -257,7 +257,7 @@ export default function FindLawyerManual() {
         </div>
 
         {/* Search & Filters */}
-        <FloatingCard className="p-6 mb-12 sticky top-24 z-30">
+        <FloatingCard className="p-4 sm:p-6 mb-6 sm:mb-12 sticky top-20 sm:top-24 z-30">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="relative flex-1 w-full relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -272,7 +272,7 @@ export default function FindLawyerManual() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`min-w-[120px] h-[50px] border-slate-200 dark:border-[#333] dark:bg-[#1A1A1A] ${showFilters || currentFilters.length > 0 ? 'bg-blue-50 dark:bg-[#222] border-blue-200 dark:border-[#444] text-blue-700 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+              className={`w-full sm:min-w-[120px] sm:w-auto h-[46px] sm:h-[50px] border-slate-200 dark:border-[#333] dark:bg-[#1A1A1A] ${showFilters || currentFilters.length > 0 ? 'bg-blue-50 dark:bg-[#222] border-blue-200 dark:border-[#444] text-blue-700 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
             >
               <Filter className="w-4 h-4 mr-2" />
               {t('fl_filters')}
@@ -295,7 +295,7 @@ export default function FindLawyerManual() {
                   </button>
                 </span>
               ))}
-              <button onClick={clearFilters} className="text-sm text-red-500 hover:text-red-700 font-medium ml-2">{t('fl_clear_all')}</button>
+              <button onClick={clearFilters} className="text-sm text-slate-500 hover:text-slate-700 font-medium ml-2">{t('fl_clear_all')}</button>
             </div>
           )}
 
@@ -307,7 +307,7 @@ export default function FindLawyerManual() {
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
                 className="overflow-hidden"
               >
-                <div className="grid md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('fl_state')}</label>
                     <select
@@ -398,18 +398,18 @@ export default function FindLawyerManual() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleFilterChange('withAchievement', !filters.withAchievement)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${filters.withAchievement ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${filters.withAchievement ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'}`}
                     >
                       <span className="sr-only">Toggle Achievements</span>
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${filters.withAchievement ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                      <Award className="w-4 h-4 text-green-500" /> {t('fl_achievements')}
+                      <Award className="w-4 h-4 text-blue-500" /> {t('fl_achievements')}
                     </span>
                   </div>
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
+                    className="text-sm text-slate-500 hover:text-slate-600 font-medium transition-colors"
                   >
                     {t('fl_clear_filters')}
                   </button>
@@ -574,7 +574,7 @@ export default function FindLawyerManual() {
                   </div>
                   {/* Verified badge */}
                   {selectedLawyer.verified && (
-                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold rounded-lg border border-green-100 dark:border-green-800 shrink-0">
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-semibold rounded-lg border border-blue-100 dark:border-blue-800 shrink-0">
                       <Check className="w-4 h-4" /> Verified
                     </span>
                   )}
@@ -631,50 +631,50 @@ export default function FindLawyerManual() {
 
                   {/* Achievements Section */}
                   {selectedLawyer?.achievements && Array.isArray(selectedLawyer.achievements) && selectedLawyer.achievements.length > 0 && (
-                    <div className="p-6 sm:p-8 bg-gradient-to-br from-green-50/50 to-emerald-100/50 dark:from-[#0a1a0f] dark:to-[#050f0a] rounded-3xl border border-green-200/50 dark:border-green-500/20 shadow-inner relative overflow-hidden">
+                    <div className="p-6 sm:p-8 bg-gradient-to-br from-blue-50/50 to-indigo-100/50 dark:from-[#05101a] dark:to-[#030a10] rounded-3xl border border-blue-200/50 dark:border-blue-500/20 shadow-inner relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                        <Award className="w-48 h-48 text-green-500" />
+                        <Award className="w-48 h-48 text-blue-500" />
                       </div>
 
-                      <h3 className="text-base font-black text-green-900 dark:text-green-400 uppercase tracking-widest mb-5 flex items-center gap-3 relative z-10">
-                        <Award className="w-5 h-5 text-green-500" />
+                      <h3 className="text-base font-black text-blue-900 dark:text-blue-400 uppercase tracking-widest mb-5 flex items-center gap-3 relative z-10">
+                        <Award className="w-5 h-5 text-blue-500" />
                         Milestones & Achievements
-                        <div className="h-px flex-1 bg-gradient-to-r from-green-200/50 dark:from-green-500/20 to-transparent" />
+                        <div className="h-px flex-1 bg-gradient-to-r from-blue-200/50 dark:from-blue-500/20 to-transparent" />
                       </h3>
 
                       <div className="space-y-4 relative z-10">
                         {[...selectedLawyer.achievements].sort((a, b) => b.pinned - a.pinned).map(ach => (
                           <div key={ach.id}
                             className={`rounded-2xl border p-5 flex gap-5 items-center relative overflow-hidden transition-all shadow-sm hover:shadow-md ${ach.pinned
-                                ? 'bg-gradient-to-r from-white to-green-50/50 dark:from-[#05170a] dark:to-[#031005] border-green-300 dark:border-green-500/40 shadow-green-500/5'
-                                : 'bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border-green-100 dark:border-green-500/10 hover:border-green-300/50 dark:hover:border-green-500/30'
+                                ? 'bg-gradient-to-r from-white to-blue-50/50 dark:from-[#05101a] dark:to-[#030a10] border-blue-300 dark:border-blue-500/40 shadow-blue-500/5'
+                                : 'bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border-blue-100 dark:border-blue-500/10 hover:border-blue-300/50 dark:hover:border-blue-500/30'
                               }`}
                           >
                             {ach.photo ? (
                               <img
                                 src={ach.photo.startsWith('http') || ach.photo.startsWith('data:') ? ach.photo : `${API.replace('/api', '')}${ach.photo}`}
                                 alt="achievement"
-                                className="w-52 h-52 rounded-2xl object-cover shrink-0 border border-green-200 dark:border-green-500/30 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform"
+                                className="w-52 h-52 rounded-2xl object-cover shrink-0 border border-blue-200 dark:border-blue-500/30 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform"
                                 onClick={() => setExpandedImage(ach.photo.startsWith('http') || ach.photo.startsWith('data:') ? ach.photo : `${API.replace('/api', '')}${ach.photo}`)}
                               />
                             ) : (
-                              <div className="w-52 h-52 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/40 dark:to-green-900/20 border border-green-200 dark:border-green-700/50 shadow-inner">
-                                <Award className="w-16 h-16 text-green-500 dark:text-green-400 drop-shadow-sm" />
+                              <div className="w-52 h-52 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/40 dark:to-blue-900/20 border border-blue-200 dark:border-blue-700/50 shadow-inner">
+                                <Award className="w-16 h-16 text-blue-500 dark:text-blue-400 drop-shadow-sm" />
                               </div>
                             )}
                             <div className="flex-1 min-w-0 flex flex-col justify-center">
                               <div className="flex items-start justify-between gap-2 mb-2">
-                                <p className="font-bold text-xl leading-snug text-slate-900 dark:text-green-50">
+                                <p className="font-bold text-xl leading-snug text-slate-900 dark:text-blue-50">
                                   {ach.title}
                                 </p>
                                 {ach.pinned && (
-                                  <span className="shrink-0 flex items-center gap-1.5 text-[10px] font-black text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/40 px-2.5 py-1 rounded-full tracking-wider uppercase border border-green-200 dark:border-green-800/50">
+                                  <span className="shrink-0 flex items-center gap-1.5 text-[10px] font-black text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40 px-2.5 py-1 rounded-full tracking-wider uppercase border border-blue-200 dark:border-blue-800/50">
                                     <Star className="w-3 h-3 fill-current" /> Featured
                                   </span>
                                 )}
                               </div>
                               {ach.date && (
-                                <p className="text-[13px] font-medium text-green-700/70 dark:text-green-500/60 flex items-center gap-1.5">
+                                <p className="text-[13px] font-medium text-blue-700/70 dark:text-blue-500/60 flex items-center gap-1.5">
                                   <Calendar className="w-3.5 h-3.5" /> {ach.date}
                                 </p>
                               )}
@@ -772,7 +772,7 @@ export default function FindLawyerManual() {
 
 
       {/* Floating AI Lawyer Matching Button — lightweight, GPU-composited */}
-      <div className="fixed bottom-8 right-8 z-50">
+      <div className="fixed bottom-20 right-3 sm:bottom-8 sm:right-8 z-50">
         <motion.button
           onClick={() => navigate('/find-lawyer/ai')}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -780,7 +780,7 @@ export default function FindLawyerManual() {
           transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
           whileHover={{ scale: 1.06, y: -3 }}
           whileTap={{ scale: 0.96 }}
-          className="relative flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#050d1a] text-white font-semibold text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
+          className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#050d1a] text-white font-semibold text-xs sm:text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
           style={{ backdropFilter: 'blur(12px)', willChange: 'transform' }}
         >
           {/* Static blue glow ring */}
@@ -816,7 +816,7 @@ export default function FindLawyerManual() {
             >
               <button
                 onClick={() => setExpandedImage(null)}
-                className="absolute -top-12 right-0 p-2 text-white hover:text-red-400 bg-black/50 rounded-full backdrop-blur-md transition-colors shadow-lg border border-white/20"
+                className="absolute -top-12 right-0 p-2 text-white hover:text-slate-400 bg-black/50 rounded-full backdrop-blur-md transition-colors shadow-lg border border-white/20"
                 title="Close"
               >
                 <X className="w-6 h-6" />

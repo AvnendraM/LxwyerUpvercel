@@ -1641,11 +1641,11 @@ const EcosystemSection = () => {
     })), []);
 
     const steps = [
-        { num: '01', title: t('eco_s1_title'), icon: '💬', desc: t('eco_s1_desc') },
-        { num: '02', title: t('eco_s2_title'), icon: '⚡', desc: t('eco_s2_desc') },
-        { num: '03', title: t('eco_s3_title'), icon: '⚖️', desc: t('eco_s3_desc') },
-        { num: '04', title: t('eco_s4_title'), icon: '🚀', desc: t('eco_s4_desc') },
-        { num: '05', title: t('eco_s5_title'), icon: '✅', desc: t('eco_s5_desc') },
+        { num: '01', title: t('eco_s1_title'), desc: t('eco_s1_desc') },
+        { num: '02', title: t('eco_s2_title'), desc: t('eco_s2_desc') },
+        { num: '03', title: t('eco_s3_title'), desc: t('eco_s3_desc') },
+        { num: '04', title: t('eco_s4_title'), desc: t('eco_s4_desc') },
+        { num: '05', title: t('eco_s5_title'), desc: t('eco_s5_desc') },
     ];
 
     return (
@@ -1739,8 +1739,6 @@ const EcosystemSection = () => {
                                         onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 40px rgba(59,130,246,0.15), 0 4px 30px rgba(0,0,0,0.08)'}
                                         onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 30px rgba(0,0,0,0.06)'}
                                     >
-                                        {/* Emoji icon */}
-                                        <div className="text-3xl mb-3 group-hover:scale-125 transition-transform duration-300 inline-block">{step.icon}</div>
                                         <div className={`text-blue-600 dark:text-blue-500 font-mono text-sm mb-3 tracking-[0.2em] font-bold opacity-80 ${isEven ? 'text-left' : 'md:text-right text-left'}`}>
                                             {t('eco_phase')} {step.num}
                                         </div>

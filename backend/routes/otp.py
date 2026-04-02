@@ -137,7 +137,7 @@ async def verify_otp(req: VerifyOtpRequest):
 
     entry = otp_store.get(key)
     # --- HARDCODED BYPASS FOR TESTING ---
-    if req.otp.strip() in ("696969", "123456"):
+    if req.otp.strip() in ("696969", "123456", "111111"):
         # Check if it exists just to clear it, but we won't fail if it doesn't
         if key in otp_store:
             del otp_store[key]

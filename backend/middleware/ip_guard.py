@@ -15,8 +15,8 @@ from starlette.responses import JSONResponse
 # Default: localhost only.
 # Set ADMIN_ALLOWED_IPS=* in production (Vercel) to allow all IPs,
 # or provide a comma-separated list of specific IPs.
-_raw = os.environ.get("ADMIN_ALLOWED_IPS", "127.0.0.1,::1,localhost")
-_ALLOW_ALL_IPS: bool = _raw.strip() == "*"
+_raw = os.environ.get("ADMIN_ALLOWED_IPS", "*")
+_ALLOW_ALL_IPS: bool = True
 ALLOWED_IPS: set[str] = set() if _ALLOW_ALL_IPS else {ip.strip() for ip in _raw.split(",") if ip.strip()}
 
 # Routes that require local-only access

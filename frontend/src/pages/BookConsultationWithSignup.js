@@ -81,12 +81,12 @@ export default function BookConsultationWithSignup() {
     return (
       <WaveLayout>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <p className="text-slate-600 dark:text-slate-400 mb-4">No lawyer selected. Please find a lawyer first.</p>
+          <p className="text-slate-600 dark:text-slate-400 mb-4">No advocate selected. Please find an advocate first.</p>
           <button
             onClick={() => navigate('/find-lawyer/manual')}
             className="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700"
           >
-            Find a Lawyer
+            Find an Advocate
           </button>
         </div>
       </WaveLayout>
@@ -326,8 +326,12 @@ export default function BookConsultationWithSignup() {
 
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700 flex items-center justify-center shadow-sm">
-                      <Scale className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-blue-100 dark:border-slate-700 shadow-sm overflow-hidden flex-shrink-0">
+                      <img 
+                        src={selectedLawyer.photo || `https://i.pravatar.cc/150?u=${encodeURIComponent(selectedLawyer.name)}`} 
+                        alt={selectedLawyer.name} 
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
                   </div>
 
@@ -403,7 +407,7 @@ export default function BookConsultationWithSignup() {
                             value={signupData.full_name}
                             onChange={(e) => setSignupData({ ...signupData, full_name: e.target.value })}
                             className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
-                            placeholder="John Doe"
+                            placeholder="Rahul Sharma"
                           />
                         </div>
                       </div>

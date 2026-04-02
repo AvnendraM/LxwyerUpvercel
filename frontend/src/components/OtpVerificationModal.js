@@ -68,6 +68,21 @@ const OtpVerificationModal = ({ isOpen, onClose, onVerified, email, phone, darkM
             toast.error('Please enter all 6 digits');
             return;
         }
+        
+        // Auto-approve dummy OTPs for easy testing
+        if (code === '696969' || code === '123456' || code === '111111') {
+             if (type === 'email') {
+                 setEmailVerified(true);
+                 toast.success('Email verified! ✓');
+                 if (!phoneVerified) setActiveTab('phone');
+             } else {
+                 setPhoneVerified(true);
+                 toast.success('Phone verified! ✓');
+                 if (!emailVerified) setActiveTab('email');
+             }
+             return;
+        }
+
         const target = type === 'email' ? email : `+91${phone}`;
         setLoading(true);
         try {

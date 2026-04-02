@@ -126,10 +126,10 @@ export default function FindLawFirmManual() {
 
   return (
     <WaveLayout activePage="find-law-firm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
 
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -142,7 +142,7 @@ export default function FindLawFirmManual() {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6"
+            className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-6"
           >
             Partner with Leading <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Law Firms</span>
           </motion.h1>
@@ -151,14 +151,14 @@ export default function FindLawFirmManual() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto"
+            className="text-sm sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-2 sm:px-0"
           >
             Discover and connect with prestigious law firms specialized in handling complex legal matters for businesses and individuals.
           </motion.p>
         </div>
 
         {/* Search & Filters */}
-        <FloatingCard className="p-6 mb-12 sticky top-24 z-30">
+        <FloatingCard className="p-4 sm:p-6 mb-6 sm:mb-12 sticky top-20 sm:top-24 z-30">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -174,7 +174,7 @@ export default function FindLawFirmManual() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`min-w-[120px] h-[50px] border-slate-200 dark:border-slate-700 ${showFilters ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}
+              className={`w-full sm:min-w-[120px] sm:w-auto h-[46px] sm:h-[50px] border-slate-200 dark:border-slate-700 ${showFilters ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}
             >
               <Filter className="w-4 h-4 mr-2" />
               Filters
@@ -189,7 +189,7 @@ export default function FindLawFirmManual() {
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
                 className="overflow-hidden"
               >
-                <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">State</label>
                     <select
@@ -256,7 +256,7 @@ export default function FindLawFirmManual() {
         </div>
 
         {currentFirms.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 mb-12">
             {currentFirms.map((firm, index) => (
               <FloatingCard key={firm.id} delay={index * 0.05} className="group flex flex-col h-full">
                 <div className="relative h-48 overflow-hidden rounded-t-2xl">
@@ -489,7 +489,7 @@ export default function FindLawFirmManual() {
 
 
       {/* Floating AI Lawyer Matching Button — lightweight, GPU-composited */}
-      <div className="fixed bottom-8 right-8 z-50">
+      <div className="fixed bottom-20 right-3 sm:bottom-8 sm:right-8 z-50">
         <motion.button
           onClick={() => navigate('/ai-firm-finder')}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -497,7 +497,7 @@ export default function FindLawFirmManual() {
           transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
           whileHover={{ scale: 1.06, y: -3 }}
           whileTap={{ scale: 0.96 }}
-          className="relative flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#050d1a] text-white font-semibold text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
+          className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#050d1a] text-white font-semibold text-xs sm:text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
           style={{ backdropFilter: 'blur(12px)', willChange: 'transform' }}
         >
           <span className="absolute inset-0 rounded-2xl ring-1 ring-blue-500/20 pointer-events-none" />

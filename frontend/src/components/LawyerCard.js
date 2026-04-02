@@ -5,45 +5,32 @@ import { getInitials } from '../utils/lawyerPhoto';
 
 /* ── Specialization → professional banner color ── */
 const SPEC_COLORS = {
-  // Criminal
-  'criminal law':        { from: '#1c0a0a', to: '#3b1212', accent: '#ef4444' },
-  'criminal':            { from: '#1c0a0a', to: '#3b1212', accent: '#ef4444' },
-  // Corporate / Business
+  // All cards will use professional shades of blue, slate, black, and white
+  'criminal law':        { from: '#020617', to: '#0f172a', accent: '#60a5fa' },
+  'criminal':            { from: '#020617', to: '#0f172a', accent: '#60a5fa' },
   'corporate law':       { from: '#00101f', to: '#003366', accent: '#3b82f6' },
   'corporate':           { from: '#00101f', to: '#003366', accent: '#3b82f6' },
   'business law':        { from: '#00101f', to: '#003366', accent: '#3b82f6' },
-  // Family
-  'family law':          { from: '#0a1a0f', to: '#0d3320', accent: '#22c55e' },
-  'family':              { from: '#0a1a0f', to: '#0d3320', accent: '#22c55e' },
-  // Intellectual Property
-  'intellectual property': { from: '#14073a', to: '#280d6e', accent: '#a78bfa' },
-  'ip law':              { from: '#14073a', to: '#280d6e', accent: '#a78bfa' },
-  // Tax
-  'tax law':             { from: '#1a1500', to: '#332b00', accent: '#f59e0b' },
-  'taxation':            { from: '#1a1500', to: '#332b00', accent: '#f59e0b' },
-  // Civil
-  'civil law':           { from: '#0d1520', to: '#1b2f4e', accent: '#60a5fa' },
-  'civil litigation':    { from: '#0d1520', to: '#1b2f4e', accent: '#60a5fa' },
-  // Labour / Employment
-  'labour law':          { from: '#0a1f12', to: '#143d22', accent: '#4ade80' },
-  'employment law':      { from: '#0a1f12', to: '#143d22', accent: '#4ade80' },
-  // Cyber
-  'cyber law':           { from: '#001a1f', to: '#003040', accent: '#22d3ee' },
-  'cyber':               { from: '#001a1f', to: '#003040', accent: '#22d3ee' },
-  // Constitutional
-  'constitutional law':  { from: '#100a2e', to: '#1e1560', accent: '#818cf8' },
-  // Consumer
-  'consumer law':        { from: '#1a0e00', to: '#331c00', accent: '#fb923c' },
-  // Banking / Finance
-  'banking law':         { from: '#001030', to: '#002060', accent: '#38bdf8' },
-  'banking':             { from: '#001030', to: '#002060', accent: '#38bdf8' },
-  // Real Estate / Property
-  'real estate law':     { from: '#15100a', to: '#2e2010', accent: '#d97706' },
-  'property law':        { from: '#15100a', to: '#2e2010', accent: '#d97706' },
-  // Medical Negligence
-  'medical negligence':  { from: '#1a000a', to: '#360015', accent: '#fb7185' },
-  // Divorce
-  'divorce':             { from: '#0e0a1a', to: '#1e1340', accent: '#c084fc' },
+  'family law':          { from: '#000814', to: '#001d3d', accent: '#93c5fd' },
+  'family':              { from: '#000814', to: '#001d3d', accent: '#93c5fd' },
+  'intellectual property': { from: '#040810', to: '#162040', accent: '#818cf8' },
+  'ip law':              { from: '#040810', to: '#162040', accent: '#818cf8' },
+  'tax law':             { from: '#040d1a', to: '#0c2242', accent: '#7dd3fc' },
+  'taxation':            { from: '#040d1a', to: '#0c2242', accent: '#7dd3fc' },
+  'civil law':           { from: '#0d1520', to: '#1b2f4e', accent: '#3b82f6' },
+  'civil litigation':    { from: '#0d1520', to: '#1b2f4e', accent: '#3b82f6' },
+  'labour law':          { from: '#030811', to: '#0c1a30', accent: '#bfdbfe' },
+  'employment law':      { from: '#030811', to: '#0c1a30', accent: '#bfdbfe' },
+  'cyber law':           { from: '#001a26', to: '#003b5c', accent: '#38bdf8' },
+  'cyber':               { from: '#001a26', to: '#003b5c', accent: '#38bdf8' },
+  'constitutional law':  { from: '#001020', to: '#062854', accent: '#60a5fa' },
+  'consumer law':        { from: '#020c1b', to: '#081f3d', accent: '#bae6fd' },
+  'banking law':         { from: '#001030', to: '#002060', accent: '#60a5fa' },
+  'banking':             { from: '#001030', to: '#002060', accent: '#60a5fa' },
+  'real estate law':     { from: '#040a14', to: '#0e1f3a', accent: '#93c5fd' },
+  'property law':        { from: '#040a14', to: '#0e1f3a', accent: '#93c5fd' },
+  'medical negligence':  { from: '#010512', to: '#051638', accent: '#bfdbfe' },
+  'divorce':             { from: '#000814', to: '#001730', accent: '#60a5fa' },
 };
 
 const DEFAULT_COLOR = { from: '#0a1020', to: '#162040', accent: '#60a5fa' };
@@ -102,7 +89,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
           position: 'absolute',
           top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
-          fontSize: 38, fontWeight: 900,
+          fontSize: 28, fontWeight: 900,
           color: 'rgba(255,255,255,0.07)',
           letterSpacing: '-0.03em',
           userSelect: 'none', pointerEvents: 'none',
@@ -133,11 +120,11 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
             position: 'absolute', top: 12, right: 12,
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '3px 9px', borderRadius: 999,
-            background: 'rgba(16,185,129,0.15)',
-            border: '1px solid rgba(16,185,129,0.35)',
-            fontSize: 10, fontWeight: 700, color: '#34d399',
+            background: 'rgba(59,130,246,0.15)',
+            border: '1px solid rgba(59,130,246,0.35)',
+            fontSize: 10, fontWeight: 700, color: '#60a5fa',
           }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 5px #10b981' }} />
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 5px #3b82f6' }} />
             Verified
           </div>
         )}
@@ -254,7 +241,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
           <div style={{ flex: 1, textAlign: 'center', padding: '0 4px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
               <MapPin style={{ width: 10, height: 10, color: colors.accent, flexShrink: 0 }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 62 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 90 }}>
                 {lawyer.city || lawyer.state || '—'}
               </span>
             </div>

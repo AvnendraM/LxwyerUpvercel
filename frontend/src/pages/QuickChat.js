@@ -13,6 +13,10 @@ import { dummyLawyers } from '../data/lawyersData'
 import { dummyLawFirms } from '../data/lawFirmsData'
 import { API } from '../App'
 
+import FirmCard from '../components/FirmCard'
+import LawyerCard from '../components/LawyerCard'
+import { smartMatchLawyers, smartMatchFirms } from '../utils/aiMatchingEngine'
+
 import GenerativeBubble from '../components/GenerativeBubble'
 
 /* ========== CARD DEFINITIONS ========== */
@@ -189,36 +193,20 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
       const spec = extractSpecialization(query)
       try {
         if (recIntent === 'lawyer') {
-          // Fetch lawyers from API, fall back to dummy
-          let lawyers = []
-          try {
-            const res = await axios.get(`${API}/lawyers`)
-            lawyers = res.data.map(l => ({
-              ...l,
-              name: l.full_name || l.name,
-              city: l.city,
-              state: l.state,
-              specialization: Array.isArray(l.specialization) ? l.specialization[0] : l.specialization,
-              fee: l.consultation_fee || 'Contact for fee',
-              rating: 4.8,
-              photo: l.photo
-                ? (l.photo.startsWith('http') ? l.photo : `http://localhost:8000${l.photo.startsWith('/') ? '' : '/'}${l.photo}`)
-                : null,
-              isReal: true,
-            }))
-          } catch { lawyers = [] }
-          // Merge with dummy, shuffle, filter
-          const all = [...lawyers, ...dummyLawyers]
-          let filtered = all
-          if (city) filtered = filtered.filter(l => (l.city || '').toLowerCase().includes(city))
-          if (spec) filtered = filtered.filter(l => (l.specialization || '').toLowerCase().includes(spec))
-          const results = filtered.slice(0, 5)
+          const matchData = await smartMatchLawyers(query);
+          let results = [];
+          if (matchData && matchData.results && matchData.results.length > 0) {
+            results = matchData.results;
+          } else {
+            const all = dummyLawyers;
+            results = city ? all.filter(l => (l.city || '').toLowerCase().includes(city)) : all;
+          }
           setMessages(prev => [...prev, {
             role: 'assistant',
             id: Date.now() + 1,
             is_recommendation: true,
             rec_type: 'lawyer',
-            rec_items: results,
+            rec_items: results.slice(0, 5),
             rec_query: query,
             city, spec,
             intentLabel: 'Lawyer Finder',
@@ -227,31 +215,20 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
             sources: [],
           }])
         } else {
-          // Fetch firms from API, fall back to dummy
-          let firms = []
-          try {
-            const res = await axios.get(`${API}/lawfirms`)
-            firms = res.data.map(f => ({
-              ...f,
-              name: f.firm_name || f.name,
-              city: f.city,
-              state: f.state,
-              practiceAreas: f.practice_areas || f.practiceAreas || [],
-              lawyersCount: f.total_lawyers || f.lawyersCount || 0,
-              isReal: true,
-            }))
-          } catch { firms = [] }
-          const all = [...firms, ...dummyLawFirms]
-          let filtered = all
-          if (city) filtered = filtered.filter(f => (f.city || '').toLowerCase().includes(city))
-          if (spec) filtered = filtered.filter(f => (f.practiceAreas || []).some(a => a.toLowerCase().includes(spec)))
-          const results = filtered.slice(0, 5)
+          const matchData = await smartMatchFirms(query);
+          let results = [];
+          if (matchData && matchData.results && matchData.results.length > 0) {
+            results = matchData.results;
+          } else {
+            const all = dummyLawFirms;
+            results = city ? all.filter(f => (f.city || '').toLowerCase().includes(city)) : all;
+          }
           setMessages(prev => [...prev, {
             role: 'assistant',
             id: Date.now() + 1,
             is_recommendation: true,
             rec_type: 'firm',
-            rec_items: results,
+            rec_items: results.slice(0, 5),
             rec_query: query,
             city, spec,
             intentLabel: 'Firm Finder',
@@ -270,6 +247,53 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
         setIsTyping(false)
       }
       return
+    }
+
+    // ── Local knowledge base for common chip prompts ──────────────────────
+    const LOCAL_RESPONSES = {
+      "What are my rights if I am arrested?": {
+        intro: "If you are arrested in India, the law gives you several important protections under the Constitution and the Bharatiya Nagarik Suraksha Sanhita (BNSS) 2023. Here is what you need to know:",
+        cards: [
+          { id: 'right-to-lawyer', icon: '⚖️', title: 'Right to a Lawyer', summary: 'You have the right to consult a legal practitioner of your choice immediately upon arrest (Article 22).' },
+          { id: 'right-to-silence', icon: '🤐', title: 'Right to Silence', summary: 'You cannot be compelled to be a witness against yourself. You may stay silent during interrogation.' },
+          { id: 'right-to-inform', icon: '📞', title: 'Right to Inform Family', summary: 'Police must inform a friend, relative or nominated person about your arrest without delay.' },
+          { id: 'right-bail', icon: '🔓', title: 'Bail Rights', summary: 'For bailable offences, you are entitled to bail as a right. For non-bailable, you can apply before a magistrate.' },
+          { id: 'magistrate-24h', icon: '⏱️', title: '24-Hour Rule', summary: 'You must be produced before a magistrate within 24 hours of arrest. Detention beyond that requires court permission.' },
+          { id: 'medical', icon: '🏥', title: 'Medical Examination', summary: 'You have the right to be medically examined to document any injuries at the time of arrest.' },
+        ],
+        sources: ['Article 20, 21, 22 – Indian Constitution', 'BNSS 2023', 'IPC/BNS']
+      },
+      "How do I register a startup in India?": {
+        intro: "Registering a startup in India is easier than ever, especially with the Startup India initiative. Here is a simple step-by-step guide for you:",
+        cards: [
+          { id: 'choose-structure', icon: '🏢', title: 'Choose Business Structure', summary: 'Decide between Private Limited Company, LLP, or One-Person Company. Pvt Ltd is most popular for scaling.' },
+          { id: 'name-approval', icon: '✅', title: 'Name Reservation', summary: 'Reserve your company name via the MCA portal (Run Name Availability). Ensure it is unique and not trademarked.' },
+          { id: 'dsc-din', icon: '🔐', title: 'DSC & DIN', summary: 'Obtain a Digital Signature Certificate (DSC) and Director Identification Number (DIN) for all directors.' },
+          { id: 'incorporation', icon: '📄', title: 'File SPICe+ Form', summary: 'Submit SPICe+ on MCA portal to incorporate. Includes MOA, AOA, PAN, TAN, GSTIN in a single application.' },
+          { id: 'startup-india', icon: '🚀', title: 'Startup India Recognition', summary: 'Register on startupindia.gov.in for tax exemptions (80-IAC), DPIIT recognition, and easier funding access.' },
+          { id: 'compliance', icon: '📋', title: 'Post-Incorporation', summary: 'Open a current account, file GST registration, maintain statutory registers, and file annual returns with MCA.' },
+        ],
+        sources: ['Companies Act 2013', 'DPIIT Startup India', 'MCA Portal']
+      },
+    };
+
+    const localResp = LOCAL_RESPONSES[query];
+    if (localResp) {
+      await new Promise(r => setTimeout(r, 800)); // brief human-feeling delay
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        id: Date.now() + 1,
+        intro: localResp.intro,
+        cards: localResp.cards,
+        intentLabel: 'Legal Info',
+        sentimentLabel: 'Neutral',
+        sentiment: 0,
+        sources: localResp.sources || [],
+        is_greeting: false,
+        greeting_text: '',
+      }]);
+      setIsTyping(false);
+      return;
     }
 
     // --- Default: legal information from AI ---
@@ -301,8 +325,8 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
         role: 'assistant',
         id: Date.now() + 1,
         is_greeting: true,
-        greeting_text: "⚠️ I'm having trouble connecting right now. Please try again in a moment.",
-        intentLabel: 'Error',
+        greeting_text: "I'm having a little trouble reaching the server right now. Could you try again in a moment? In the meantime, feel free to ask me about finding a lawyer or law firm — I can help with that instantly! 😊",
+        intentLabel: 'Info',
         sentimentLabel: 'Neutral',
         sentiment: 0,
         cards: [],
@@ -338,7 +362,15 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
 
       {/* Sidebar (standalone only) */}
       {!embedded && (
-        <aside className={`fixed inset-y-0 left-0 z-30 w-44 ${dm ? 'bg-black border-zinc-800' : 'bg-white border-zinc-200'} border-r flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <>
+          {/* Mobile overlay backdrop */}
+          {isSidebarOpen && (
+            <div 
+              className="fixed inset-0 z-20 bg-black/70 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          <aside className={`fixed inset-y-0 left-0 z-30 w-56 md:w-44 ${dm ? 'bg-black border-zinc-800' : 'bg-white border-zinc-200'} border-r flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className={`p-4 border-b ${borderCol} shrink-0`}>
             <div className="flex items-center justify-between">
               <h1 className={`font-bold text-base ${textPrimary} leading-tight`}>Lxwyer <span className="text-blue-400">AI</span></h1>
@@ -398,6 +430,7 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
             </button>
           </div>
         </aside>
+        </>
       )}
 
       {/* Main Content */}
@@ -458,12 +491,12 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
         )}
 
         {/* Chat Area */}
-        <div ref={chatContainerRef} className={`flex-1 overflow-y-auto ${embedded ? 'px-2 md:px-6 py-6' : 'px-4 md:px-8 py-6 pt-20'}`}>
+        <div ref={chatContainerRef} className={`flex-1 overflow-y-auto ${embedded ? 'px-2 md:px-6 py-6' : 'px-3 sm:px-4 md:px-8 py-4 pt-16 sm:pt-20'}`}>
           <GenerativeBubble active={messages.length > 0 && input.length === 0} typing={input.length > 0} />
 
 
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto animate-in fade-in zoom-in duration-500" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="h-full min-h-[60vh] flex flex-col items-center justify-center text-center max-w-2xl mx-auto animate-in fade-in zoom-in duration-500 px-4" style={{ position: 'relative', zIndex: 1 }}>
 
               {/* ── LAUNCHING SOON — cinematic ── */}
               <style>{`
@@ -472,7 +505,7 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
               <div style={{
                 position: 'relative', overflow: 'hidden',
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '8px 20px', borderRadius: 50, marginBottom: 28,
+                padding: '6px 16px', borderRadius: 50, marginBottom: 20,
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 boxShadow: '0 0 32px rgba(59,130,246,0.08)',
@@ -483,39 +516,45 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
                   animation: 'ls-shine 4s ease-in-out infinite',
                 }} />
                 <span style={{
-                  width: 6, height: 6, borderRadius: '50%',
-                  background: '#60a5fa',
-                  boxShadow: '0 0 6px rgba(96,165,250,0.9)',
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#fbbf24',
+                  boxShadow: '0 0 12px rgba(251,191,36,0.9)',
                   flexShrink: 0,
+                  animation: 'pulse 2s infinite'
                 }} />
                 <span style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.25em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)',
+                  fontSize: 11, fontWeight: 900, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: '#fde047',
+                  textShadow: '0 0 15px rgba(253,224,71,0.5)',
                 }}>Launching Soon</span>
               </div>
 
-              <h2 className={`text-3xl font-extrabold text-white mb-1 tracking-tight`}>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-1 tracking-tight">
                 Welcome to Lxwyer<span className="text-blue-400">AI</span>
               </h2>
-              <p className={`text-xs ${textMuted} mb-8`}>Your AI legal companion for India</p>
+              <p className={`text-xs sm:text-sm ${textMuted} mb-6`}>Your AI legal companion for India</p>
 
-              {/* 2 small flat pill buttons */}
-              <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
-                {SUGGESTED_QUERIES.slice(0, 2).map((sq, i) => (
+              {/* Suggestion chips for mobile UX */}
+              <div className="flex flex-wrap gap-2 justify-center mt-2 max-w-sm">
+                {[
+                  { label: '⚖️ Find a lawyer', prompt: 'Find a criminal lawyer in Delhi' },
+                  { label: '🏛️ Find a law firm', prompt: 'Suggest a law firm in Mumbai' },
+                  { label: '📋 Know my rights', prompt: 'What are my rights if I am arrested?' },
+                  { label: '💼 Business law', prompt: 'How do I register a startup in India?' },
+                ].map(chip => (
                   <button
-                    key={i}
-                    onClick={() => handleSend(sq.text)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-medium transition-all hover:scale-[1.02] hover:shadow-md active:scale-95 backdrop-blur-sm
-                      ${dm
-                        ? 'bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
-                        : 'bg-white/70 border-slate-200 text-slate-500 hover:border-slate-400 hover:text-slate-700'
-                      }`}
+                    key={chip.label}
+                    onClick={() => handleSend(chip.prompt)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all hover:scale-105 active:scale-95
+                      ${dm 
+                        ? 'bg-white/[0.04] border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20' 
+                        : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}`}
                   >
-                    <span>{sq.icon}</span>
-                    <span>{sq.text}</span>
+                    {chip.label}
                   </button>
                 ))}
               </div>
+
             </div>
           ) : (
             <div className="min-h-full flex flex-col justify-end space-y-8 max-w-4xl mx-auto pb-6" style={{ position: 'relative', zIndex: 1 }}>
@@ -549,158 +588,57 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
                     {/* ASSISTANT — recommendation cards */}
                     {msg.role === 'assistant' && msg.is_recommendation && (
                       <div className="w-full space-y-3 max-w-full">
-                        <div className={`px-4 py-3 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${dm ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'}`}
-                          <p className={`text-sm ${textMuted}`}>
+                        {/* Humanized intro */}
+                        <div className={`px-4 py-3.5 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
+                          <p className={`text-sm leading-relaxed ${dm ? 'text-slate-200' : 'text-slate-700'}`}>
                             {msg.rec_items.length > 0
-                              ? `Found ${msg.rec_items.length} ${msg.rec_type === 'lawyer' ? 'lawyer' : 'law firm'}${msg.rec_items.length > 1 ? 's' : ''}${msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : ''}.`
-                              : `No ${msg.rec_type === 'lawyer' ? 'lawyers' : 'law firms'} found matching your criteria. Try broadening your search.`}
+                              ? msg.rec_type === 'lawyer'
+                                ? `Great news! I found ${msg.rec_items.length} lawyer${msg.rec_items.length > 1 ? 's' : ''}` + (msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : '') + ` who match your needs. Here are the best options for you:`
+                                : `I found ${msg.rec_items.length} law firm${msg.rec_items.length > 1 ? 's' : ''}` + (msg.city ? ` in ${msg.city.charAt(0).toUpperCase() + msg.city.slice(1)}` : '') + ` that could be a great fit:`
+                              : msg.rec_type === 'lawyer'
+                                ? `I wasn't able to find lawyers matching that exact criteria. Try a different city or specialization and I'll search again!`
+                                : `No law firms matched that search right now. Try adjusting the location or practice area.`
+                            }
                           </p>
                         </div>
+                        {/* Cards */}
                         {msg.rec_items.map((item, i) => {
-                          const GRADIENTS = [
-                            'from-blue-600 to-indigo-700',
-                            'from-violet-600 to-purple-700',
-                            'from-rose-500 to-pink-600',
-                            'from-emerald-500 to-teal-600',
-                            'from-orange-500 to-amber-600',
-                            'from-cyan-500 to-sky-600',
-                            'from-fuchsia-500 to-violet-600',
-                            'from-green-500 to-emerald-600',
-                          ]
-                          const grad = GRADIENTS[i % GRADIENTS.length]
-                          const photoSrc = item.photo && item.photo.length > 5
-                            ? item.photo
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'L')}&background=3b82f6&color=fff&size=128`
-
                           return msg.rec_type === 'lawyer' ? (
-                            <div key={item.id || i} className={`rounded-3xl overflow-hidden border ${dm ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'} shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}>
-                              {/* Gradient header */}
-                              <div className={`relative h-20 bg-gradient-to-br ${grad}`}>
-                                <div className="absolute inset-0 opacity-[0.08]"
-                                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '12px 12px' }} />
-                                <span className="absolute top-3 right-4 text-white/20 font-black text-base tracking-widest uppercase select-none">LXWYER UP</span>
-                                {/* Photo — overlaps header/body */}
-                                <div className="absolute bottom-0 left-4 translate-y-1/2">
-                                  <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-slate-900 shadow-lg">
-                                    <img src={photoSrc} alt={item.name}
-                                      className="w-full h-full object-cover"
-                                      onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'L')}&background=3b82f6&color=fff&size=128` }} />
-                                  </div>
-                                  {item.verified && (
-                                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center shadow">
-                                      <span className="text-white text-[9px] font-bold">✓</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Card body */}
-                              <div className="pt-12 px-4 pb-4">
-                                <div className="mb-3">
-                                  <div className="flex items-center justify-between">
-                                    <h3 className={`font-bold text-lg leading-tight ${dm ? 'text-white' : 'text-slate-900'}`}>{item.name}</h3>
-                                    {item.verified && (
-                                      <span className="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-600 border border-green-500/20 rounded-full font-semibold">✓ Verified</span>
-                                    )}
-                                  </div>
-                                  {item.specialization && (
-                                    <p className={`text-sm font-semibold mt-0.5 ${dm ? 'text-blue-400' : 'text-blue-600'}`}>{item.specialization}</p>
-                                  )}
-                                </div>
-
-                                {/* Info tiles */}
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                  {item.experience && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Experience</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.experience} Years</p>
-                                    </div>
-                                  )}
-                                  {item.city && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Location</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{item.city}</p>
-                                    </div>
-                                  )}
-                                  {item.education && (
-                                    <div className={`rounded-xl px-3 py-2.5 border col-span-2 ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Education</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{item.education}</p>
-                                    </div>
-                                  )}
-                                  <div className={`rounded-xl px-3 py-2.5 border ${item.education ? 'col-span-2' : ''} ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                    <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Consultation Fee</p>
-                                    <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.fee ? `₹${item.fee}/hr` : 'Contact for fee'}</p>
-                                  </div>
-                                </div>
-
-                                <button
-                                  onClick={() => navigate(`/lawyer/${item.id || item.unique_id}`)}
-                                  className={`w-full py-2.5 rounded-2xl bg-gradient-to-r ${grad} hover:opacity-90 text-white text-sm font-bold transition-all shadow-sm`}
-                                >
-                                  View Profile →
-                                </button>
-                              </div>
-                            </div>
+                            <LawyerCard 
+                              key={item.id || i}
+                              lawyer={item}
+                              onBookClick={() => navigate(`/booking/${item.id || item.unique_id}`)}
+                              onProfileClick={() => navigate(`/lawyer/${item.id || item.unique_id}`)}
+                            />
                           ) : (
-                            <div key={item.id || i} className={`rounded-3xl overflow-hidden border ${dm ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'} shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}>
-                              <div className={`relative h-20 bg-gradient-to-br ${grad}`}>
-                                <div className="absolute inset-0 opacity-[0.08]"
-                                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '12px 12px' }} />
-                                <span className="absolute top-3 right-4 text-white/20 font-black text-base tracking-widest uppercase select-none">LXWYER UP</span>
-                                <div className="absolute bottom-0 left-4 translate-y-1/2">
-                                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${grad} ring-4 ring-white dark:ring-slate-900 shadow-lg flex items-center justify-center`}>
-                                    <Building2 size={28} className="text-white" />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="pt-12 px-4 pb-4">
-                                <div className="mb-3">
-                                  <h3 className={`font-bold text-lg leading-tight ${dm ? 'text-white' : 'text-slate-900'}`}>{item.name}</h3>
-                                  {item.city && <p className={`text-sm font-semibold mt-0.5 ${dm ? 'text-slate-400' : 'text-slate-500'}`}>{item.city}{item.state ? `, ${item.state}` : ''}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 mb-3">
-                                  {item.lawyersCount > 0 && (
-                                    <div className={`rounded-xl px-3 py-2.5 border ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Team Size</p>
-                                      <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'}`}>{item.lawyersCount} Lawyers</p>
-                                    </div>
-                                  )}
-                                  <div className={`rounded-xl px-3 py-2.5 border ${!item.lawyersCount ? 'col-span-2' : ''} ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                    <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-0.5`}>Practice</p>
-                                    <p className={`text-sm font-bold ${dm ? 'text-slate-100' : 'text-slate-800'} truncate`}>{(item.practiceAreas || [])[0] || 'General Law'}</p>
-                                  </div>
-                                  {(item.practiceAreas || []).length > 1 && (
-                                    <div className={`rounded-xl px-3 py-2.5 border col-span-2 ${dm ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-                                      <p className={`text-[9px] font-bold uppercase tracking-widest ${textMuted} mb-1`}>Areas of Expertise</p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {(item.practiceAreas || []).slice(1, 4).map((a, j) => (
-                                          <span key={j} className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${dm ? 'bg-indigo-900/40 text-indigo-300' : 'bg-indigo-50 text-indigo-700'}`}>{a}</span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                                <button
-                                  onClick={() => navigate(`/firm/${item.id || item._id}`)}
-                                  className={`w-full py-2.5 rounded-2xl bg-gradient-to-r ${grad} hover:opacity-90 text-white text-sm font-bold transition-all shadow-sm`}
-                                >
-                                  View Firm →
-                                </button>
-                              </div>
-                            </div>
+                            <FirmCard
+                              key={item.id || i}
+                              firm={item}
+                              index={i}
+                              dm={dm}
+                              onBook={() => navigate(`/booking/${item.id || item.unique_id}`)}
+                              onDetails={() => navigate(`/firm/${item.id || item._id}`)}
+                            />
                           )
                         })}
+                        {/* Browse all */}
                         {msg.rec_items.length > 0 && (
                           <button
                             onClick={() => navigate(msg.rec_type === 'lawyer' ? '/find-lawyer/manual' : '/find-lawfirm/manual')}
-                            className={`w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${dm ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                              } transition-colors`}
+                            className={`w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${dm ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
                           >
                             Browse all {msg.rec_type === 'lawyer' ? 'lawyers' : 'law firms'} <ArrowRight size={14} />
                           </button>
                         )}
+                        {/* Follow-up question */}
+                        <div className={`px-4 py-3.5 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
+                          <p className={`text-sm leading-relaxed ${dm ? 'text-slate-300' : 'text-slate-600'}`}>
+                            {msg.rec_items.length > 0
+                              ? `Would you like help understanding what to look for when choosing a ${msg.rec_type === 'lawyer' ? 'lawyer' : 'law firm'}, or do you have any other legal questions I can help with? 😊`
+                              : `Can I help you with something else? You can describe your legal situation and I\'ll explain your rights and options in detail.`
+                            }
+                          </p>
+                        </div>
                       </div>
                     )}
 
@@ -708,17 +646,14 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
                     {msg.role === 'assistant' && !msg.is_greeting && !msg.is_recommendation && (
                       <div className="w-full space-y-3">
 
-                        {/* Intent + Sentiment badges + intro */}
-                        <div className={`px-4 py-3 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {/* Intent badge */}
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${dm ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>{msg.intentLabel}</span>
-                            {/* Urgent badge */}
-                            {msg.sentiment === 1 && (
-                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${dm ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'}`}><Zap size={10} /> URGENT</span>
-                            )}
-                          </div>
-                          <p className={`text-sm ${textMuted}`}>{msg.intro}</p>
+                        {/* Humanized intro + optional urgent tag */}
+                        <div className={`px-4 py-3.5 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
+                          {msg.sentiment === 1 && (
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${dm ? 'bg-red-900/30 text-red-300 border-red-800/50' : 'bg-red-50 text-red-600 border-red-100'}`}><Zap size={10} /> Urgent matter detected — please consult a lawyer soon.</span>
+                            </div>
+                          )}
+                          <p className={`text-sm leading-relaxed ${dm ? 'text-slate-200' : 'text-slate-700'}`}>{msg.intro}</p>
                         </div>
 
                         {/* Summary cards grid */}
@@ -759,6 +694,12 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
                             ))}
                           </div>
                         )}
+                        {/* Humanized follow-up */}
+                        <div className={`px-4 py-3.5 rounded-2xl rounded-tl-sm ${msgAst} border shadow-sm`}>
+                          <p className={`text-sm leading-relaxed ${dm ? 'text-slate-300' : 'text-slate-600'}`}>
+                            I hope that helps! Would you like me to go deeper into any of the topics above, help you find a lawyer for this matter, or is there anything else on your mind? 😊
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -785,17 +726,17 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
         </div>
 
         {/* Input Area */}
-        <div className={`p-4 md:p-6 pb-8 ${dm
+        <div className={`p-3 sm:p-4 md:p-6 ${dm
           ? 'bg-gradient-to-t from-black via-black/90 to-transparent'
-          : 'bg-gradient-to-t from-white via-white/90 to-transparent'} z-20`}>
+          : 'bg-gradient-to-t from-white via-white/90 to-transparent'} z-20`} style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
           <div className="max-w-4xl mx-auto relative group">
             <div className="absolute inset-0 rounded-full blur-3xl opacity-0 group-hover:opacity-0" />
-            <div className={`relative flex items-center gap-2 p-1.5 pl-5 ${inputBg} border rounded-full shadow-xl focus-within:border-zinc-600 transition-all backdrop-blur-2xl`} style={{ outline: 'none' }}>
+            <div className={`relative flex items-center gap-2 p-1.5 pl-4 ${inputBg} border rounded-full shadow-xl focus-within:border-zinc-600 transition-all backdrop-blur-2xl`} style={{ outline: 'none' }}>
               <input
                 ref={inputRef}
                 className={`flex-1 bg-transparent border-none ${textPrimary} ${dm ? 'placeholder-slate-600' : 'placeholder-slate-400'} font-medium py-2 text-sm`}
                 style={{ outline: 'none', boxShadow: 'none' }}
-                placeholder="Ask a legal question..."
+                placeholder="Ask a legal question…"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
@@ -804,17 +745,17 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isTyping}
-                className={`p-3 rounded-full transition-all duration-300 transform ${!input.trim() || isTyping
+                className={`p-2.5 sm:p-3 rounded-full transition-all duration-300 transform shrink-0 ${!input.trim() || isTyping
                   ? (dm ? 'bg-zinc-800 text-zinc-600' : 'bg-zinc-200 text-zinc-400') + ' cursor-not-allowed scale-90'
                   : 'bg-blue-500 hover:bg-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95'
                   }`}
               >
                 <div className={`transition-transform duration-300 ${isTyping ? 'animate-spin' : ''}`}>
-                  {isTyping ? <Sparkles size={18} /> : <Send size={18} className={input.trim() ? 'translate-x-0.5 translate-y-0.5' : ''} />}
+                  {isTyping ? <Sparkles size={16} /> : <Send size={16} className={input.trim() ? 'translate-x-0.5 translate-y-0.5' : ''} />}
                 </div>
               </button>
             </div>
-            <p className={`text-center text-[10px] uppercase tracking-widest ${dm ? 'text-slate-600' : 'text-slate-400'} mt-4 font-semibold opacity-70`}>
+            <p className={`text-center text-[9px] sm:text-[10px] uppercase tracking-widest ${dm ? 'text-slate-600' : 'text-slate-400'} mt-2 sm:mt-4 font-semibold opacity-70`}>
               AI-Generated Information • Verify with Counsel
             </p>
           </div>
