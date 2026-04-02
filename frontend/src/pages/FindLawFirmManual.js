@@ -29,7 +29,8 @@ export default function FindLawFirmManual() {
   const [filters, setFilters] = useState({
     state: '',
     city: '',
-    practiceArea: ''
+    practiceArea: '',
+    priceMax: ''
   });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,7 +100,14 @@ export default function FindLawFirmManual() {
     const matchesCity = !filters.city || firm.city === filters.city;
     const matchesArea = !filters.practiceArea || (firm.practiceAreas || []).includes(filters.practiceArea);
 
-    return matchesSearch && matchesState && matchesCity && matchesArea;
+    const matchesPrice = !filters.priceMax || (() => {
+      const maxFee = parseInt(filters.priceMax);
+      const feeClean = typeof firm.consultation_fee === 'string' ? firm.consultation_fee.replace(/[^0-9]/g, '') : firm.consultation_fee;
+      const parsedFee = firm.feeMin || parseInt(feeClean) || 0;
+      return parsedFee <= maxFee;
+    })();
+
+    return matchesSearch && matchesState && matchesCity && matchesArea && matchesPrice;
   }), [allFirms, searchQuery, filters]);
 
   // Pagination
@@ -114,7 +122,7 @@ export default function FindLawFirmManual() {
   };
 
   const clearFilters = () => {
-    setFilters({ state: '', city: '', practiceArea: '' });
+    setFilters({ state: '', city: '', practiceArea: '', priceMax: '' });
     setSearchQuery('');
     setCurrentPage(1);
   };
@@ -189,7 +197,7 @@ export default function FindLawFirmManual() {
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">State</label>
                     <select
@@ -233,6 +241,21 @@ export default function FindLawFirmManual() {
                       {practiceAreas.map(area => (
                         <option key={area} value={area}>{area}</option>
                       ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Max Fee (₹)</label>
+                    <select
+                      value={filters.priceMax}
+                      onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">Any Price</option>
+                      <option value="5000">Under ₹5,000</option>
+                      <option value="10000">Under ₹10,000</option>
+                      <option value="20000">Under ₹20,000</option>
+                      <option value="50000">Under ₹50,000</option>
                     </select>
                   </div>
                 </div>
@@ -488,27 +511,19 @@ export default function FindLawFirmManual() {
       </AnimatePresence>
 
 
-      {/* Floating AI Lawyer Matching Button — lightweight, GPU-composited */}
-      <div className="fixed bottom-20 right-3 sm:bottom-8 sm:right-8 z-50">
+      {/* Floating AI Lawyer Matching Button */}
+      <div className="fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-50">
         <motion.button
           onClick={() => navigate('/ai-firm-finder')}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.96 }}
-          className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#050d1a] text-white font-semibold text-xs sm:text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
-          style={{ backdropFilter: 'blur(12px)', willChange: 'transform' }}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 rounded-full bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white font-semibold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer"
         >
-          <span className="absolute inset-0 rounded-2xl ring-1 ring-blue-500/20 pointer-events-none" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-400 rounded-full ring-2 ring-[#050d1a] animate-pulse" />
-          <span className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30">
-            <Building2 className="w-4 h-4 text-blue-400" />
-          </span>
-          <span className="relative">
-            AI Lawyer Matching
-            <span className="block text-[10px] font-normal text-blue-400/70 -mt-0.5">Smart firm analysis</span>
-          </span>
+          <Building2 className="w-5 h-5" />
+          <span>AI Firm Finder</span>
         </motion.button>
       </div>
 

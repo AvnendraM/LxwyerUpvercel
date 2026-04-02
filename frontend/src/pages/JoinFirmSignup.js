@@ -552,7 +552,7 @@ const JoinFirmSignup = () => {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-[#0F2944]">Payment Details</h2>
-                    <p className="text-gray-600">Complete your registration</p>
+                    <p className="text-gray-600">Complete your registration <span className="text-blue-600 font-semibold">(Dummy Gateway Test)</span></p>
                   </div>
 
                   {/* Payment Summary */}

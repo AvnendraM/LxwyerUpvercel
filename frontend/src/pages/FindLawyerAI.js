@@ -280,10 +280,11 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
 
   // Budget / fee detection
   const detectBudget = (message) => {
-    const msg = message.toLowerCase();
+    // Strip commas from numbers to handle inputs like "2,500"
+    const msg = message.toLowerCase().replace(/(\d),(\d)/g, '$1$2');
     if (msg.includes('free') || msg.includes('no fee') || msg.includes('pro bono')) return { max: 0, label: 'Free / Pro Bono' };
     if (msg.includes('budget') || msg.includes('affordable') || msg.includes('cheap') || msg.includes('low cost')) return { max: 2000, label: 'Budget-Friendly (under ₹2,000)' };
-    const underMatch = msg.match(/under\s*(?:rs\.?|₹)?\s*(\d+)/i) || msg.match(/(?:rs\.?|₹)\s*(\d+)\s*(?:or\s*less|max)/i);
+    const underMatch = msg.match(/(?:under|max|maximum|below)\s*(?:rs\.?|₹|inr|-)?\s*(\d+)/i) || msg.match(/(?:rs\.?|₹|inr)\s*(\d+)\s*(?:or\s*less|max)/i);
     if (underMatch) return { max: parseInt(underMatch[1]), label: `Under ₹${parseInt(underMatch[1]).toLocaleString()}` };
     return null;
   };
@@ -720,7 +721,11 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
 
             return baseMatch && expReq && budgetReq && langReq && consultReq;
           })
-          .sort((a, b) => urgent ? (b.experience || 0) - (a.experience || 0) : b.score - a.score)
+          .sort((a, b) => {
+            if (urgent) return (b.experience || 0) - (a.experience || 0);
+            if (b.score === a.score) return Math.random() - 0.5;
+            return b.score - a.score;
+          })
           .map(l => {
             const badges = [];
             if (caseType && (l.specialization === caseType)) badges.push('Specialization');
@@ -1092,7 +1097,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                     {showAllLawyers ? 'Show Less' : `Show all ${recommendedLawyers.length} matches`} <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
-                <button onClick={() => navigate('/find-lawyer/manual')}
+                <button onClick={() => navigate('/find-lawyer/manual', { state: { specialization: memory.caseType || '', location: memory.location ? (memory.location.city || memory.location.state) : '', budget: memory.budget ? memory.budget.max : '' } })}
                   className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-slate-900 text-slate-400 hover:bg-slate-800 border border-slate-800 transition-all">
                   Browse all lawyers <ArrowRight className="w-4 h-4" />
                 </button>

@@ -73,7 +73,7 @@ export default function AdminLogin() {
             <span className="text-2xl font-bold text-white">Admin Portal</span>
           </div>
 
-          <div className="bg-slate-900/50 backdrop-blur-md border border-red-500/30 rounded-2xl p-8 shadow-2xl shadow-red-500/10">
+          <div className="bg-slate-900/50 backdrop-blur-md border border-red-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-red-500/10">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">Admin Login</h2>
               <p className="text-slate-400">Authorized personnel only</p>

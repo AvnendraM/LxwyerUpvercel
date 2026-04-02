@@ -76,7 +76,7 @@ export default function FirmClientLogin() {
             <span className="text-2xl font-bold text-white">Lxwyer Up</span>
           </Link>
 
-          <div className="bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl p-8 shadow-2xl">
+          <div className="bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">Firm Client Login</h2>
               <p className="text-slate-400">Track your case progress</p>

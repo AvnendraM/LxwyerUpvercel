@@ -73,7 +73,7 @@ export default function LawFirmLawyerLogin() {
             <span className="text-2xl font-bold text-[#0F2944]">Lxwyer Up</span>
           </Link>
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-xl">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-[#0F2944] mb-2">Firm Lawyer Login</h2>
               <p className="text-gray-500">Access your firm workspace</p>

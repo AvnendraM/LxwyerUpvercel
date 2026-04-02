@@ -100,7 +100,7 @@ export default function UserSignupPage() {
         {/* Back Button */}
         <button
           onClick={() => navigate('/register')}
-          className="absolute top-8 left-8 flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-md border border-white/60 hover:shadow-sm"
+          className="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-md border border-white/60 hover:shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -114,7 +114,7 @@ export default function UserSignupPage() {
         >
           {/* Card Container with Glassmorphism */}
           <div
-            className="rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden"
+            className="rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden"
             style={{
               background: 'rgba(255, 255, 255, 0.75)',
               backdropFilter: 'blur(30px)',

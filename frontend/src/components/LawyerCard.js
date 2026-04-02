@@ -78,7 +78,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
     >
       {/* ════ BANNER ════ */}
       <div style={{
-        height: 120,
+        height: 90,
         background: `linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%)`,
         position: 'relative',
         overflow: 'hidden',
@@ -132,15 +132,15 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
 
       {/* ════ AVATAR ROW ════ */}
       <div style={{
-        padding: '0 20px',
-        marginTop: -38,
-        marginBottom: 12,
+        padding: '0 16px',
+        marginTop: -30,
+        marginBottom: 8,
         zIndex: 2,
         position: 'relative',
       }}>
         <div style={{
-          width: 76, height: 76, borderRadius: '50%',
-          border: `3px solid ${colors.accent}60`,
+          width: 60, height: 60, borderRadius: '50%',
+          border: `2px solid ${colors.accent}60`,
           outline: '3px solid #0b0f1a',
           overflow: 'hidden', flexShrink: 0,
           background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
@@ -180,11 +180,11 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
       </div>
 
       {/* ════ CARD BODY ════ */}
-      <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+      <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
 
         {/* Name */}
         <h3 style={{
-          fontSize: 17, fontWeight: 800, color: '#f0f4ff',
+          fontSize: 15, fontWeight: 800, color: '#f0f4ff',
           letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 2,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
@@ -193,7 +193,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
 
         {/* Specialization */}
         <p style={{
-          fontSize: 12, fontWeight: 600, marginBottom: 14,
+          fontSize: 11, fontWeight: 600, marginBottom: 10,
           color: colors.accent,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
@@ -202,10 +202,10 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
 
         {/* Tags */}
         {tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
             {tags.map((t, i) => (
               <span key={i} style={{
-                padding: '3px 10px', borderRadius: 999,
+                padding: '2px 8px', borderRadius: 999,
                 background: `${colors.accent}14`,
                 border: `1px solid ${colors.accent}30`,
                 fontSize: 10, fontWeight: 600,
@@ -222,17 +222,17 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
         {/* Stats row */}
         <div style={{
           display: 'flex', alignItems: 'center',
-          padding: '12px 0',
+          padding: '8px 0',
           borderTop: '1px solid rgba(255,255,255,0.05)',
           borderBottom: '1px solid rgba(255,255,255,0.05)',
-          marginBottom: 16,
+          marginBottom: 12,
         }}>
           {/* Experience */}
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#f0f4ff', letterSpacing: '-0.01em', lineHeight: 1 }}>
-              {lawyer.experience}<span style={{ fontSize: 10, fontWeight: 600, color: '#475569' }}>yr</span>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#f0f4ff', letterSpacing: '-0.01em', lineHeight: 1 }}>
+              {lawyer.experience}<span style={{ fontSize: 9, fontWeight: 600, color: '#475569' }}>yr</span>
             </div>
-            <div style={{ fontSize: 9, color: '#475569', fontWeight: 600, marginTop: 2, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Exp.</div>
+            <div style={{ fontSize: 8, color: '#475569', fontWeight: 600, marginTop: 2, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Exp.</div>
           </div>
 
           <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.07)' }} />
@@ -289,8 +289,8 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
             onClick={e => { e.stopPropagation(); onBookClick(lawyer); }}
             style={{
               flex: 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '11px 0', borderRadius: 12, border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              padding: '8px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
               background: 'linear-gradient(135deg, #1d4ed8, #4338ca)',
               color: '#fff', fontSize: 12, fontWeight: 700,
               letterSpacing: '0.02em', fontFamily: 'inherit',

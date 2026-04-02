@@ -231,7 +231,7 @@ export const legalInfo = [
         responses: ["Neighbour disputes:\n\n📌 Common issues:\n• Boundary wall encroachment\n• Noise pollution\n• Water drainage\n• Tree branch overhang\n\n📌 Legal options:\n• Send legal notice first\n• File complaint with local municipality\n• Civil suit for injunction or damages\n\nNeed a civil lawyer? Tell me your city!"]
     },
     {
-        keywords: ['how much does a lawyer cost', 'lawyer fee', 'lawyer charges', 'advocate fee', 'consultation fee', 'legal fees', 'attorney cost'],
+        keywords: ['how much does a lawyer cost', 'lawyer fee', 'lawyer charges', 'advocate fee', 'consultation fee', 'legal fees', 'attorney cost', 'money', 'money problem', 'cost', 'pricing', 'price', 'budget', 'fees', 'charge'],
         responses: ["Lawyer fees in India (approximate):\n\n• Consultation: ₹500 – ₹5,000\n• Property matters: ₹10,000 – ₹50,000+\n• Criminal cases: ₹15,000 – ₹1,00,000+\n• Family law: ₹10,000 – ₹50,000+\n• Corporate: ₹20,000 – ₹2,00,000+\n\nTell me your case type and city, and I'll show exact fees for each lawyer!"]
     },
     {

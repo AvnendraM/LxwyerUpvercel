@@ -198,6 +198,9 @@ const OtpVerificationModal = ({ isOpen, onClose, onVerified, email, phone, darkM
                                 <p className={`text-sm text-center ${subtext}`}>
                                     OTP sent to <span className={`font-semibold ${text}`}>{target}</span>
                                 </p>
+                                <p className={`text-xs text-center text-blue-500 font-semibold mb-2`}>
+                                    Demo Hint: Use OTP <span className="font-mono bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded">111111</span> to bypass
+                                </p>
 
                                 {verified ? (
                                     <motion.div

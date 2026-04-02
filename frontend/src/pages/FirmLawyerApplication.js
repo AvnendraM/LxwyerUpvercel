@@ -170,7 +170,7 @@ export default function FirmLawyerApplication() {
           ))}
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg">
           <div className="text-center mb-6">
             <span className="inline-block px-3 py-1 bg-[#0F2944]/10 text-[#0F2944] rounded-full text-xs font-medium mb-4">
               FIRM LAWYER APPLICATION

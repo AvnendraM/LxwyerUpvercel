@@ -5,6 +5,7 @@ import { Search, Filter, Briefcase, MapPin, ArrowRight, ChevronLeft, ChevronRigh
 import axios from 'axios';
 import { API } from '../App';
 import { WaveLayout } from '../components/WaveLayout';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { dummyLawyers, states, specializations, searchLawyers } from '../data/lawyersData';
 import LawyerCard from '../components/LawyerCard';
@@ -36,6 +37,7 @@ export default function FindLawyerManual() {
     court: '',
     minRating: 0,
     consultationType: '',
+    priceMax: '',
     withAchievement: false
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -58,14 +60,32 @@ export default function FindLawyerManual() {
       setFilters(prev => ({
         ...prev,
         specialization: specParam || '',
-        // If they specify location, check if it matches a state.
-        // For simplicity, we search both city and state using the generic text search inside filteredLawyers.
       }));
       if (locParam) {
         setSearchQuery(locParam);
       }
     }
   }, [location.search]);
+
+  // Apply state from FindLawyerAI
+  useEffect(() => {
+    if (location.state) {
+      let applied = false;
+      setFilters(prev => {
+        const nf = { ...prev };
+        if (location.state.specialization) { nf.specialization = location.state.specialization; applied = true; }
+        if (location.state.budget) { nf.priceMax = location.state.budget; applied = true; }
+        return nf;
+      });
+      if (location.state.location) {
+        setSearchQuery(location.state.location);
+        applied = true;
+      }
+      if (applied) {
+        toast.success("AI search filters automatically applied!");
+      }
+    }
+  }, [location.state]);
 
   // Fetch verified lawyers from backend
   useEffect(() => {
@@ -168,6 +188,13 @@ export default function FindLawyerManual() {
       if (sel === 'both' && !(modes.has('video') && modes.has('in_person'))) return false;
     }
 
+    if (filters.priceMax) {
+      const maxFee = parseInt(filters.priceMax);
+      const feeClean = typeof lawyer.fee === 'string' ? lawyer.fee.replace(/[^0-9]/g, '') : lawyer.fee;
+      const parsedFee = lawyer.feeMin || parseInt(feeClean) || 0;
+      if (parsedFee > maxFee) return false;
+    }
+
     if (filters.withAchievement && (!lawyer.achievements || !Array.isArray(lawyer.achievements) || lawyer.achievements.length === 0)) return false;
 
     return true;
@@ -192,6 +219,7 @@ export default function FindLawyerManual() {
       court: '',
       minRating: 0,
       consultationType: '',
+      priceMax: '',
       withAchievement: false
     });
     setSearchQuery('');
@@ -219,6 +247,7 @@ export default function FindLawyerManual() {
     { key: 'city', value: filters.city },
     { key: 'court', value: filters.court },
     { key: 'consultationType', value: filters.consultationType },
+    { key: 'priceMax', value: filters.priceMax ? `Under ₹${filters.priceMax}` : '' },
     ...(filters.withAchievement ? [{ key: 'withAchievement', value: 'Has Achievements' }] : [])
   ].filter(f => f.value);
 
@@ -307,7 +336,7 @@ export default function FindLawyerManual() {
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('fl_state')}</label>
                     <select
@@ -391,6 +420,22 @@ export default function FindLawyerManual() {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Price filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Max Fee (₹)</label>
+                    <select
+                      value={filters.priceMax}
+                      onChange={(e) => handleFilterChange('priceMax', e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] rounded-lg text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-[#555]"
+                    >
+                      <option value="">Any Price</option>
+                      <option value="5000">Under ₹5,000</option>
+                      <option value="10000">Under ₹10,000</option>
+                      <option value="20000">Under ₹20,000</option>
+                      <option value="50000">Under ₹50,000</option>
+                    </select>
                   </div>
                 </div>
 
@@ -771,29 +816,19 @@ export default function FindLawyerManual() {
       </AnimatePresence>
 
 
-      {/* Floating AI Lawyer Matching Button — lightweight, GPU-composited */}
-      <div className="fixed bottom-20 right-3 sm:bottom-8 sm:right-8 z-50">
+      {/* Floating AI Lawyer Matching Button */}
+      <div className="fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-50">
         <motion.button
           onClick={() => navigate('/find-lawyer/ai')}
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
-          whileHover={{ scale: 1.06, y: -3 }}
-          whileTap={{ scale: 0.96 }}
-          className="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#050d1a] text-white font-semibold text-xs sm:text-sm cursor-pointer select-none border border-blue-500/40 shadow-xl shadow-blue-700/20 hover:shadow-blue-600/40 transition-shadow duration-300"
-          style={{ backdropFilter: 'blur(12px)', willChange: 'transform' }}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 rounded-full bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white font-semibold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer"
         >
-          {/* Static blue glow ring */}
-          <span className="absolute inset-0 rounded-2xl ring-1 ring-blue-500/20 pointer-events-none" />
-          {/* Live pulse dot */}
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-400 rounded-full ring-2 ring-[#050d1a] animate-pulse" />
-          <span className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30">
-            <Scale className="w-4 h-4 text-blue-400" />
-          </span>
-          <span className="relative">
-            {t('fl_ai_btn')}
-            <span className="block text-[10px] font-normal text-blue-400/70 -mt-0.5">{t('fl_ai_sub')}</span>
-          </span>
+          <Scale className="w-5 h-5" />
+          <span>{t('fl_ai_btn')}</span>
         </motion.button>
       </div>
 

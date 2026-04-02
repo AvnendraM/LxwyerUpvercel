@@ -614,7 +614,9 @@ export default function BookConsultationWithSignup() {
                   <div className="max-w-lg mx-auto">
                     <div className="mb-8">
                       <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 font-outfit">{t('bcs_payment_title')}</h2>
-                      <p className="text-slate-500 dark:text-slate-400">{t('bcs_payment_sub')}</p>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        {t('bcs_payment_sub')} <span className="text-blue-500 font-semibold ml-1">(Dummy Gateway Test)</span>
+                      </p>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 mb-8">

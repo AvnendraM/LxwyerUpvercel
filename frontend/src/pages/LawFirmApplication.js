@@ -522,7 +522,7 @@ export default function LawFirmApplication() {
 
         {/* Form Card */}
         <div
-          className="w-full max-w-4xl rounded-2xl p-6 md:p-8"
+          className="w-full max-w-4xl rounded-2xl p-4 sm:p-6 md:p-8"
           style={{
             background: 'rgba(255,255,255,0.04)',
             backdropFilter: 'blur(20px)',

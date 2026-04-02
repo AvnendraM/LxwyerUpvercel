@@ -394,7 +394,7 @@ export default function JoinLawFirmWithSignup() {
             className="bg-slate-900 border border-slate-800 rounded-2xl p-8"
           >
             <h2 className="text-3xl font-bold text-white mb-2">Payment Details</h2>
-            <p className="text-slate-400 mb-8">Complete your payment to join the law firm</p>
+            <p className="text-slate-400 mb-8">Complete your payment to join the law firm <span className="text-blue-500 font-semibold">(Dummy Gateway Test)</span></p>
 
             {/* Summary */}
             <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 mb-6">

@@ -937,7 +937,7 @@ export default function LawyerApplication() {
             border: '1px solid rgba(255,255,255,0.1)',
             boxShadow: '0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
           }}
-          className="w-full max-w-2xl rounded-2xl p-6 sm:p-8"
+          className="w-full max-w-2xl rounded-2xl p-4 sm:p-6 md:p-8"
         >
           {/* Step 1: Personal Info + Lawyer Type */}
           {step === 1 && (

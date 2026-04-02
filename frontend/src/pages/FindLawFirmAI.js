@@ -237,6 +237,15 @@ export default function FindLawFirmAI() {
 
   const detectUrgency = (msg) => /urgent|asap|emergency|immediately|right away|today/i.test(msg);
 
+  const detectBudget = (message) => {
+    const msg = message.toLowerCase().replace(/(\d),(\d)/g, '$1$2');
+    if (msg.includes('free') || msg.includes('no fee') || msg.includes('pro bono')) return { max: 0, label: 'Free / Pro Bono' };
+    if (msg.includes('budget') || msg.includes('affordable') || msg.includes('cheap') || msg.includes('low cost')) return { max: 2000, label: 'Budget-Friendly (under ₹2,000)' };
+    const underMatch = msg.match(/(?:under|max|maximum|below)\s*(?:rs\.?|₹|inr|-)?\s*(\d+)/i) || msg.match(/(?:rs\.?|₹|inr)\s*(\d+)\s*(?:or\s*less|max)/i);
+    if (underMatch) return { max: parseInt(underMatch[1]), label: `Under ₹${parseInt(underMatch[1]).toLocaleString()}` };
+    return null;
+  };
+
   const getEmotionalResponse = (message) => {
     if (/\b(stress|stressed|anxious|anxiety|worried|overwhelmed|panicking|panic|scared|fear|nervous|depressed|sad|helpless|hopeless|exhausted)\b/i.test(message)) {
       return `I hear you — it sounds like you're going through a difficult time. 💙\n\nI'm a legal AI assistant, so I can't provide mental health support. But please reach out:\n\n📞 iCall Helpline: 9152987821\n📞 Vandrevala Foundation: 1860-2662-345 (24/7)\n\nIf your stress is due to a legal matter, I can find the right law firm to help. Just describe your issue and city!`;
@@ -250,6 +259,26 @@ export default function FindLawFirmAI() {
     if (farewells.keywords.some(kw => msg === kw || msg === kw + '!' || msg === kw + '.')) return pick(farewells.responses);
     if (thanks.keywords.some(kw => msg === kw || msg === kw + '!' || msg === kw + '.')) return pick(thanks.responses);
     if (aboutBot.keywords?.some(kw => msg.includes(kw))) return pick(aboutBot.responses);
+    return null;
+  };
+
+  const getLegalKnowledgeResponse = (message) => {
+    const msg = message.toLowerCase().trim();
+    for (const item of advancedLegalInfo) {
+      if (item.keywords.some(kw => msg.includes(kw))) return (Array.isArray(item.responses) ? item.responses[Math.floor(Math.random() * item.responses.length)] : item.responses);
+    }
+    for (const item of hindiPhrases) {
+      if (item.keywords.some(kw => msg.includes(kw))) return (Array.isArray(item.responses) ? item.responses[Math.floor(Math.random() * item.responses.length)] : item.responses);
+    }
+    for (const item of proceduralQA) {
+      if (item.keywords.some(kw => msg.includes(kw))) return (Array.isArray(item.responses) ? item.responses[Math.floor(Math.random() * item.responses.length)] : item.responses);
+    }
+    for (const item of legalInfo) {
+      if (item.keywords.some(kw => msg.includes(kw))) return (Array.isArray(item.responses) ? item.responses[Math.floor(Math.random() * item.responses.length)] : item.responses);
+    }
+    for (const item of customQA) {
+      if (item.keywords.some(kw => msg.includes(kw))) return (Array.isArray(item.responses) ? item.responses[Math.floor(Math.random() * item.responses.length)] : item.responses);
+    }
     return null;
   };
 
@@ -324,6 +353,14 @@ export default function FindLawFirmAI() {
       return;
     }
 
+    // Legal Knowledge fallback
+    const knowledgeReply = getLegalKnowledgeResponse(userMessage);
+    if (knowledgeReply) {
+      setMessages(prev => [...prev, { role: 'assistant', content: knowledgeReply }]);
+      setIsLoading(false);
+      return;
+    }
+
     // Show-all shortcut
     if (/show all|browse all|see all|all firms/i.test(userMessage)) {
       navigate('/find-lawfirm/manual');
@@ -335,11 +372,13 @@ export default function FindLawFirmAI() {
     const newPracticeArea = detectPracticeArea(userMessage);
     const newLocation    = detectLocation(userMessage);
     const isUrgent       = detectUrgency(userMessage);
+    const newBudget      = detectBudget(userMessage);
     const practiceArea   = newPracticeArea || memory.practiceArea;
     const location       = newLocation || memory.location;
     const urgent         = isUrgent || memory.urgent;
+    const budget         = newBudget || memory.budget;
 
-    setMemory(prev => ({ ...prev, practiceArea, location, urgent }));
+    setMemory(prev => ({ ...prev, practiceArea, location, urgent, budget }));
 
     // ── Run backend smart match first ─────────────────────────────────────
     const matchData = await smartMatchFirms(userMessage);
