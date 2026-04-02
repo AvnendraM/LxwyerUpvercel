@@ -112,6 +112,13 @@ const pageKeyframes = `
   100% { transform: rotate(360deg); }
 }
 
+@keyframes triangleSplashZoom {
+  0% { -webkit-mask-size: 60px, 100%; mask-size: 60px, 100%; }
+  25% { -webkit-mask-size: 50px, 100%; mask-size: 50px, 100%; }
+  100% { -webkit-mask-size: 10000px, 100%; mask-size: 10000px, 100%; }
+}
+
+
 /* ── 3D Animated Sphere ── */
 @keyframes morphSphere {
   0%   { transform: rotate(0deg)   scale(1);   }
@@ -625,6 +632,23 @@ const ScalesOfJusticeIntro = React.memo(() => {
                     <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors" style={{ position: 'relative', zIndex: 5 }}>Scroll to explore</p>
                 </motion.div>
             </div >
+
+            {/* X.com-style Triangle Splash Screen Transition */}
+            <div style={{
+                position: 'fixed', inset: 0, zIndex: 99999,
+                background: '#2563eb',
+                WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Cpolygon points=\'50,20 80,80 20,80\' fill=\'%23000\' /%3E%3C/svg%3E"), linear-gradient(#fff, #fff)',
+                WebkitMaskPosition: 'center, center',
+                WebkitMaskRepeat: 'no-repeat, no-repeat',
+                WebkitMaskComposite: 'destination-out',
+                maskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Cpolygon points=\'50,20 80,80 20,80\' fill=\'%23000\' /%3E%3C/svg%3E"), linear-gradient(#fff, #fff)',
+                maskPosition: 'center, center',
+                maskRepeat: 'no-repeat, no-repeat',
+                maskComposite: 'exclude',
+                transform: 'translateZ(0)',
+                animation: 'triangleSplashZoom 0.9s cubic-bezier(0.8, 0, 0.2, 1) forwards',
+                pointerEvents: 'none'
+            }} />
         </section >
     );
 });

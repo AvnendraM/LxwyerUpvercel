@@ -126,7 +126,7 @@ export default function GenerativeBubble({ active, typing, color }) {
     // ── Generate Morphing Geometries ─────────────────────────────────
     // Scale factor: keep everything within ±1.4 so the full shape is always visible
     const SC = 1.0; // overall geometry scale
-    const count = 8000;
+    const count = isMobile ? 4000 : 8000;
     const geo = new THREE.BufferGeometry();
     const posBubble = new Float32Array(count * 3);
     const posTriangle = new Float32Array(count * 3);
@@ -236,16 +236,14 @@ export default function GenerativeBubble({ active, typing, color }) {
 
     const tick = (now) => {
       raf = requestAnimationFrame(tick);
-      if (now - lastTime < TARGET_INTERVAL) return;
-      lastTime = now;
-
       const t = clock.getElapsedTime();
+      
       uniforms.uTime.value = t;
       // Morph slowly cycles: Bubble (0) -> Triangle (1) -> Scale (2) -> Bubble (3=0)
-      uniforms.uMorph.value = (t * 0.18) % 3.0; 
+      uniforms.uMorph.value = (t * 0.225) % 3.0; 
       
-      group.rotation.y = t * 0.15;
-      group.rotation.x = Math.sin(t * 0.1) * 0.15;
+      group.rotation.y = t * 0.1875;
+      group.rotation.x = Math.sin(t * 0.125) * 0.1875;
       renderer.render(scene, camera);
     };
     raf = requestAnimationFrame(tick);
