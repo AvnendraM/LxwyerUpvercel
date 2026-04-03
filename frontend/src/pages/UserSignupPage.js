@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Scale, Mail, Lock, ArrowRight, User, Phone, ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ export default function UserSignupPage() {
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isExistingUser, setIsExistingUser] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -23,6 +24,23 @@ export default function UserSignupPage() {
     phone: ''
   });
   const navigate = useNavigate();
+
+  // Auto-fill from session if user is already logged in
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setFormData(prev => ({
+          ...prev,
+          full_name: parsedUser.full_name || parsedUser.name || '',
+          email: parsedUser.email || ''
+        }));
+        setIsExistingUser(true);
+      } catch (_) {}
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,12 +169,14 @@ export default function UserSignupPage() {
                   <input
                     type="text"
                     required
+                    readOnly={isExistingUser}
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
-                    placeholder="John Doe"
+                    className={`w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm ${isExistingUser ? 'bg-slate-100 cursor-not-allowed opacity-70' : 'bg-white'}`}
+                    placeholder="Rahul Sharma"
                   />
                 </div>
+                {isExistingUser && <p className="text-xs text-slate-400 ml-1 mt-1">Auto-filled from your account</p>}
               </div>
 
               {/* Email */}
@@ -167,12 +187,14 @@ export default function UserSignupPage() {
                   <input
                     type="email"
                     required
+                    readOnly={isExistingUser}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
-                    placeholder="john@example.com"
+                    className={`w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm ${isExistingUser ? 'bg-slate-100 cursor-not-allowed opacity-70' : 'bg-white'}`}
+                    placeholder="rahul@example.com"
                   />
                 </div>
+                {isExistingUser && <p className="text-xs text-slate-400 ml-1 mt-1">Auto-filled from your account</p>}
               </div>
 
               {/* Phone */}

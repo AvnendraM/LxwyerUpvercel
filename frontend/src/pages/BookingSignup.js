@@ -70,6 +70,7 @@ const BookingSignup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [isExistingUser, setIsExistingUser] = useState(false);
 
   // Find the lawyer
   const lawyer = dummyLawyers.find(l => l.id === id);
@@ -95,6 +96,20 @@ const BookingSignup = () => {
 
   const timeSlots = generateTimeSlots();
   const availableDates = generateAvailableDates();
+
+  // Auto-fill from session if user is logged in
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        updateField('full_name', parsedUser.full_name || parsedUser.name || '');
+        updateField('email', parsedUser.email || '');
+        setIsExistingUser(true);
+      } catch (_) {}
+    }
+  }, []);
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -257,10 +272,12 @@ const BookingSignup = () => {
                         <Input
                           value={formData.full_name}
                           onChange={(e) => updateField('full_name', e.target.value)}
+                          readOnly={isExistingUser}
                           placeholder="Your full name"
-                          className="pl-10 bg-white border-gray-200 rounded-xl text-black placeholder:text-gray-400"
+                          className={`pl-10 border-gray-200 rounded-xl text-black placeholder:text-gray-400 ${isExistingUser ? 'bg-gray-50 cursor-not-allowed opacity-70' : 'bg-white'}`}
                         />
                       </div>
+                      {isExistingUser && <p className="text-xs text-gray-400 mt-1">Auto-filled from your account</p>}
                     </div>
 
                     <div>
@@ -271,10 +288,12 @@ const BookingSignup = () => {
                           type="email"
                           value={formData.email}
                           onChange={(e) => updateField('email', e.target.value)}
+                          readOnly={isExistingUser}
                           placeholder="your@email.com"
-                          className="pl-10 bg-white border-gray-200 rounded-xl text-black placeholder:text-gray-400"
+                          className={`pl-10 border-gray-200 rounded-xl text-black placeholder:text-gray-400 ${isExistingUser ? 'bg-gray-50 cursor-not-allowed opacity-70' : 'bg-white'}`}
                         />
                       </div>
+                      {isExistingUser && <p className="text-xs text-gray-400 mt-1">Auto-filled from your account</p>}
                     </div>
 
                     <div>

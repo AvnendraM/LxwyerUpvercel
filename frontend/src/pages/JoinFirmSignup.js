@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -50,6 +50,8 @@ const JoinFirmSignup = () => {
   const [submitted, setSubmitted] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
 
+  const [isExistingUser, setIsExistingUser] = useState(false);
+
   // Find the firm
   const firm = dummyLawFirms.find(f => f.id === firmId);
 
@@ -73,6 +75,23 @@ const JoinFirmSignup = () => {
     cardCvv: '',
     cardName: ''
   });
+
+  // Auto-fill from session if user is already logged in
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setFormData(prev => ({
+          ...prev,
+          full_name: parsedUser.full_name || parsedUser.name || '',
+          email: parsedUser.email || ''
+        }));
+        setIsExistingUser(true);
+      } catch (_) {}
+    }
+  }, []);
 
   const caseTypes = [
     'Corporate Law', 'Property Law', 'Family Law', 'Criminal Law',
@@ -351,10 +370,12 @@ const JoinFirmSignup = () => {
                         <Input
                           value={formData.full_name}
                           onChange={(e) => updateField('full_name', e.target.value)}
-                          placeholder="Your full name"
-                          className="pl-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 rounded-xl text-black dark:text-white placeholder:text-gray-400"
+                          readOnly={isExistingUser}
+                          placeholder="Rahul Sharma"
+                          className={`pl-10 border-gray-200 dark:border-slate-700 rounded-xl text-black dark:text-white placeholder:text-gray-400 ${isExistingUser ? 'bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed opacity-70' : 'bg-white dark:bg-slate-800'}`}
                         />
                       </div>
+                      {isExistingUser && <p className="text-xs text-gray-400 mt-1">Auto-filled from your account</p>}
                     </div>
 
                     <div>
@@ -365,10 +386,12 @@ const JoinFirmSignup = () => {
                           type="email"
                           value={formData.email}
                           onChange={(e) => updateField('email', e.target.value)}
-                          placeholder="your@email.com"
-                          className="pl-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 rounded-xl text-black dark:text-white placeholder:text-gray-400"
+                          readOnly={isExistingUser}
+                          placeholder="rahul@example.com"
+                          className={`pl-10 border-gray-200 dark:border-slate-700 rounded-xl text-black dark:text-white placeholder:text-gray-400 ${isExistingUser ? 'bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed opacity-70' : 'bg-white dark:bg-slate-800'}`}
                         />
                       </div>
+                      {isExistingUser && <p className="text-xs text-gray-400 mt-1">Auto-filled from your account</p>}
                     </div>
 
                     <IndianPhoneInput

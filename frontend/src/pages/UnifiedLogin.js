@@ -101,7 +101,7 @@ const UnifiedLogin = () => {
           className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/[0.08] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[500px]"
         >
           {/* LEFT COLUMN: Role Selection (Acts like tabs) */}
-          <div className="md:w-5/12 bg-slate-50/50 dark:bg-[#080d1a]/50 p-6 sm:p-8 lg:p-10 border-b md:border-b-0 md:border-r border-slate-200/50 dark:border-white/[0.04]">
+          <div className={`md:w-5/12 bg-slate-50/50 dark:bg-[#080d1a]/50 p-6 sm:p-8 lg:p-10 border-b md:border-b-0 md:border-r border-slate-200/50 dark:border-white/[0.04] ${selectedRole ? 'hidden md:block' : 'block'}`}>
             <p className="text-[10px] tracking-[0.2em] uppercase text-blue-600 dark:text-blue-400 font-bold mb-6">{t('login_select_role')}</p>
             <div className="flex flex-col gap-2.5">
               {roles.map((role, index) => {
@@ -134,7 +134,7 @@ const UnifiedLogin = () => {
           </div>
 
           {/* RIGHT COLUMN: Login Form */}
-          <div className="md:w-7/12 p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative">
+          <div className={`md:w-7/12 p-6 sm:p-8 lg:p-12 flex-col justify-center relative ${!selectedRole ? 'hidden md:flex' : 'flex'}`}>
             {!selectedRole ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 opacity-50">
                 <ArrowLeft className="w-8 h-8 text-slate-400 mb-4 hidden md:block" />
@@ -143,7 +143,10 @@ const UnifiedLogin = () => {
             ) : (
               <motion.div key={selectedRole} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-sm mx-auto">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2 flex items-center gap-2">
+                    <button type="button" onClick={() => setSelectedRole(null)} className="md:hidden text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
                     {t('login_sign_in_as')} {t(roles.find(r => r.id === selectedRole)?.titleKey)}
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 font-light">

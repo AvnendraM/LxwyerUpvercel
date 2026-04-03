@@ -68,8 +68,7 @@ export default function BookConsultationWithSignup() {
           password: 'dummy_existing_user_password'
         });
         setIsExistingUser(true);
-        // Automatically skip the signup step
-        setStep(2);
+        // Do NOT skip step 1 — let user verify phone via OTP even if already logged in
       } catch (err) {
         console.error('Error parsing stored user', err);
       }
@@ -404,12 +403,14 @@ export default function BookConsultationWithSignup() {
                           <input
                             type="text"
                             required
+                            readOnly={isExistingUser}
                             value={signupData.full_name}
                             onChange={(e) => setSignupData({ ...signupData, full_name: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+                            className={`w-full pl-12 pr-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm ${isExistingUser ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-70' : 'bg-white dark:bg-slate-900/50'}`}
                             placeholder="Rahul Sharma"
                           />
                         </div>
+                        {isExistingUser && <p className="text-xs text-slate-400 ml-1 mt-1">Auto-filled from your account</p>}
                       </div>
 
                       <div className="space-y-1">
@@ -419,12 +420,14 @@ export default function BookConsultationWithSignup() {
                           <input
                             type="email"
                             required
+                            readOnly={isExistingUser}
                             value={signupData.email}
                             onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
-                            placeholder="john@example.com"
+                            className={`w-full pl-12 pr-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm ${isExistingUser ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-70' : 'bg-white dark:bg-slate-900/50'}`}
+                            placeholder="rahul@example.com"
                           />
                         </div>
+                        {isExistingUser && <p className="text-xs text-slate-400 ml-1 mt-1">Auto-filled from your account</p>}
                       </div>
 
                       <IndianPhoneInput

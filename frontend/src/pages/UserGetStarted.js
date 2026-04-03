@@ -54,30 +54,28 @@ export default function UserGetStarted() {
       <Navbar minimal />
 
       {/* ── Hero Image Banner ── */}
-      <div className="relative h-[32vh] md:h-[40vh] overflow-hidden">
+      <div className="relative h-[28vh] md:h-[35vh] overflow-hidden">
         <img
           src="/law-office-hero.png"
           alt="Legal professionals"
           className="w-full h-full object-cover object-[center_30%]"
         />
-        {/* Gradient overlays — stronger to blend bright image into dark page */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-        {/* Subtle color tint to feel more on-brand */}
-        <div className="absolute inset-0 bg-blue-950/20" />
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black" />
+        <div className="absolute inset-0 bg-blue-950/30 mix-blend-multiply" />
 
         {/* Centered badge over image */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 md:pt-4">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center"
+            className="text-center px-4"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-md mb-3">
-              <span className="text-[10px] tracking-[0.25em] uppercase text-blue-400 font-bold">India's First Legal Ecosystem</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-3 md:mb-4">
+              <span className="text-[9px] md:text-[10px] tracking-[0.25em] uppercase text-blue-400 font-bold">India's First Legal Ecosystem</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-2xl">
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-2xl">
               Who are you looking for?
             </h1>
           </motion.div>
@@ -85,9 +83,9 @@ export default function UserGetStarted() {
       </div>
 
       {/* ── Cards ── */}
-      <main className="flex-1 flex flex-col items-center px-5 py-10 relative z-10">
+      <main className="flex-1 flex flex-col items-center px-4 py-8 relative z-10 -mt-10 sm:-mt-16">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-4xl mb-12">
           {[
             {
               id: 'lawyer',
@@ -122,21 +120,26 @@ export default function UserGetStarted() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay }}
               onClick={() => navigate(path)}
-              className={`group cursor-pointer rounded-2xl bg-white/[0.03] border border-white/[0.07] ${borderHover} ${glow} transition-all duration-300 hover:-translate-y-1 p-7 flex flex-col`}
+              className={`group cursor-pointer rounded-3xl bg-[#0a0d14]/90 backdrop-blur-xl border border-white/10 ${borderHover} ${glow} transition-all duration-300 hover:-translate-y-1 p-6 md:p-8 flex flex-col shadow-2xl relative overflow-hidden`}
             >
+              {/* Optional ambient glow inside card */}
+              <div className={`absolute -top-12 -right-12 w-32 h-32 blur-[40px] opacity-10 rounded-full transition-opacity duration-500 group-hover:opacity-25 pointer-events-none ${accent.includes('blue') ? 'bg-blue-600' : 'bg-slate-500'}`} />
+
               {/* Icon */}
-              <div className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-5 ${accent}`}>
-                <Icon className="w-5 h-5" strokeWidth={1.5} />
+              <div className={`relative z-10 w-12 h-12 rounded-xl border flex items-center justify-center mb-6 ${accent} shadow-inner`}>
+                <Icon className="w-5 h-5" strokeWidth={2} />
               </div>
 
               {/* Text */}
-              <p className="text-[10px] tracking-[0.2em] uppercase text-white/30 font-semibold mb-1">{sup}</p>
-              <h2 className="text-xl font-black text-white mb-2">{title}</h2>
-              <p className="text-sm text-white/35 leading-relaxed mb-6 font-light">{sub}</p>
+              <div className="relative z-10">
+                <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400 font-bold mb-1.5">{sup}</p>
+                <h2 className="text-2xl font-black text-white mb-2">{title}</h2>
+                <p className="text-sm text-slate-400 leading-relaxed mb-8 font-medium">{sub}</p>
+              </div>
 
               {/* Button */}
               <button
-                className={`mt-auto w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 ${btnClass} transition-colors`}
+                className={`relative z-10 mt-auto w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 ${btnClass} transition-colors`}
               >
                 {title}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

@@ -15,6 +15,8 @@ export default function JoinLawFirmWithSignup() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isExistingUser, setIsExistingUser] = useState(false);
 
   const selectedFirm = location.state?.firm || null;
 
@@ -51,6 +53,23 @@ export default function JoinLawFirmWithSignup() {
       navigate('/find-lawfirm/manual');
     }
   }, [selectedFirm, navigate]);
+
+  // Auto-fill from session if user is already logged in
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setSignupData(prev => ({
+          ...prev,
+          full_name: parsedUser.full_name || parsedUser.name || '',
+          email: parsedUser.email || ''
+        }));
+        setIsExistingUser(true);
+      } catch (_) {}
+    }
+  }, []);
 
   if (!selectedFirm) return null;
 
@@ -261,11 +280,13 @@ export default function JoinLawFirmWithSignup() {
                     type="text"
                     value={signupData.full_name}
                     onChange={(e) => setSignupData({ ...signupData, full_name: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="John Doe"
+                    readOnly={isExistingUser}
+                    className={`w-full border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${isExistingUser ? 'bg-slate-700/50 cursor-not-allowed opacity-70' : 'bg-slate-800'}`}
+                    placeholder="Rahul Sharma"
                     required
                   />
                 </div>
+                {isExistingUser && <p className="text-xs text-slate-500 mt-1">Auto-filled from your account</p>}
               </div>
 
               <div>
@@ -276,11 +297,13 @@ export default function JoinLawFirmWithSignup() {
                     type="email"
                     value={signupData.email}
                     onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="john@example.com"
+                    readOnly={isExistingUser}
+                    className={`w-full border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${isExistingUser ? 'bg-slate-700/50 cursor-not-allowed opacity-70' : 'bg-slate-800'}`}
+                    placeholder="rahul@example.com"
                     required
                   />
                 </div>
+                {isExistingUser && <p className="text-xs text-slate-500 mt-1">Auto-filled from your account</p>}
               </div>
 
               <IndianPhoneInput

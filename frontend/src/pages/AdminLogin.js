@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Scale, Mail, Lock, ArrowRight, Shield, ArrowLeft, Home } from 'lucide-react';
+import { Scale, Mail, Lock, ArrowRight, Shield, ArrowLeft, Home, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../App';
@@ -9,6 +9,7 @@ import { CorporateInput, CorporateButton } from '../components/CorporateComponen
 
 export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: 'admin@lxwyerup.com',
     password: ''
@@ -80,16 +81,30 @@ export default function AdminLogin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <CorporateInput
-                label="Admin Password"
-                type="password"
-                data-testid="admin-password-input"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Enter admin password"
-                icon={Lock}
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">Admin Password</label>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    <Lock className="w-5 h-5 text-slate-500" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    data-testid="admin-password-input"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Enter admin password"
+                    required
+                    className="w-full pl-12 pr-12 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-colors duration-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
 
               <CorporateButton
                 type="submit"
