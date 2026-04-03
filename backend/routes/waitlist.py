@@ -25,7 +25,9 @@ async def join_waitlist(waitlist_data: WaitlistCreate, background_tasks: Backgro
         send_waitlist_notification,
         name=waitlist_data.full_name,
         email=waitlist_data.email,
-        message=waitlist_data.message
+        message=waitlist_data.message,
+        phone=waitlist_data.phone,
+        role=waitlist_data.role
     )
     
     return waitlist_obj
