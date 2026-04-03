@@ -156,7 +156,7 @@ const ContactFormSection = ({ formData, handleChange, handleSubmit, isSubmitting
                   onChange={handleChange}
                   required
                   className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl focus:border-blue-600 dark:focus:border-blue-500 text-slate-900 dark:text-white focus:outline-none transition-all duration-300 placeholder:text-slate-400"
-                  placeholder="John Doe"
+                  placeholder="Rahul Sharma"
                 />
               </div>
 
@@ -172,7 +172,7 @@ const ContactFormSection = ({ formData, handleChange, handleSubmit, isSubmitting
                   onChange={handleChange}
                   required
                   className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl focus:border-blue-600 dark:focus:border-blue-500 text-slate-900 dark:text-white focus:outline-none transition-all duration-300 placeholder:text-slate-400"
-                  placeholder="john@example.com"
+                  placeholder="rahul@example.com"
                 />
               </div>
 

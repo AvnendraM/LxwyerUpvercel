@@ -7,6 +7,8 @@ import uuid
 class WaitlistCreate(BaseModel):
     email: EmailStr
     full_name: str
+    phone: Optional[str] = None
+    role: Optional[str] = None
     message: Optional[str] = None
 
 
@@ -15,5 +17,7 @@ class Waitlist(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
     full_name: str
+    phone: Optional[str] = None
+    role: Optional[str] = None
     message: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -147,6 +147,10 @@ try:
 
     _cors_origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
     _cors_origins = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+    if "https://lxwyerup.com" not in _cors_origins:
+        _cors_origins.append("https://lxwyerup.com")
+    if "https://www.lxwyerup.com" not in _cors_origins:
+        _cors_origins.append("https://www.lxwyerup.com")
 
     real_app.add_middleware(
         CORSMiddleware,

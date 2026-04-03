@@ -264,7 +264,6 @@ export default function FeaturesPage() {
       <section className="pt-36 pb-16 px-6 text-center">
         {/* Formal badge */}
         <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-1.5 mb-8">
-          <Scale size={12} className="text-blue-600 dark:text-blue-400" />
           Trusted Legal Platform · India
         </div>
 

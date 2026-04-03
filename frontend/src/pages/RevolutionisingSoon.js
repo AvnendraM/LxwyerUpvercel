@@ -14,11 +14,18 @@ const VisionaryForm = memo(function VisionaryForm() {
     if (!form.name || !form.email || !form.role) return;
     setStatus('loading');
     try {
-      await fetch(`${API}/waitlist`, {
+      const response = await fetch(`${API}/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          full_name: form.name,
+          email: form.email,
+          phone: form.phone,
+          role: form.role,
+          message: form.message
+        }),
       });
+      if (!response.ok) throw new Error('Submission failed');
       setStatus('success');
     } catch { setStatus('error'); }
   };
