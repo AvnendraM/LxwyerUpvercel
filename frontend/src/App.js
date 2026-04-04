@@ -216,7 +216,6 @@ function App() {
           <div className="App">
             <BrowserRouter>
               <ScrollToTop />
-              <GlobalBackButton />
               <AnimatedRoutes user={user} />
             </BrowserRouter>
             <Toaster position="top-right" />
