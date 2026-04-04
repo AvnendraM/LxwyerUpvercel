@@ -6,6 +6,109 @@ import { GradientOrbs } from '../components/GradientOrbs';
 import { Footer } from '../components/Footer';
 import { useLang } from '../context/LanguageContext';
 
+const TEXT = {
+  en: {
+    heroBadge: 'The New Standard',
+    heroLine1: 'Justice Should Be',
+    heroLine2: 'Transparent.',
+    heroSub1: 'The legal system was built to deliver justice. But somewhere along the way, ',
+    heroSub2: 'clarity was lost.',
+    scroll: 'Scroll',
+    
+    statClients: 'Clients Empowered',
+    statLawyers: 'Verified Legal Minds',
+    statSupport: 'Continuous Support',
+    
+    manifestoStory: 'Our Story',
+    manifestoTitle1: 'Why Lxwyer Up',
+    manifestoTitle2: 'Had to Exist',
+    manifestoImage1: 'India\'s Legal System',
+    manifestoImage2: 'We are rebuilding confidence in it.',
+    
+    prLabel1: 'The Problem',
+    prText1: 'Millions step into legal processes feeling powerless — unsure of their rights, unaware of their case progress, and dependent on complex systems they cannot decode.',
+    prLabel2: 'The Other Side',
+    prText2: 'At the same time, ethical lawyers work tirelessly within outdated structures, juggling scattered tools, repetitive communication, and overwhelming workflows.',
+    prLabel3: 'Our Belief',
+    prText3: 'We believe this can change. Lxwyer Up was born from a simple but radical idea: Law should be empowering. Technology should make the system more human — not more complex.',
+    prLabel4: 'The Promise',
+    prText4: 'We are building more than a platform. We are building the digital backbone of legal clarity — where trust replaces confusion and transparency replaces asymmetry.',
+
+    probReality: 'The Reality',
+    probTitle: 'The System is Broken',
+    probSub: 'The traditional legal framework creates unnecessary barriers for both those who seek justice and those who deliver it.',
+    prob1Title: 'Millions Feel Powerless', prob1Desc: 'Ordinary citizens enter legal processes unaware of their rights, with no clarity on what to expect or how to navigate the system.',
+    prob2Title: 'No Transparency', prob2Desc: 'Hidden fees, unclear timelines, and opaque proceedings create fear and distrust — the system that was meant to protect becomes an obstacle.',
+    prob3Title: 'Complex by Design', prob3Desc: 'Legal jargon and archaic processes were never designed for common people. The gap between the law and the layperson is vast.',
+    prob4Title: 'Lawyers Need Structure', prob4Desc: 'Ethical lawyers manage scattered workflows — missed follow-ups, repetitive paperwork, and no digital infrastructure to work efficiently.',
+
+    pilSolution: 'The Solution',
+    pilTitle1: 'The Digital Backbone',
+    pilTitle2: 'of Legal Clarity',
+    pil1Title: 'A Clear Journey', pil1Desc: 'From first query to final verdict — users know exactly where their case stands, what comes next, and what their rights are at every step.',
+    pil2Title: 'Structured Practice', pil2Desc: 'Verified professionals get powerful tools — case management, client communication, and digital workflows that remove friction and amplify impact.',
+    pil3Title: 'Radical Honesty', pil3Desc: 'Every interaction is transparent. Fees are declared. Timelines are communicated. No hidden layers. No power asymmetry.',
+
+    visLabel: 'Our Vision',
+    visQuote: 'We envision a future where accessing legal support feels as seamless as ordering a product online — structured, reliable, and empowering.',
+    visBuilding: 'Building confidence in the legal system',
+    visDesc1: 'Lxwyer Up exists to make justice not only accessible — but ',
+    visDesc2: 'understandable',
+    visDesc3: '. This is not just legal tech. ',
+    visDesc4: 'This is a movement.'
+  },
+  hi: {
+    heroBadge: 'नया मानक',
+    heroLine1: 'न्याय होना चाहिए',
+    heroLine2: 'पारदर्शी।',
+    heroSub1: 'कानूनी व्यवस्था न्याय दिलाने के लिए बनाई गई थी। लेकिन इसमें कहीं न कहीं, ',
+    heroSub2: 'स्पष्टता खो गई।',
+    scroll: 'नीचे स्क्रॉल करें',
+    
+    statClients: 'सशक्त मुवक्किल',
+    statLawyers: 'सत्यापित वकील',
+    statSupport: 'निरंतर सहायता',
+    
+    manifestoStory: 'हमारी कहानी',
+    manifestoTitle1: 'Lxwyer Up क्यों',
+    manifestoTitle2: 'अस्तित्व में आया',
+    manifestoImage1: 'भारत की कानूनी व्यवस्था',
+    manifestoImage2: 'हम इसमें विश्वास फिर से बना रहे हैं।',
+    
+    prLabel1: 'समस्या',
+    prText1: 'लाखों लोग अधिकारों से अनजान, मामले की प्रगति से बेखबर और जटिल प्रणालियों पर निर्भर होकर कानूनी प्रक्रियाओं में कदम रखते हैं।',
+    prLabel2: 'दूसरा पहलू',
+    prText2: 'वहीं दूसरी ओर, नैतिक वकील असंगठित साधनों और अत्यधिक काम के बीच पुराने ढांचे में अथक प्रयास करते हैं।',
+    prLabel3: 'हमारा विश्वास',
+    prText3: 'हमारा मानना है कि यह बदल सकता है। कानून को सशक्त बनाना चाहिए। तकनीक को व्यवस्था को और अधिक मानवीय बनाना चाहिए — जटिल नहीं।',
+    prLabel4: 'वादा',
+    prText4: 'हम स्पष्टता और पारदर्शिता की नींव तैयार कर रहे हैं — जहां विश्वास भ्रम की जगह लेता है।',
+
+    probReality: 'वास्तविकता',
+    probTitle: 'सिस्टम टूट चुका है',
+    probSub: 'पारंपरिक कानूनी ढांचा न्याय चाहने वालों और न्याय देने वालों दोनों के लिए अनावश्यक बाधाएं पैदा करता है।',
+    prob1Title: 'लाखों लोग शक्तिहीन महसूस करते हैं', prob1Desc: 'आम नागरिक अपने अधिकारों से अनजान कानूनी प्रक्रियाओं में प्रवेश करते हैं, उन्हें स्पष्टता नहीं होती कि आगे क्या होगा।',
+    prob2Title: 'पारदर्शिता का अभाव', prob2Desc: 'छिपी हुई फीस, अस्पष्ट समयसीमा और अपारदर्शी कार्यवाही भय पैदा करती है — सुरक्षा के लिए बनी व्यवस्था ही बाधा बन जाती है।',
+    prob3Title: 'जटिलता', prob3Desc: 'कानूनी जार्गन और पुरानी प्रक्रियाएं आम लोगों के लिए कभी डिज़ाइन नहीं की गईं। ऍप और आम आदमी के बीच की दूरी बहुत बड़ी है।',
+    prob4Title: 'वकीलों को संरचना चाहिए', prob4Desc: 'नैतिक वकील असंगठित काम, बार-बार कागजी कार्रवाई और बिना डिजिटल बुनियादी ढांचे के काम करते हैं।',
+
+    pilSolution: 'समाधान',
+    pilTitle1: 'कानूनी स्पष्टता की',
+    pilTitle2: 'डिजिटल रीढ़',
+    pil1Title: 'एक स्पष्ट यात्रा', pil1Desc: 'पहले प्रश्न से अंतिम फैसले तक — उपयोगकर्ताओं को पता होता है कि उनका मामला कहां है और उनके अधिकार क्या हैं।',
+    pil2Title: 'संरचित अभ्यास', pil2Desc: 'सत्यापित पेशेवरों को शक्तिशाली टूल मिलते हैं — केस प्रबंधन, क्लाइंट संचार और डिजिटल वर्कफ़्लो।',
+    pil3Title: 'ईमानदारी', pil3Desc: 'हर बातचीत पारदर्शी है। फीस घोषित की जाती है। समयसीमा बताई जाती है। कोई छिपी हुई परतें नहीं।',
+
+    visLabel: 'हमारा नज़रिया',
+    visQuote: 'हम एक ऐसे भविष्य की कल्पना करते हैं जहां कानूनी सहायता प्राप्त करना ऑनलाइन उत्पाद ऑर्डर करने जितना आसान हो — संरचित, विश्वसनीय और सशक्त।',
+    visBuilding: 'कानूनी व्यवस्था में विश्वास बनाना',
+    visDesc1: 'Lxwyer Up का उद्देश्य न्याय को न केवल सुलभ बनाना है — बल्कि ',
+    visDesc2: 'समझने योग्य भी',
+    visDesc3: '। यह केवल कानूनी तकनीक नहीं है। ',
+    visDesc4: 'यह एक क्रांति है।'
+  }
+};
+
 // ─── STANDARD ANIMATION VARIANTS ───
 const fadeUp = {
   hidden: { opacity: 0, y: 50 },
@@ -95,6 +198,8 @@ export default function AboutPage() {
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.2], [0, 150]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const { lang } = useLang();
+  const d = TEXT[lang] || TEXT.en;
 
   return (
     <div className="min-h-screen bg-black text-white font-['Outfit'] overflow-x-hidden selection:bg-blue-500/30">
@@ -131,15 +236,15 @@ export default function AboutPage() {
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto pt-20">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/50 dark:bg-blue-600/10 border border-slate-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-bold mb-8 uppercase tracking-[0.2em] shadow-sm backdrop-blur-md">
-            <Sparkles className="w-4 h-4" /> The New Standard
+            <Sparkles className="w-4 h-4" /> {d.heroBadge}
           </motion.div>
 
           <motion.h1 initial="hidden" animate="visible" variants={stagger}
             className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight mb-8">
-            <motion.span variants={fadeUp} className="block">Justice Should Be</motion.span>
+            <motion.span variants={fadeUp} className="block">{d.heroLine1}</motion.span>
             <motion.span variants={fadeUp} className="relative inline-block mt-2">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
-                Transparent.
+                {d.heroLine2}
               </span>
               {/* Animated underline */}
               <motion.span
@@ -152,14 +257,14 @@ export default function AboutPage() {
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
             className="text-xl sm:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed font-light mb-14">
-            The legal system was built to deliver justice. But somewhere along the way, <em className="text-slate-800 dark:text-slate-200 font-medium not-italic">clarity was lost.</em>
+            {d.heroSub1} <em className="text-slate-800 dark:text-slate-200 font-medium not-italic">{d.heroSub2}</em>
           </motion.p>
         </motion.div>
 
         {/* Scroll hint breathing */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-[0.3em]">
-          <span>Scroll</span>
+          <span>{d.scroll}</span>
           <motion.div animate={{ y: [0, 8, 0], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
             <ChevronDown className="w-5 h-5" />
           </motion.div>
@@ -183,11 +288,11 @@ export default function AboutPage() {
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10 border-y border-white/10 py-16">
-          <Stat target="10000" suffix="+" label="Clients Empowered" delay={0} />
+          <Stat target="10000" suffix="+" label={d.statClients} delay={0} />
           <div className="hidden md:block absolute left-1/3 top-1/2 -translate-y-1/2 w-px h-24 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-          <Stat target="1000" suffix="+" label="Verified Legal Minds" delay={0.2} />
+          <Stat target="1000" suffix="+" label={d.statLawyers} delay={0.2} />
           <div className="hidden md:block absolute right-1/3 top-1/2 -translate-y-1/2 w-px h-24 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-          <Stat target="24" suffix="/7" label="Continuous Support" delay={0.4} />
+          <Stat target="24" suffix="/7" label={d.statSupport} delay={0.4} />
         </div>
       </section>
 
@@ -211,12 +316,14 @@ function ManifestoSection() {
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+  const { lang } = useLang();
+  const d = TEXT[lang] || TEXT.en;
 
   const paragraphs = [
-    { label: 'The Problem', text: 'Millions step into legal processes feeling powerless — unsure of their rights, unaware of their case progress, and dependent on complex systems they cannot decode.' },
-    { label: 'The Other Side', text: 'At the same time, ethical lawyers work tirelessly within outdated structures, juggling scattered tools, repetitive communication, and overwhelming workflows.' },
-    { label: 'Our Belief', text: 'We believe this can change. Lxwyer Up was born from a simple but radical idea: Law should be empowering. Technology should make the system more human — not more complex.' },
-    { label: 'The Promise', text: 'We are building more than a platform. We are building the digital backbone of legal clarity — where trust replaces confusion and transparency replaces asymmetry.' },
+    { label: d.prLabel1, text: d.prText1 },
+    { label: d.prLabel2, text: d.prText2 },
+    { label: d.prLabel3, text: d.prText3 },
+    { label: d.prLabel4, text: d.prText4 },
   ];
 
   return (
@@ -236,8 +343,8 @@ function ManifestoSection() {
               className="absolute bottom-10 left-10 right-10"
             >
               <div className="bg-white/10 dark:bg-black/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-2xl">
-                <p className="text-white font-black text-2xl tracking-tight mb-1">India's Legal System</p>
-                <p className="text-blue-200 font-medium">We are rebuilding confidence in it.</p>
+                <p className="text-white font-black text-2xl tracking-tight mb-1">{d.manifestoImage1}</p>
+                <p className="text-blue-200 font-medium">{d.manifestoImage2}</p>
               </div>
             </motion.div>
           </div>
@@ -246,12 +353,12 @@ function ManifestoSection() {
           <motion.div initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger} className="space-y-12">
             <motion.div variants={fadeUp}>
               <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 font-bold mb-4 bg-blue-50 dark:bg-blue-500/10 px-4 py-1.5 rounded-full">
-                Our Story
+                {d.manifestoStory}
               </div>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tight">
-                Why Lxwyer Up<br />
+                {d.manifestoTitle1}<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-blue-400 dark:to-indigo-300">
-                  Had to Exist
+                  {d.manifestoTitle2}
                 </span>
               </h2>
             </motion.div>
@@ -277,12 +384,14 @@ function ManifestoSection() {
 function ProblemSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
+  const { lang } = useLang();
+  const d = TEXT[lang] || TEXT.en;
 
   const problems = [
-    { icon: Users, title: 'Millions Feel Powerless', desc: 'Ordinary citizens enter legal processes unaware of their rights, with no clarity on what to expect or how to navigate the system.' },
-    { icon: Shield, title: 'No Transparency', desc: 'Hidden fees, unclear timelines, and opaque proceedings create fear and distrust — the system that was meant to protect becomes an obstacle.' },
-    { icon: Scale, title: 'Complex by Design', desc: 'Legal jargon and archaic processes were never designed for common people. The gap between the law and the layperson is vast.' },
-    { icon: Users, title: 'Lawyers Need Structure', desc: 'Ethical lawyers manage scattered workflows — missed follow-ups, repetitive paperwork, and no digital infrastructure to work efficiently.' },
+    { icon: Users, title: d.prob1Title, desc: d.prob1Desc },
+    { icon: Shield, title: d.prob2Title, desc: d.prob2Desc },
+    { icon: Scale, title: d.prob3Title, desc: d.prob3Desc },
+    { icon: Users, title: d.prob4Title, desc: d.prob4Desc },
   ];
 
   return (
@@ -291,10 +400,10 @@ function ProblemSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger} className="text-center mb-20">
-          <motion.p variants={fadeUp} className="text-xs uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 font-bold mb-4">The Reality</motion.p>
-          <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">The System is Broken</motion.h2>
+          <motion.p variants={fadeUp} className="text-xs uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 font-bold mb-4">{d.probReality}</motion.p>
+          <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">{d.probTitle}</motion.h2>
           <motion.p variants={fadeUp} className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            The traditional legal framework creates unnecessary barriers for both those who seek justice and those who deliver it.
+            {d.probSub}
           </motion.p>
         </motion.div>
 
@@ -328,20 +437,22 @@ function ProblemSection() {
 function PillarsSection() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
+  const { lang } = useLang();
+  const d = TEXT[lang] || TEXT.en;
 
   const pillars = [
-    { num: '01', title: 'A Clear Journey', body: 'From first query to final verdict — users know exactly where their case stands, what comes next, and what their rights are at every step.' },
-    { num: '02', title: 'Structured Practice', body: 'Verified professionals get powerful tools — case management, client communication, and digital workflows that remove friction and amplify impact.' },
-    { num: '03', title: 'Radical Honesty', body: 'Every interaction is transparent. Fees are declared. Timelines are communicated. No hidden layers. No power asymmetry.' },
+    { num: '01', title: d.pil1Title, body: d.pil1Desc },
+    { num: '02', title: d.pil2Title, body: d.pil2Desc },
+    { num: '03', title: d.pil3Title, body: d.pil3Desc },
   ];
 
   return (
     <section ref={ref} className="py-32 px-6 bg-white dark:bg-[#060b14] overflow-hidden relative">
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger} className="text-center mb-24">
-          <motion.p variants={fadeUp} className="text-xs uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 font-bold mb-4">The Solution</motion.p>
+          <motion.p variants={fadeUp} className="text-xs uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 font-bold mb-4">{d.pilSolution}</motion.p>
           <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight">
-            The Digital Backbone<br />of Legal Clarity
+            {d.pilTitle1}<br />{d.pilTitle2}
           </motion.h2>
         </motion.div>
 
@@ -377,6 +488,8 @@ function VisionStatement() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const { lang } = useLang();
+  const d = TEXT[lang] || TEXT.en;
 
   const handleMouseMove = (e) => {
     const { clientX, clientY } = e;
@@ -385,7 +498,7 @@ function VisionStatement() {
     setMousePos({ x, y });
   };
 
-  const quote = 'We envision a future where accessing legal support feels as seamless as ordering a product online — structured, reliable, and empowering.';
+  const quote = d.visQuote;
   const words = quote.split(' ');
 
   // Enhanced dynamic particles
@@ -442,7 +555,7 @@ function VisionStatement() {
           initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-xs uppercase tracking-[0.5em] text-blue-400 font-bold mb-10"
         >
-          Our Vision
+          {d.visLabel}
         </motion.p>
 
         {/* Liquid line */}
@@ -478,12 +591,12 @@ function VisionStatement() {
           <div className="p-[1px] rounded-full bg-gradient-to-r from-transparent via-blue-500/50 to-transparent inline-block mx-auto mb-4">
             <div className="bg-black/50 backdrop-blur-md rounded-full px-6 py-2">
               <Sparkles className="w-5 h-5 text-blue-400 inline-block mr-2" />
-              <span className="text-white font-medium text-sm">Building confidence in the legal system</span>
+              <span className="text-white font-medium text-sm">{d.visBuilding}</span>
             </div>
           </div>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
-            Lxwyer Up exists to make justice not only accessible — but <strong className="text-white font-medium">understandable</strong>.
-            This is not just legal tech. <strong className="text-white font-medium">This is a movement.</strong>
+            {d.visDesc1}<strong className="text-white font-medium">{d.visDesc2}</strong>
+            {d.visDesc3}<strong className="text-white font-medium">{d.visDesc4}</strong>
           </p>
         </motion.div>
 
