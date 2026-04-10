@@ -366,8 +366,33 @@ const rays = [
     { angle: 270, len: 300, w: 1 },
 ];
 
+const TRANSLATIONS = {
+    'Lxwyer AI': 'लॉयर एआई',
+    'SOS': 'एसओएस',
+    'Signature': 'हस्ताक्षर',
+    'Consult': 'परामर्श',
+    'Documents': 'दस्तावेज़',
+    'Booking': 'बुकिंग',
+    'Dashboard': 'डैशबोर्ड',
+    'Family Law': 'पारिवारिक कानून',
+    'Criminal Law': 'आपराधिक कानून',
+    'Corporate Law': 'कॉर्पोरेट कानून',
+    'Cyber Law': 'साइबर कानून',
+    'Property Law': 'संपत्ति कानून',
+    'Civil Law': 'नागरिक कानून',
+    'Labour Law': 'श्रम कानून',
+    'Tax Law': 'कर कानून',
+    'Consumer Law': 'उपभोक्ता कानून',
+    'IPR Law': 'बौद्धिक संपदा',
+    'Matrimonial Law': 'वैवाहिक कानून',
+    'Scroll to explore': 'खोजने के लिए नीचे स्क्रॉल करें'
+};
+
 const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
     const ref = useRef(null);
+    const { lang } = useLang();
+    const isHi = lang === 'hi';
+    const t = (text) => isHi ? (TRANSLATIONS[text] || text) : text;
     const { scrollYProgress } = useScroll({
         target: ref,
         offset: ['start start', 'end start'],
@@ -480,7 +505,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                                 }}
                                                 className="px-1.5 py-0.5 rounded-[6px] border bg-[rgba(255,251,235,0.75)] dark:bg-[rgba(69,26,3,0.65)] border-[rgba(245,158,11,0.25)] dark:border-amber-700/40"
                                             >
-                                                {item.label}
+                                                {t(item.label)}
                                             </div>
                                         </div>
                                     </div>
@@ -521,7 +546,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                         }}
                                         className="px-1.5 py-0.5 rounded-[6px] border bg-[rgba(248,250,255,0.85)] dark:bg-[rgba(15,23,42,0.85)] border-[rgba(59,130,246,0.18)] dark:border-blue-900/40"
                                     >
-                                        {item.label}
+                                        {t(item.label)}
                                     </div>
                                 </div>
                             );
@@ -634,7 +659,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                     >
                         Lxwyer Up
                     </h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors" style={{ position: 'relative', zIndex: 5 }}>Scroll to explore</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors" style={{ position: 'relative', zIndex: 5 }}>{t('Scroll to explore')}</p>
                     </motion.div>
                 </motion.div>
             </div >
