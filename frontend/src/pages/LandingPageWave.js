@@ -255,6 +255,10 @@ const pageKeyframes = `
   50% { transform: translate3d(-12px, 18px, 0) scale(0.97); }
   75% { transform: translate3d(10px, -6px, 0) scale(1.02); }
 }
+@keyframes arrowBounce {
+  0%, 100% { transform: translateY(0px); opacity: 0.5; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
 @keyframes marqueeScroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -621,10 +625,14 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                         >
                             India's First Legal Ecosystem
                         </h3>
-                        <div style={{ position: 'relative', zIndex: 5, marginTop: '8px', opacity: 0.35, display: 'flex', justifyContent: 'center' }}>
-                            <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'esPing 2s ease-in-out infinite' }}>
-                                <path d="M8 2L8 18M8 18L3 13M8 18L13 13" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
+                        {/* Minimal modern scroll arrow */}
+                        <div style={{ position: 'relative', zIndex: 5, marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                            <div style={{ animation: 'arrowBounce 2.2s ease-in-out infinite', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                <div style={{ width: '1px', height: '14px', background: 'linear-gradient(to bottom, transparent, rgba(100,116,139,0.5))', borderRadius: '1px' }} />
+                                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L7 8L13 1" stroke="rgba(100,116,139,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </div>
                         </div>
                     </motion.div>
                 </motion.div>
