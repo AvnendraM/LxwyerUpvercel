@@ -378,11 +378,12 @@ const rays = [
 const TRANSLATIONS = {
     'Lxwyer AI': 'लॉयर एआई',
     'SOS': 'एसओएस',
-    'Signature': 'हस्ताक्षर',
+    'Signature Lawyers': 'सिग्नेचर वकील',
     'Consult': 'परामर्श',
     'Documents': 'दस्तावेज़',
     'Booking': 'बुकिंग',
-    'Dashboard': 'डैशबोर्ड',
+    'AI Dashboards': 'AI डैशबोर्ड',
+    'Apex Lawyers': 'शीर्ष वकील',
     'Family Law': 'पारिवारिक कानून',
     'Criminal Law': 'आपराधिक कानून',
     'Corporate Law': 'कॉर्पोरेट कानून',
@@ -394,7 +395,7 @@ const TRANSLATIONS = {
     'Consumer Law': 'उपभोक्ता कानून',
     'IPR Law': 'बौद्धिक संपदा',
     'Matrimonial Law': 'वैवाहिक कानून',
-    'Scroll to explore': 'खोजने के लिए नीचे स्क्रॉल करें'
+    "India's First Legal Tech Ecosystem": 'भारत का पहला लीगल टेक इकोसिस्टम'
 };
 
 const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
@@ -623,7 +624,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                             className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 mb-4"
                             style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '0.15em', textTransform: 'uppercase', position: 'relative', zIndex: 5 }}
                         >
-                            {t('landing_hero_ecosystem')}
+                            {t("India's First Legal Tech Ecosystem")}
                         </h3>
                         {/* Minimal modern scroll arrow */}
                         <div style={{ position: 'relative', zIndex: 5, marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
