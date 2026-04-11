@@ -552,7 +552,21 @@ export default function LawyerApplication() {
           updateField("photo", dataUrl);
           URL.revokeObjectURL(img.src);
         };
+        img.onerror = () => {
+          // Fallback if image parsing fails (e.g. some HEIC configurations)
+          if (file.size > 1 * 1024 * 1024) {
+            toast.error("Image format not natively supported by compression. Please keep file under 1MB.");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onloadend = () => updateField("photo", reader.result);
+          reader.readAsDataURL(file);
+        };
       } else {
+        if (file.size > 1 * 1024 * 1024) {
+           toast.error("Documents/PDFs must be under 1MB to upload successfully.");
+           return;
+        }
         const reader = new FileReader();
         reader.onloadend = () => {
           updateField("photo", reader.result);
@@ -592,7 +606,20 @@ export default function LawyerApplication() {
           updateField(field, dataUrl);
           URL.revokeObjectURL(img.src);
         };
+        img.onerror = () => {
+          if (file.size > 1 * 1024 * 1024) {
+             toast.error("Image format not supported for compression. Please keep file under 1MB.");
+             return;
+          }
+          const reader = new FileReader();
+          reader.onloadend = () => updateField(field, reader.result);
+          reader.readAsDataURL(file);
+        };
       } else {
+        if (file.size > 1 * 1024 * 1024) {
+           toast.error("Documents/PDFs must be under 1MB to upload successfully.");
+           return;
+        }
         const reader = new FileReader();
         reader.onloadend = () => {
           updateField(field, reader.result);
@@ -777,7 +804,7 @@ export default function LawyerApplication() {
           firm_id: formData.lawFirmId,
           firm_name: formData.lawFirmName,
           specialization: formData.specialization,
-          experience_years: calculateExperience(formData.practiceStart),
+          experience_years: parseInt(calculateExperience(formData.practiceStart)) || 0,
           bar_council_number: formData.barCouncilNumber,
           education: formData.education,
           languages: formData.languages,
@@ -812,7 +839,7 @@ export default function LawyerApplication() {
         law_firm_name: null,
         bar_council_number: formData.barCouncilNumber,
         specialization: formData.specialization,
-        experience: calculateExperience(formData.practiceStart),
+        experience: parseInt(calculateExperience(formData.practiceStart)) || 0,
         practice_start_date: formData.practiceStart,
         cases_won: 0,
         state: formData.state,
@@ -824,8 +851,8 @@ export default function LawyerApplication() {
         education_details: { degree: formData.education, graduation_date: formData.graduationDate },
         languages: formData.languages,
         fee_range: formData.feeMin && formData.feeMax ? `₹${formData.feeMin} - ₹${formData.feeMax}` : formData.charge30min ? `₹${formData.charge30min} - ₹${formData.charge60min || formData.charge30min * 2}` : '',
-        charge_30min: formData.charge30min,
-        charge_60min: formData.charge60min,
+        charge_30min: formData.charge30min ? parseInt(formData.charge30min) : null,
+        charge_60min: formData.charge60min ? parseInt(formData.charge60min) : null,
         bio: formData.bio,
         catchphrase: formData.catchphrase,
         office_address: formData.officeAddresses.filter((a) => a.trim()),
