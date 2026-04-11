@@ -623,7 +623,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                             className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 mb-4"
                             style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '0.15em', textTransform: 'uppercase', position: 'relative', zIndex: 5 }}
                         >
-                            India's First Legal Ecosystem
+                            {t('landing_hero_ecosystem')}
                         </h3>
                         {/* Minimal modern scroll arrow */}
                         <div style={{ position: 'relative', zIndex: 5, marginTop: '12px', display: 'flex', justifyContent: 'center' }}>

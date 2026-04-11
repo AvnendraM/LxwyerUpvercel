@@ -15,6 +15,21 @@ const translations = {
 
     // ── Landing Page ────────────────────────────────────────────────
     landing_hero_badge: "India's First Legal Tech Platform",
+    landing_hero_ecosystem: "India's First Legal Ecosystem",
+    
+    // Feature Marquee Labels
+    'Lxwyer AI': 'Lxwyer AI',
+    'SOS': 'SOS',
+    'Signature Lawyers': 'Signature Lawyers',
+    'Consult': 'Consult',
+    'Documents': 'Documents',
+    'Booking': 'Booking',
+    'AI Dashboards': 'AI Dashboards',
+    'Apex Lawyers': 'Apex Lawyers',
+    'Family Law': 'Family Law',
+    'Criminal Law': 'Criminal Law',
+    'Corporate Law': 'Corporate Law',
+    'Cyber Law': 'Cyber Law',
     landing_hero_title_1: 'Justice You Understand,',
     landing_hero_title_2: 'Technology You Trust.',
     landing_hero_subtitle: 'Connect with verified lawyers, get instant AI legal guidance, and access legal help in your language — all in one platform.',
@@ -577,6 +592,21 @@ const translations = {
 
     // ── Landing Page ────────────────────────────────────────────────
     landing_hero_badge: 'भारत का पहला लीगल टेक प्लेटफॉर्म',
+    landing_hero_ecosystem: 'भारत का पहला कानूनी इकोसिस्टम',
+    
+    // Feature Marquee Labels (Hindi)
+    'Lxwyer AI': 'Lxwyer AI',
+    'SOS': 'SOS',
+    'Signature Lawyers': 'सिग्नेचर वकील',
+    'Consult': 'परामर्श',
+    'Documents': 'दस्तावेज़',
+    'Booking': 'बुकिंग',
+    'AI Dashboards': 'AI डैशबोर्ड',
+    'Apex Lawyers': 'शीर्ष वकील',
+    'Family Law': 'पारिवारिक कानून',
+    'Criminal Law': 'आपराधिक कानून',
+    'Corporate Law': 'कॉरपोरेट कानून',
+    'Cyber Law': 'साइबर कानून',
     landing_hero_title_1: 'न्याय जो आप समझें,',
     landing_hero_title_2: 'तकनीक जिस पर भरोसा करें।',
     landing_hero_subtitle: 'सत्यापित वकीलों से जुड़ें, तत्काल AI कानूनी मार्गदर्शन प्राप्त करें, और अपनी भाषा में कानूनी सहायता पाएं — सब एक ही प्लेटफ़ॉर्म पर।',
