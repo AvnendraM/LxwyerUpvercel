@@ -558,7 +558,7 @@ export default function FirmLawyerApplication() {
                     ) : (
                       <>
                         <CreditCard className="w-5 h-5 mr-2" />
-                        Pay ₹2500 & Submit
+                        Pay ₹2,000 & Submit
                       </>
                     )}
                   </Button>

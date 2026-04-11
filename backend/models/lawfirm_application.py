@@ -23,6 +23,16 @@ class LawFirmApplicationCreate(BaseModel):
     total_staff: int = 0
     description: str
     achievements: Optional[str] = None
+    managing_partners: List[dict] = []
+    languages_spoken: List[str] = []
+    billing_models: List[str] = []
+    branch_offices: List[str] = []
+    gstin_number: Optional[str] = None
+    bar_council_id_primary: Optional[str] = None
+    kyc_documents: dict = {}
+    current_capacity_status: str = 'open'
+    average_response_time_mins: int = 15
+    platform_metrics: dict = {"cases_resolved": 0, "csat": 5.0}
 
 
 class LawFirmApplication(BaseModel):
@@ -46,5 +56,15 @@ class LawFirmApplication(BaseModel):
     total_staff: int = 0
     description: str
     achievements: Optional[str] = None
+    managing_partners: List[dict] = []
+    languages_spoken: List[str] = []
+    billing_models: List[str] = []
+    branch_offices: List[str] = []
+    gstin_number: Optional[str] = None
+    bar_council_id_primary: Optional[str] = None
+    kyc_documents: dict = {}
+    current_capacity_status: str = 'open'
+    average_response_time_mins: int = 15
+    platform_metrics: dict = {"cases_resolved": 0, "csat": 5.0}
     status: str = 'pending'  # pending, approved, rejected
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

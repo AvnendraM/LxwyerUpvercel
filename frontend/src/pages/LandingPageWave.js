@@ -255,6 +255,10 @@ const pageKeyframes = `
   50% { transform: translate3d(-12px, 18px, 0) scale(0.97); }
   75% { transform: translate3d(10px, -6px, 0) scale(1.02); }
 }
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 `;
 
 const StyleInjector = () => {
@@ -337,25 +341,26 @@ const SmoothScrolling = () => {
 // Orbiting labels — reduced to 8 for better frame rate
 const legalDataItems = [
     // ── Platform Features ──────────────────────────────────────────
-    { label: 'Lxwyer AI',          type: 'feature', angle: 15,  dist: 270, delay: 1.0, dur: 7.5 },
-    { label: 'SOS',                type: 'feature', angle: 200, dist: 275, delay: 3.5, dur: 7.0 },
-    { label: 'Signature',          type: 'feature', angle: 300, dist: 260, delay: 2.8, dur: 7.8 },
-    { label: 'Consult',            type: 'feature', angle: 100, dist: 272, delay: 1.8, dur: 7.6 },
-    { label: 'Documents',          type: 'feature', angle: 165, dist: 255, delay: 1.4, dur: 8.2 },
-    { label: 'Booking',            type: 'feature', angle: 230, dist: 285, delay: 3.2, dur: 7.3 },
-    { label: 'Dashboard',          type: 'feature', angle: 50,  dist: 265, delay: 2.2, dur: 8.0 },
+    { label: 'Lxwyer AI', type: 'feature', angle: 15, dist: 270, delay: 1.0, dur: 7.5 },
+    { label: 'SOS', type: 'feature', angle: 200, dist: 275, delay: 3.5, dur: 7.0 },
+    { label: 'Signature Lawyers', type: 'feature', angle: 300, dist: 260, delay: 2.8, dur: 7.8 },
+    { label: 'Consult', type: 'feature', angle: 100, dist: 272, delay: 1.8, dur: 7.6 },
+    { label: 'Documents', type: 'feature', angle: 165, dist: 255, delay: 1.4, dur: 8.2 },
+    { label: 'Booking', type: 'feature', angle: 230, dist: 285, delay: 3.2, dur: 7.3 },
+    { label: 'AI Dashboards', type: 'feature', angle: 50, dist: 265, delay: 2.2, dur: 8.0 },
+    { label: 'Apex Lawyers', type: 'feature', angle: 335, dist: 275, delay: 1.5, dur: 8.4 },
     // ── Practice Areas ─────────────────────────────────────────────
-    { label: 'Family Law',         type: 'law',     angle: 60,  dist: 340, delay: 1.5, dur: 8.0 },
-    { label: 'Criminal Law',       type: 'law',     angle: 140, dist: 330, delay: 2.2, dur: 8.8 },
-    { label: 'Corporate Law',      type: 'law',     angle: 250, dist: 320, delay: 1.2, dur: 8.5 },
-    { label: 'Cyber Law',          type: 'law',     angle: 340, dist: 315, delay: 2.6, dur: 9.0 },
-    { label: 'Property Law',       type: 'law',     angle: 30,  dist: 355, delay: 0.9, dur: 9.2 },
-    { label: 'Civil Law',          type: 'law',     angle: 110, dist: 345, delay: 3.0, dur: 8.6 },
-    { label: 'Labour Law',         type: 'law',     angle: 185, dist: 360, delay: 2.0, dur: 9.5 },
-    { label: 'Tax Law',            type: 'law',     angle: 270, dist: 350, delay: 3.6, dur: 8.3 },
-    { label: 'Consumer Law',       type: 'law',     angle: 315, dist: 338, delay: 0.8, dur: 9.8 },
-    { label: 'IPR Law',            type: 'law',     angle: 80,  dist: 362, delay: 2.5, dur: 9.1 },
-    { label: 'Matrimonial Law',    type: 'law',     angle: 220, dist: 375, delay: 1.7, dur: 10.0 },
+    { label: 'Family Law', type: 'law', angle: 60, dist: 340, delay: 1.5, dur: 8.0 },
+    { label: 'Criminal Law', type: 'law', angle: 140, dist: 330, delay: 2.2, dur: 8.8 },
+    { label: 'Corporate Law', type: 'law', angle: 250, dist: 320, delay: 1.2, dur: 8.5 },
+    { label: 'Cyber Law', type: 'law', angle: 340, dist: 315, delay: 2.6, dur: 9.0 },
+    { label: 'Property Law', type: 'law', angle: 30, dist: 355, delay: 0.9, dur: 9.2 },
+    { label: 'Civil Law', type: 'law', angle: 110, dist: 345, delay: 3.0, dur: 8.6 },
+    { label: 'Labour Law', type: 'law', angle: 185, dist: 360, delay: 2.0, dur: 9.5 },
+    { label: 'Tax Law', type: 'law', angle: 270, dist: 350, delay: 3.6, dur: 8.3 },
+    { label: 'Consumer Law', type: 'law', angle: 315, dist: 338, delay: 0.8, dur: 9.8 },
+    { label: 'IPR Law', type: 'law', angle: 80, dist: 362, delay: 2.5, dur: 9.1 },
+    { label: 'Matrimonial Law', type: 'law', angle: 220, dist: 375, delay: 1.7, dur: 10.0 },
 ];
 
 // Minimal ray set — 4 instead of 8 for better frame rate
@@ -435,83 +440,35 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                         transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
                         className="relative flex flex-col items-center justify-center w-full"
                     >
-                    {/* Radiating rays toward center */}
-                    {rays.map((ray, i) => {
-                        const rad = (ray.angle * Math.PI) / 180;
-                        const endX = Math.cos(rad) * ray.len;
-                        const endY = Math.sin(rad) * ray.len;
-                        return (
-                            <div
-                                key={`ray${i}`}
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    width: `${ray.len}px`,
-                                    height: `${ray.w}px`,
-                                    transformOrigin: '0 50%',
-                                    transform: `rotate(${ray.angle}deg) translateZ(0)`,
-                                    background: `linear-gradient(90deg, rgba(59,130,246,0.01) 0%, rgba(59,130,246,0.12) 50%, rgba(96,165,250,0.25) 100%)`,
-                                    animation: `rayPulse ${7 + i * 1.2}s ease-in-out ${i * 0.8}s infinite`,
-                                    borderRadius: '2px',
-                                    willChange: 'opacity',
-                                }}
-                            />
-                        );
-                    })}
-
-                    {/* Animated legal data dots with labels */}
-                    {legalDataItems.map((item, i) => {
-                        const isFeature = item.type === 'feature';
-
-                        if (isFeature) {
-                            // Feature items: clean orbit using spin/spinReverse
-                            const orbitDist = item.dist + (i % 2 === 0 ? 15 : -10);
-                            const orbitDuration = item.dur * 3;
-                            const orbitDelay = -(item.angle / 360) * orbitDuration;
-
+                        {/* Radiating rays toward center */}
+                        {rays.map((ray, i) => {
+                            const rad = (ray.angle * Math.PI) / 180;
+                            const endX = Math.cos(rad) * ray.len;
+                            const endY = Math.sin(rad) * ray.len;
                             return (
                                 <div
-                                    key={`data${i}`}
+                                    key={`ray${i}`}
                                     style={{
                                         position: 'absolute',
                                         top: '50%',
                                         left: '50%',
-                                        zIndex: 12,
-                                        animation: `spin ${orbitDuration}s linear ${orbitDelay}s infinite`,
-                                        willChange: 'transform',
-                                        transform: 'translateZ(0)',
-                                        opacity: labelsVisible ? 1 : 0,
-                                        transition: 'opacity 1s ease-out',
+                                        width: `${ray.len}px`,
+                                        height: `${ray.w}px`,
+                                        transformOrigin: '0 50%',
+                                        transform: `rotate(${ray.angle}deg) translateZ(0)`,
+                                        background: `linear-gradient(90deg, rgba(59,130,246,0.01) 0%, rgba(59,130,246,0.12) 50%, rgba(96,165,250,0.25) 100%)`,
+                                        animation: `rayPulse ${7 + i * 1.2}s ease-in-out ${i * 0.8}s infinite`,
+                                        borderRadius: '2px',
+                                        willChange: 'opacity',
                                     }}
-                                >
-                                    <div style={{ transform: `translateX(${orbitDist}px)` }}>
-                                        <div style={{
-                                            position: 'absolute',
-                                            animation: `spinReverse ${orbitDuration}s linear ${orbitDelay}s infinite`,
-                                        }}>
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '-10px',
-                                                    left: '0px',
-                                                    whiteSpace: 'nowrap',
-                                                    fontSize: '9px',
-                                                    fontWeight: 700,
-                                                    fontFamily: "'Outfit', sans-serif",
-                                                    color: 'rgba(217,119,6,0.91)',
-                                                    letterSpacing: '0.5px',
-                                                    textTransform: 'uppercase',
-                                                }}
-                                                className="px-1.5 py-0.5 rounded-[6px] border bg-[rgba(255,251,235,0.75)] dark:bg-[rgba(69,26,3,0.65)] border-[rgba(245,158,11,0.25)] dark:border-amber-700/40"
-                                            >
-                                                {t(item.label)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                />
                             );
-                        } else {
+                        })}
+
+                        {/* Animated legal laws drifting into center - AS REQUESTED */}
+                        {legalDataItems.map((item, i) => {
+                            if (item.type === 'feature') return null; // Features go to marquee below
+
                             // Law items: original convergeToCenter — drift inward from starting position
                             const rad = (item.angle * Math.PI) / 180;
                             const startX = Math.cos(rad) * item.dist;
@@ -550,118 +507,169 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                     </div>
                                 </div>
                             );
-                        }
-                    })}
+                        })}
 
-                    {/* Glowing orb behind the icon */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            width: '400px',
-                            height: '400px',
-                            borderRadius: '50%',
-                            background: 'radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(96,165,250,0.06) 50%, transparent 70%)',
-                            filter: 'blur(20px)',
-                            animation: 'pulseGlow 8s ease-in-out infinite',
-                        }}
-                    />
+                        {/* Glowing orb behind the icon */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                width: '400px',
+                                height: '400px',
+                                borderRadius: '50%',
+                                background: 'radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(96,165,250,0.06) 50%, transparent 70%)',
+                                filter: 'blur(20px)',
+                                animation: 'pulseGlow 8s ease-in-out infinite',
+                            }}
+                        />
 
-                    {/* Inner ring collecting data */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            width: '220px',
-                            height: '220px',
-                            borderRadius: '50%',
-                            border: '1px solid rgba(59,130,246,0.12)',
-                            animation: 'spinSlow 40s linear infinite',
-                        }}
-                    />
-                    <div
-                        style={{
-                            position: 'absolute',
-                            width: '280px',
-                            height: '280px',
-                            borderRadius: '50%',
-                            border: '1px dashed rgba(96,165,250,0.08)',
-                            animation: 'spinSlow 55s linear infinite reverse',
-                        }}
-                    />
+                        {/* Inner ring collecting data */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                width: '220px',
+                                height: '220px',
+                                borderRadius: '50%',
+                                border: '1px solid rgba(59,130,246,0.12)',
+                                animation: 'spinSlow 40s linear infinite',
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                width: '280px',
+                                height: '280px',
+                                borderRadius: '50%',
+                                border: '1px dashed rgba(96,165,250,0.08)',
+                                animation: 'spinSlow 55s linear infinite reverse',
+                            }}
+                        />
 
-                    {/* SVG Scales of Justice */}
-                    <svg
-                        width="180"
-                        height="180"
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style={{ filter: 'drop-shadow(0 0 30px rgba(59,130,246,0.4))', position: 'relative', zIndex: 5 }}
-                    >
-                        {/* Central pillar (static) */}
-                        <rect x="48" y="20" width="4" height="65" rx="2" fill="url(#pillarGrad)" />
-                        {/* Base (static) */}
-                        <rect x="35" y="82" width="30" height="5" rx="2.5" fill="url(#baseGrad)" />
+                        {/* SVG Scales of Justice */}
+                        <svg
+                            width="180"
+                            height="180"
+                            viewBox="0 0 100 100"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{ filter: 'drop-shadow(0 0 30px rgba(59,130,246,0.4))', position: 'relative', zIndex: 5, width: 'clamp(110px, 22vw, 180px)', height: 'clamp(110px, 22vw, 180px)' }}
+                        >
+                            {/* Central pillar (static) */}
+                            <rect x="48" y="20" width="4" height="65" rx="2" fill="url(#pillarGrad)" />
+                            {/* Base (static) */}
+                            <rect x="35" y="82" width="30" height="5" rx="2.5" fill="url(#baseGrad)" />
 
-                        {/* Animated Beam Group - SWAYING */}
-                        <g style={{ transformOrigin: '50px 20px', animation: 'balanceBeam 10s ease-in-out infinite' }}>
-                            {/* Beam */}
-                            <rect x="15" y="18" width="70" height="4" rx="2" fill="url(#beamGrad)" />
+                            {/* Animated Beam Group - SWAYING */}
+                            <g style={{ transformOrigin: '50px 20px', animation: 'balanceBeam 10s ease-in-out infinite' }}>
+                                {/* Beam */}
+                                <rect x="15" y="18" width="70" height="4" rx="2" fill="url(#beamGrad)" />
 
-                            {/* Left Pan Group - COUNTER ROTATE */}
-                            <g style={{ transformOrigin: '20px 22px', animation: 'counterRotate 10s ease-in-out infinite' }}>
-                                {/* Left pan chain */}
-                                <line x1="20" y1="22" x2="20" y2="45" stroke="#60a5fa" strokeWidth="1.5" />
-                                <line x1="15" y1="22" x2="15" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
-                                <line x1="25" y1="22" x2="25" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
-                                {/* Left pan */}
-                                <path d="M10 45 Q20 55 30 45" stroke="#3b82f6" strokeWidth="2" fill="rgba(59,130,246,0.15)" />
+                                {/* Left Pan Group - COUNTER ROTATE */}
+                                <g style={{ transformOrigin: '20px 22px', animation: 'counterRotate 10s ease-in-out infinite' }}>
+                                    {/* Left pan chain */}
+                                    <line x1="20" y1="22" x2="20" y2="45" stroke="#60a5fa" strokeWidth="1.5" />
+                                    <line x1="15" y1="22" x2="15" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
+                                    <line x1="25" y1="22" x2="25" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
+                                    {/* Left pan */}
+                                    <path d="M10 45 Q20 55 30 45" stroke="#3b82f6" strokeWidth="2" fill="rgba(59,130,246,0.15)" />
+                                </g>
+
+                                {/* Right Pan Group - COUNTER ROTATE */}
+                                <g style={{ transformOrigin: '80px 22px', animation: 'counterRotate 10s ease-in-out infinite' }}>
+                                    {/* Right pan chain */}
+                                    <line x1="80" y1="22" x2="80" y2="45" stroke="#60a5fa" strokeWidth="1.5" />
+                                    <line x1="75" y1="22" x2="75" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
+                                    <line x1="85" y1="22" x2="85" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
+                                    {/* Right pan */}
+                                    <path d="M70 45 Q80 55 90 45" stroke="#3b82f6" strokeWidth="2" fill="rgba(59,130,246,0.15)" />
+                                </g>
                             </g>
 
-                            {/* Right Pan Group - COUNTER ROTATE */}
-                            <g style={{ transformOrigin: '80px 22px', animation: 'counterRotate 10s ease-in-out infinite' }}>
-                                {/* Right pan chain */}
-                                <line x1="80" y1="22" x2="80" y2="45" stroke="#60a5fa" strokeWidth="1.5" />
-                                <line x1="75" y1="22" x2="75" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
-                                <line x1="85" y1="22" x2="85" y2="40" stroke="#60a5fa" strokeWidth="1" opacity="0.6" />
-                                {/* Right pan */}
-                                <path d="M70 45 Q80 55 90 45" stroke="#3b82f6" strokeWidth="2" fill="rgba(59,130,246,0.15)" />
-                            </g>
-                        </g>
+                            {/* Crown/top */}
+                            <circle cx="50" cy="16" r="5" fill="url(#crownGrad)" />
+                            <circle cx="50" cy="16" r="3" className="fill-[#f8faff] dark:fill-black" />
+                            {/* Gradients */}
+                            <defs>
+                                <linearGradient id="pillarGrad" x1="50" y1="20" x2="50" y2="85" gradientUnits="userSpaceOnUse">
+                                    <stop stopColor="#3b82f6" />
+                                    <stop offset="1" stopColor="#1d4ed8" />
+                                </linearGradient>
+                                <linearGradient id="baseGrad" x1="35" y1="84" x2="65" y2="84" gradientUnits="userSpaceOnUse">
+                                    <stop stopColor="#2563eb" />
+                                    <stop offset="1" stopColor="#1e40af" />
+                                </linearGradient>
+                                <linearGradient id="beamGrad" x1="15" y1="20" x2="85" y2="20" gradientUnits="userSpaceOnUse">
+                                    <stop stopColor="#60a5fa" />
+                                    <stop offset="0.5" stopColor="#3b82f6" />
+                                    <stop offset="1" stopColor="#60a5fa" />
+                                </linearGradient>
+                                <radialGradient id="crownGrad">
+                                    <stop stopColor="#60a5fa" />
+                                    <stop offset="1" stopColor="#2563eb" />
+                                </radialGradient>
+                            </defs>
+                        </svg>
 
-                        {/* Crown/top */}
-                        <circle cx="50" cy="16" r="5" fill="url(#crownGrad)" />
-                        <circle cx="50" cy="16" r="3" className="fill-[#f8faff] dark:fill-black" />
-                        {/* Gradients */}
-                        <defs>
-                            <linearGradient id="pillarGrad" x1="50" y1="20" x2="50" y2="85" gradientUnits="userSpaceOnUse">
-                                <stop stopColor="#3b82f6" />
-                                <stop offset="1" stopColor="#1d4ed8" />
-                            </linearGradient>
-                            <linearGradient id="baseGrad" x1="35" y1="84" x2="65" y2="84" gradientUnits="userSpaceOnUse">
-                                <stop stopColor="#2563eb" />
-                                <stop offset="1" stopColor="#1e40af" />
-                            </linearGradient>
-                            <linearGradient id="beamGrad" x1="15" y1="20" x2="85" y2="20" gradientUnits="userSpaceOnUse">
-                                <stop stopColor="#60a5fa" />
-                                <stop offset="0.5" stopColor="#3b82f6" />
-                                <stop offset="1" stopColor="#60a5fa" />
-                            </linearGradient>
-                            <radialGradient id="crownGrad">
-                                <stop stopColor="#60a5fa" />
-                                <stop offset="1" stopColor="#2563eb" />
-                            </radialGradient>
-                        </defs>
-                    </svg>
-
-                    <h2
-                        className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 transition-colors"
-                        style={{ fontFamily: "'Outfit', sans-serif", position: 'relative', zIndex: 5 }}
-                    >
-                        Lxwyer Up
-                    </h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors" style={{ position: 'relative', zIndex: 5 }}>{t('Scroll to explore')}</p>
+                        <h2
+                            className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 transition-colors"
+                            style={{ fontFamily: "'Outfit', sans-serif", position: 'relative', zIndex: 5 }}
+                        >
+                            Lxwyer Up
+                        </h2>
+                        <h3
+                            className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 mb-4"
+                            style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '0.15em', textTransform: 'uppercase', position: 'relative', zIndex: 5 }}
+                        >
+                            India's First Legal Ecosystem
+                        </h3>
+                        <p className="text-[10px] text-slate-500/70 dark:text-slate-400/70 transition-colors uppercase tracking-wider" style={{ position: 'relative', zIndex: 5 }}>
+                            {t('Scroll to explore')}
+                        </p>
                     </motion.div>
                 </motion.div>
+
+                {/* Modern Feature Marquee Pinned to Bottom */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: '40px',
+                    left: 0,
+                    right: 0,
+                    margin: '0 auto',
+                    zIndex: 10,
+                    width: '90%',
+                    maxWidth: '700px',
+                    overflow: 'hidden',
+                    padding: '10px 0',
+                    maskImage: 'linear-gradient(to right, transparent, black 25%, black 75%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 25%, black 75%, transparent)',
+                    pointerEvents: 'none'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        width: 'max-content',
+                        animation: 'marqueeScroll 40s linear infinite'
+                    }}>
+                        {[...legalDataItems.filter(i => i.type === 'feature'), ...legalDataItems.filter(i => i.type === 'feature'), ...legalDataItems.filter(i => i.type === 'feature')].map((item, i) => (
+                            <div key={i} style={{
+                                margin: '0 15px',
+                                padding: '8px 20px',
+                                borderRadius: '100px',
+                                border: '1px solid rgba(255,255,255,0.03)',
+                                color: 'rgba(255,255,255,0.3)', // Much lighter
+                                fontSize: '14px',
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                whiteSpace: 'nowrap',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                background: 'rgba(255,255,255,0.01)', // Very faint
+                                backdropFilter: 'blur(4px)',
+                            }} className="dark:bg-[rgba(15,23,42,0.1)] dark:border-[rgba(59,130,246,0.05)] dark:text-[rgba(148,163,184,0.4)]">
+                                {t(item.label)}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div >
         </section >
     );
@@ -1219,22 +1227,22 @@ const RevolutionScrollSection = () => {
 
     // Writing reveal — fast: 0.05→0.40 (full word written in first 35% of scroll)
     const writeProgress = useTransform(scrollYProgress, [0.05, 0.40], [0, 1]);
-    const clipRight     = useTransform(writeProgress, v => `inset(0 ${(1 - v) * 100}% 0 0)`);
+    const clipRight = useTransform(writeProgress, v => `inset(0 ${(1 - v) * 100}% 0 0)`);
 
     // Pen tip tracks the right edge of the reveal
-    const penX          = useTransform(writeProgress, v => `${v * 100}%`);
-    const penOpacity    = useTransform(writeProgress, [0, 0.03, 0.95, 1], [0, 1, 1, 0]);
+    const penX = useTransform(writeProgress, v => `${v * 100}%`);
+    const penOpacity = useTransform(writeProgress, [0, 0.03, 0.95, 1], [0, 1, 1, 0]);
 
     // "Bringing a" — appears immediately
-    const bringOpacity  = useTransform(scrollYProgress, [0.00, 0.10], [0, 1]);
-    const bringY        = useTransform(scrollYProgress, [0.00, 0.10], [14, 0]);
+    const bringOpacity = useTransform(scrollYProgress, [0.00, 0.10], [0, 1]);
+    const bringY = useTransform(scrollYProgress, [0.00, 0.10], [14, 0]);
 
     // Tagline — appears after writing finishes
-    const tagOpacity    = useTransform(scrollYProgress, [0.38, 0.50], [0, 1]);
-    const tagY          = useTransform(scrollYProgress, [0.38, 0.50], [12, 0]);
+    const tagOpacity = useTransform(scrollYProgress, [0.38, 0.50], [0, 1]);
+    const tagY = useTransform(scrollYProgress, [0.38, 0.50], [12, 0]);
 
     // Whole block fades out
-    const blockOpacity  = useTransform(scrollYProgress, [0.80, 0.95], [1, 0]);
+    const blockOpacity = useTransform(scrollYProgress, [0.80, 0.95], [1, 0]);
 
     return (
         <section
@@ -1453,14 +1461,14 @@ const HeroSection = () => {
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                             <div className="lxwyer-wrap">
-                              <div className="lxwyer-spin" />
-                              <button
-                                onClick={() => navigate('/lxwyerai')}
-                                className="lxwyer-inner h-14 px-9 text-base font-bold whitespace-nowrap"
-                              >
-                                <Sparkles className="w-4 h-4 text-white/60" />
-                                <span className="lxwyer-text text-white font-black tracking-[0.04em]">Lxwyer<span className="text-blue-400">AI</span></span>
-                              </button>
+                                <div className="lxwyer-spin" />
+                                <button
+                                    onClick={() => navigate('/lxwyerai')}
+                                    className="lxwyer-inner h-14 px-9 text-base font-bold whitespace-nowrap"
+                                >
+                                    <Sparkles className="w-4 h-4 text-white/60" />
+                                    <span className="lxwyer-text text-white font-black tracking-[0.04em]">Lxwyer<span className="text-blue-400">AI</span></span>
+                                </button>
                             </div>
                         </motion.div>
                     </div>

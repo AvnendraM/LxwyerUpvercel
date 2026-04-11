@@ -130,14 +130,23 @@ const achievementPool = [
   { title: "Keynote Speaker at Global Law Tech Summit", date: "2023", icon: "Globe", pinned: false }
 ];
 
+const focusCities = [
+  { city: "New Delhi", state: "Delhi" },
+  { city: "Gurugram", state: "Haryana" },
+  { city: "Faridabad", state: "Haryana" },
+  { city: "Noida", state: "Uttar Pradesh" },
+  { city: "Lucknow", state: "Uttar Pradesh" }
+];
+
 const generateLawyers = () => {
   let maleIdx = 1;
   let femaleIdx = 1;
 
-  return specializations.flatMap((spec, specIndex) => {
-    return Array.from({ length: 5 }).map((_, i) => {
-      const index = specIndex * 5 + i;
-      const location = cities[index % cities.length];
+  // Generate for all cities initially
+  const defaultLawyers = specializations.flatMap((spec, specIndex) => {
+    return Array.from({ length: 50 }).map((_, i) => {
+      const index = specIndex * 50 + i;
+      const location = focusCities[index % focusCities.length];
       const experience = 5 + (index % 25);
       const firstName = firstNames[index % firstNames.length];
       const lastName = lastNames[index % lastNames.length];
@@ -203,6 +212,8 @@ const generateLawyers = () => {
       };
     });
   });
+
+  return defaultLawyers;
 };
 
 export const dummyLawyers = generateLawyers();

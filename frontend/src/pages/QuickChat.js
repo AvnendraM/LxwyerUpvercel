@@ -17,6 +17,9 @@ import { API } from '../App'
 import FirmCard from '../components/FirmCard'
 import LawyerCard from '../components/LawyerCard'
 import { smartMatchLawyers, smartMatchFirms } from '../utils/aiMatchingEngine'
+import { motion, AnimatePresence } from 'framer-motion'
+import LawyerProfile from './LawyerProfile'
+import FirmProfile from './FirmProfile'
 
 import GenerativeBubble from '../components/GenerativeBubble'
 
@@ -127,6 +130,8 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
   const [isTyping, setIsTyping] = useState(false)
   const [expandedCard, setExpandedCard] = useState(null)
   const [expandedCtx, setExpandedCtx] = useState(null)
+  const [selectedLawyer, setSelectedLawyer] = useState(null)
+  const [selectedFirm, setSelectedFirm] = useState(null)
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [chatHistory, setChatHistory] = useState(() => loadHistory())
@@ -649,30 +654,32 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
                           </p>
                         </div>
                         {/* Cards */}
-                        {msg.rec_items.map((item, i) => {
-                          return msg.rec_type === 'lawyer' ? (
-                            <LawyerCard 
-                              key={item.id || i}
-                              lawyer={item}
-                              onBookClick={() => navigate(`/booking/${item.id || item.unique_id}`)}
-                              onProfileClick={() => navigate(`/lawyer/${item.id || item.unique_id}`)}
-                            />
-                          ) : (
-                            <FirmCard
-                              key={item.id || i}
-                              firm={item}
-                              index={i}
-                              dm={dm}
-                              onBook={() => navigate(`/booking/${item.id || item.unique_id}`)}
-                              onDetails={() => navigate(`/firm/${item.id || item._id}`)}
-                            />
-                          )
-                        })}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-2">
+                          {msg.rec_items.map((item, i) => {
+                            return msg.rec_type === 'lawyer' ? (
+                              <LawyerCard 
+                                key={item.id || i}
+                                lawyer={item}
+                                onBookClick={() => navigate(`/booking/${item.id || item.unique_id}`)}
+                                onProfileClick={() => setSelectedLawyer(item.id || item.unique_id)}
+                              />
+                            ) : (
+                              <FirmCard
+                                key={item.id || i}
+                                firm={item}
+                                index={i}
+                                dm={dm}
+                                onBook={() => navigate(`/booking/${item.id || item.unique_id}`)}
+                                onDetails={() => setSelectedFirm(item.id || item._id || item.unique_id)}
+                              />
+                            )
+                          })}
+                        </div>
                         {/* Browse all */}
                         {msg.rec_items.length > 0 && (
                           <button
                             onClick={() => navigate(msg.rec_type === 'lawyer' ? '/find-lawyer/manual' : '/find-lawfirm/manual')}
-                            className={`w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${dm ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
+                            className={`w-full py-3 mt-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${dm ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
                           >
                             Browse all {msg.rec_type === 'lawyer' ? 'lawyers' : 'law firms'} <ArrowRight size={14} />
                           </button>
@@ -865,6 +872,27 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
           </div>
         )
       }
+
+      {/* Lawyer Profile Overlay */}
+      <AnimatePresence>
+        {selectedLawyer && (
+          <LawyerProfile 
+            lawyerId={selectedLawyer} 
+            onCloseModal={() => setSelectedLawyer(null)} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Firm Profile Overlay */}
+      <AnimatePresence>
+        {selectedFirm && (
+          <FirmProfile 
+            firmId={selectedFirm} 
+            onCloseModal={() => setSelectedFirm(null)} 
+          />
+        )}
+      </AnimatePresence>
+      
     </div >
   )
 }

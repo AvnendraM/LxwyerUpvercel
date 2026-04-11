@@ -179,6 +179,7 @@ const EmergencyPage = () => {
   const [formData, setFormData] = useState({ state: '', city: '', issueType: '', name: '', phone: '' });
   const [step, setStep] = useState('select');
   const [matchedLawyer, setMatchedLawyer] = useState(null);
+  const [potentialLawyers, setPotentialLawyers] = useState([]);
   const [sessionId, setSessionId] = useState(null);
   const [declineCount, setDeclineCount] = useState(0);
   const [activeSession, setActiveSession] = useState(null);
@@ -206,7 +207,11 @@ const EmergencyPage = () => {
       toast.error(lang === 'hi' ? 'कृपया 10-अंकीय फ़ोन नंबर दर्ज करें' : 'Please enter a valid 10-digit phone number');
       return;
     }
-    setStep('payment');
+    
+    setStep('radar_preview');
+    setTimeout(() => {
+        setStep('payment');
+    }, 4500);
   };
 
   const handlePayment = async () => {
@@ -235,7 +240,11 @@ const EmergencyPage = () => {
         transaction_id: txnId,
       });
       setSessionId(res.data.session_id);
-      if (res.data.status === 'matched') {
+      
+      if (res.data.status === 'searching') {
+        setPotentialLawyers(res.data.potential_lawyers || []);
+        // The polling useEffect will take over
+      } else if (res.data.status === 'matched') {
         setMatchedLawyer(res.data.lawyer);
         setTimeout(() => setStep('matched'), 1500);
       } else {
@@ -245,6 +254,31 @@ const EmergencyPage = () => {
       setStep('error');
     }
   };
+
+  // ── Short Polling for Match ──
+  useEffect(() => {
+    let intervalId;
+    if (step === 'searching' && sessionId) {
+      intervalId = setInterval(async () => {
+        try {
+          const res = await axios.get(`${API}/sos/status/${sessionId}`);
+          if (res.data.status === 'matched') {
+            setMatchedLawyer(res.data.lawyer);
+            setStep('matched');
+            clearInterval(intervalId);
+          } else if (res.data.status === 'no_lawyer') {
+             setStep('no_lawyer');
+             clearInterval(intervalId);
+          }
+        } catch (err) {
+           // Ignore network blips
+        }
+      }, 3000); // 3 seconds
+    }
+    return () => {
+       if (intervalId) clearInterval(intervalId);
+    };
+  }, [step, sessionId]);
 
   const handleDecline = () => {
     setDeclineCount(c => c + 1);
@@ -273,6 +307,7 @@ const EmergencyPage = () => {
     setStep('select');
     setSosMode(null);
     setMatchedLawyer(null);
+    setPotentialLawyers([]);
     setSessionId(null);
     setActiveSession(null);
     setDeclineCount(0);
@@ -437,6 +472,45 @@ const EmergencyPage = () => {
             </motion.div>
           )}
 
+          {/* ── Radar Preview (Pre-Payment) ── */}
+          {step === 'radar_preview' && (
+            <motion.div key="radar_preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 32 }}>
+              <div style={{ position: 'relative', width: 300, height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'relative', zIndex: 10, width: 112, height: 112, borderRadius: '50%', background: sosMode === 'talk' ? 'rgba(37,99,235,0.12)' : 'rgba(185,28,28,0.12)', border: `2px solid ${sosMode === 'talk' ? 'rgba(59,130,246,0.4)' : 'rgba(239,68,68,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {sosMode === 'talk' ? <Phone style={{ width: 44, height: 44, color: '#60a5fa' }} /> : <Car style={{ width: 44, height: 44, color: '#f87171' }} />}
+                </div>
+                {/* Ping rings */}
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 112, height: 112, borderRadius: '50%', border: `2px solid ${sosMode === 'talk' ? 'rgba(96,165,250,0.3)' : 'rgba(248,113,113,0.3)'}`, animation: 'esPing 1.5s ease-out infinite' }} />
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 112, height: 112, borderRadius: '50%', border: `2px solid ${sosMode === 'talk' ? 'rgba(96,165,250,0.15)' : 'rgba(248,113,113,0.15)'}`, animation: 'esPing 1.5s ease-out infinite 0.75s' }} />
+
+                {/* Simulated lawyers appearing */}
+                {[0, 1, 2].map((idx) => (
+                     <motion.div 
+                       key={idx}
+                       initial={{ opacity: 0, scale: 0 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       transition={{ delay: 1.0 + (idx * 0.8) }}
+                       style={{ 
+                         position: 'absolute', 
+                         width: 44, height: 44, borderRadius: '50%', 
+                         background: 'linear-gradient(135deg, #1d4ed8, #1e40af)', 
+                         display: 'flex', alignItems: 'center', justifyContent: 'center',
+                         border: '2px solid rgba(255,255,255,0.2)',
+                         transform: `rotate(${(idx / 3) * 360}deg) translateY(-${80 + idx*20}px) rotate(-${(idx / 3) * 360}deg)`,
+                         zIndex: 20
+                       }}
+                     >
+                       <User style={{ width: 20, height: 20, color: '#fff' }} />
+                     </motion.div>
+                ))}
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 22, margin: '0 0 10px 0' }}>{lang === 'hi' ? `${formData.state} में वकीलों की खोज की जा रही है...` : `Searching for Lawyers in ${formData.state}...`}</h3>
+                <p style={{ color: '#64748b', fontSize: 14 }}>{lang === 'hi' ? 'नेटवर्क स्कैन किया जा रहा है...' : 'Scanning the LxwyerUp network...'}</p>
+              </div>
+            </motion.div>
+          )}
+
           {/* ── Payment Step ── */}
           {step === 'payment' && (
             <motion.div key="payment" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ maxWidth: 520, margin: '0 auto' }}>
@@ -445,8 +519,12 @@ const EmergencyPage = () => {
               <div style={{ background: 'rgba(10,15,30,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 'clamp(20px,4vw,32px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContents: 'space-between', marginBottom: 24 }}>
                   <div style={{ flex: 1 }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(34,197,94,0.15)', borderRadius: '20px', marginBottom: '8px' }}>
+                      <CheckCircle2 style={{ width: 14, height: 14, color: '#4ade80' }} />
+                      <span style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>Lawyers Found Nearby</span>
+                    </div>
                     <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 4px 0' }}>{lang === 'hi' ? 'सुरक्षित भुगतान' : 'Secure Payment'}</h3>
-                    <p style={{ color: '#475569', fontSize: 12, margin: 0 }}>{lang === 'hi' ? 'आपकी जानकारी एन्क्रिप्टेड है' : 'Your payment is encrypted & safe'}</p>
+                    <p style={{ color: '#475569', fontSize: 12, margin: 0 }}>{lang === 'hi' ? 'आपकी जानकारी एन्क्रिप्टेड है' : 'Pay to instantly connect with an available lawyer'}</p>
                   </div>
                   <div style={{ padding: '10px 16px', borderRadius: 12, textAlign: 'center', background: sosMode === 'talk' ? 'rgba(37,99,235,0.15)' : 'rgba(185,28,28,0.15)' }}>
                     <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>₹{sosMode === 'talk' ? '300' : '1,100'}</p>
@@ -502,14 +580,41 @@ const EmergencyPage = () => {
           {/* ── Searching / Processing ── */}
           {step === 'searching' && (
             <motion.div key="searching" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 32 }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{ width: 112, height: 112, borderRadius: '50%', background: sosMode === 'talk' ? 'rgba(37,99,235,0.12)' : 'rgba(185,28,28,0.12)', border: `2px solid ${sosMode === 'talk' ? 'rgba(59,130,246,0.4)' : 'rgba(239,68,68,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', width: 300, height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                
+                {/* Potential Lawyers Radar Overlay */}
+                {potentialLawyers.map((lw, idx) => {
+                   const angle = (idx / Math.max(potentialLawyers.length, 1)) * 360;
+                   const radius = 80 + (idx % 3) * 20; // 80 to 120px radius
+                   return (
+                     <motion.div 
+                       key={lw.id}
+                       initial={{ opacity: 0, scale: 0 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       transition={{ delay: idx * 0.15 }}
+                       style={{ 
+                         position: 'absolute', 
+                         width: 44, height: 44, borderRadius: '50%', 
+                         background: 'linear-gradient(135deg, #1d4ed8, #1e40af)', 
+                         display: 'flex', alignItems: 'center', justifyContent: 'center',
+                         border: '2px solid rgba(255,255,255,0.2)',
+                         transform: `rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)`,
+                         zIndex: 20
+                       }}
+                       title={lw.name}
+                     >
+                       <User style={{ width: 20, height: 20, color: '#fff' }} />
+                     </motion.div>
+                   )
+                })}
+
+                <div style={{ position: 'relative', zIndex: 10, width: 112, height: 112, borderRadius: '50%', background: sosMode === 'talk' ? 'rgba(37,99,235,0.12)' : 'rgba(185,28,28,0.12)', border: `2px solid ${sosMode === 'talk' ? 'rgba(59,130,246,0.4)' : 'rgba(239,68,68,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {sosMode === 'talk' ? <Phone style={{ width: 44, height: 44, color: '#60a5fa' }} /> : <Car style={{ width: 44, height: 44, color: '#f87171' }} />}
                 </div>
-                <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${sosMode === 'talk' ? 'rgba(96,165,250,0.3)' : 'rgba(248,113,113,0.3)'}`, animation: 'esPing 1.5s ease-out infinite' }} />
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 112, height: 112, borderRadius: '50%', border: `2px solid ${sosMode === 'talk' ? 'rgba(96,165,250,0.3)' : 'rgba(248,113,113,0.3)'}`, animation: 'esPing 1.5s ease-out infinite' }} />
               </div>
-              <div style={{ textAlign: 'center' }}>
-                <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 22, margin: '0 0 10px 0' }}>{declineCount > 0 ? 'Finding Next Available Lawyer...' : 'Searching for SOS Lawyer...'}</h3>
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 22, margin: '0 0 10px 0' }}>{declineCount > 0 ? 'Finding Next Available Lawyer...' : 'Broadcasting SOS to Lawyers...'}</h3>
                 <p style={{ color: '#64748b', fontSize: 14 }}>Matching you with a verified lawyer in {formData.state}...</p>
                 <div style={{ marginTop: 12, padding: '8px 16px', background: 'rgba(34,197,94,0.1)', color: '#4ade80', borderRadius: 8, fontSize: 12, display: 'inline-block' }}>Payment Confirmed (Txn: {transactionId})</div>
               </div>

@@ -1,318 +1,222 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Scale, Building2, MapPin, ArrowRight, ArrowLeft, Phone, Mail,
-  Users, Calendar, CheckCircle, Award, Clock, Globe, Briefcase
+  Scale, Briefcase, MapPin, ArrowLeft, Phone, Mail,
+  CheckCircle, Building, Users, Star, ArrowRight, ShieldCheck, Check, X
 } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { dummyLawFirms } from '../data/lawFirmsDataExtended';
+import { dummyLawFirms } from '../data/lawFirmsData';
+import axios from 'axios';
 
-const SimpleNavbar = ({ navigate }) => {
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <button onClick={() => navigate('/')} className="flex items-center space-x-2">
-            <img src="/logo.png" alt="Lxwyer Up Logo" className="w-6 h-6 md:w-8 md:h-8 object-contain rounded-md" style={{ mixBlendMode: "screen" }} />
-            <span className="text-xl font-bold text-[#0F2944]">Lxwyer Up</span>
-          </button>
+const API = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-          <div className="flex items-center space-x-4">
-            <Button
-              onClick={() => navigate('/login')}
-              variant="ghost"
-              className="text-[#0F2944] hover:text-[#0F2944]/80"
-            >
-              Login
-            </Button>
-            <Button
-              onClick={() => navigate('/register')}
-              className="bg-[#0F2944] hover:bg-[#0F2944]/90 text-white"
-            >
-              Sign Up
-            </Button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-};
-
-const FirmProfile = () => {
+export default function FirmProfile({ firmId, onCloseModal }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id: routeId } = useParams();
+  const id = firmId || routeId;
+  const isModal = !!firmId;
+  const [firm, setFirm] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find the firm by ID
-  const firm = dummyLawFirms.find(f => f.id === id);
+  useEffect(() => {
+    const fetchFirm = async () => {
+      const dummy = dummyLawFirms.find(f => f.id === id || f.unique_id === id);
+      if (dummy) {
+        setFirm(dummy);
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await axios.get(`${API}/firms`);
+        const found = res.data.find(f => f.id === id || f.unique_id === id);
+        if (found) {
+          setFirm(found);
+        }
+      } catch(e) {
+         console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFirm();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0a0a0a]">
+        <div className="w-10 h-10 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+      </div>
+    );
+  }
 
   if (!firm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-        <SimpleNavbar navigate={navigate} />
-        <div className="pt-24 pb-16 px-4 text-center">
-          <h1 className="text-2xl font-bold text-[#0F2944]">Law Firm not found</h1>
-          <Button onClick={() => navigate('/find-lawfirm/manual')} className="mt-4">
-            Browse Law Firms
-          </Button>
+      <div className={isModal ? "p-8 flex flex-col items-center justify-center bg-white rounded-3xl" : "min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4"}>
+        <Building className="w-12 h-12 text-slate-300" />
+        <p className="text-xl font-bold text-slate-700 mt-4">Firm not found</p>
+        {!isModal && (
+          <button onClick={() => navigate('/find-law-firm/manual')}
+            className="px-5 py-2.5 mt-4 bg-blue-600 text-white rounded-xl font-semibold text-sm">
+            Browse Firms
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const innerContent = (
+    <div className="relative w-full max-w-4xl bg-white dark:bg-[#121212] rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800">
+      <div className="relative h-64">
+        <img
+          src={firm.image || firm.logo || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200'}
+          alt={firm.name || firm.firm_name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+        <button
+          onClick={() => isModal ? onCloseModal() : navigate(-1)}
+          className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="absolute bottom-6 left-8 right-8 text-white">
+          <h2 className="text-3xl font-bold mb-2">{firm.name || firm.firm_name}</h2>
+          <div className="flex items-center gap-4 text-slate-200">
+            <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {firm.city || firm.location}{firm.state ? `, ${firm.state}` : ''}</span>
+            <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {firm.lawyersCount || firm.total_lawyers || firm.team_size || '10+'} Lawyers</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 p-5 sm:p-8">
+        <div className="md:col-span-2 space-y-8">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">About the Firm</h3>
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{firm.description || firm.bio}</p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Practice Areas</h3>
+            <div className="flex flex-wrap gap-2">
+              {(firm.practiceAreas || firm.practice_areas || firm.specializations || ['Corporate', 'Litigation']).map((area, idx) => (
+                <div key={idx} className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium rounded-lg border border-blue-100 dark:border-blue-800">
+                  {area}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Managing Partners */}
+          {firm.managing_partners && firm.managing_partners.length > 0 && (
+            <div className="pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Managing Partners</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {firm.managing_partners.map((partner, idx) => (
+                  <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-slate-100 dark:border-[#2a2a2a]">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                      {partner.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{partner.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">ID: {partner.bar_council_id}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Additional Details */}
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+            {firm.languages_spoken && (
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Languages</h4>
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{firm.languages_spoken.join(', ')}</p>
+              </div>
+            )}
+            {firm.billing_models && (
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Billing</h4>
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{firm.billing_models.join(' • ')}</p>
+              </div>
+            )}
+            {firm.branch_offices && (
+              <div className="col-span-2">
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Branch Offices</h4>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {firm.branch_offices.map((office, idx) => (
+                    <span key={idx} className="text-xs font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-300">
+                      {office}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6 h-fit">
+          {firm.platform_metrics && (
+            <div className="p-5 bg-slate-50 dark:bg-[#1a1a1a] rounded-2xl border border-slate-100 dark:border-[#2a2a2a]">
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-sm tracking-widest uppercase">Firm Performance</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                  <span className="text-xs font-semibold text-slate-500">Cases Handled</span>
+                  <span className="font-black text-blue-600">{firm.platform_metrics.cases_resolved}+</span>
+                </div>
+                <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                  <span className="text-xs font-semibold text-slate-500">Client Score</span>
+                  <span className="font-black text-yellow-500 flex items-center gap-1">{firm.platform_metrics.csat} <Star className="w-3 h-3 fill-current" /></span>
+                </div>
+                {firm.average_response_time_mins && (
+                  <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                    <span className="text-xs font-semibold text-slate-500">Avg Response</span>
+                    <span className="font-black text-emerald-500">&lt; {firm.average_response_time_mins}m</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+            <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">Book Consultation</h3>
+            <p className="text-sm text-indigo-700 dark:text-indigo-400 mb-4">Schedule a meeting with senior partners or specialized teams.</p>
+            <button
+              onClick={() => navigate(`/book-consultation-signup`, {
+                state: {
+                  lawyer: {
+                    ...firm,
+                    photo: firm.image,
+                    consultation_fee: firm.consultation_fee || firm.feeMin || 5000,
+                    fee: firm.feeRange || "₹5,000 - ₹15,000",
+                    specialization: firm.practiceAreas?.[0] || "Corporate Law"
+                  }
+                }
+              })}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all"
+            >
+              Book Consultation
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (isModal) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm shadow-2xl" onClick={onCloseModal}>
+        <div onClick={e => e.stopPropagation()} className="w-full max-w-4xl flex justify-center max-h-[90vh]">
+          {innerContent}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      <SimpleNavbar navigate={navigate} />
-
-      <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate('/find-lawfirm/manual')}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#0F2944] mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Law Firms
-          </button>
-
-          {/* Profile Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mb-6"
-          >
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Logo */}
-              <div className="relative">
-                <img
-                  src={firm.logo}
-                  alt={firm.firm_name}
-                  className="w-32 h-32 rounded-2xl object-cover"
-                />
-                {firm.verified && (
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
-                  </div>
-                )}
-              </div>
-
-              {/* Basic Info */}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-[#0F2944] mb-2">{firm.firm_name}</h1>
-                    <p className="text-gray-600 mb-3">{firm.description}</p>
-
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{firm.total_lawyers} lawyers</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Since {firm.established_year}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>{firm.city}, {firm.state}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Consultation Fee */}
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Consultation Fee</p>
-                    <p className="text-2xl font-bold text-[#0F2944]">{firm.consultation}</p>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {firm.verified && (
-                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" /> Verified
-                    </span>
-                  )}
-                  {firm.featured && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium flex items-center gap-1">
-                      <Award className="w-3 h-3" /> Featured
-                    </span>
-                  )}
-
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 pt-6 border-t border-gray-100 flex flex-wrap gap-4">
-              <Button
-                onClick={() => navigate(`/join-firm/${firm.id}`)}
-                className="bg-[#0F2944] hover:bg-[#0F2944]/90 text-white px-8 py-4 rounded-xl font-semibold text-lg group"
-              >
-                Join This Firm
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                onClick={() => navigate('/register?redirect=booking')}
-                variant="outline"
-                className="border-2 border-[#0F2944] text-[#0F2944] px-8 py-4 rounded-xl font-semibold text-lg"
-              >
-                Book Consultation
-              </Button>
-            </div>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Left Column - Details */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="md:col-span-2 space-y-6"
-            >
-              {/* Practice Areas */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h2 className="text-xl font-bold text-[#0F2944] mb-4">Practice Areas</h2>
-                <div className="flex flex-wrap gap-2">
-                  {firm.practice_areas?.map((area, idx) => (
-                    <span key={idx} className="px-4 py-2 bg-[#0F2944]/10 text-[#0F2944] rounded-full text-sm font-medium">
-                      {area}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Firm Stats */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h2 className="text-xl font-bold text-[#0F2944] mb-4">Firm Overview</h2>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-gray-50 rounded-xl">
-                    <p className="text-3xl font-bold text-[#0F2944]">{firm.total_lawyers}</p>
-                    <p className="text-sm text-gray-600">Lawyers</p>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-xl">
-                    <p className="text-3xl font-bold text-[#0F2944]">{firm.total_staff || Math.floor(firm.total_lawyers * 1.5)}</p>
-                    <p className="text-sm text-gray-600">Staff Members</p>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-xl">
-                    <p className="text-3xl font-bold text-[#0F2944]">{2024 - firm.established_year}</p>
-                    <p className="text-sm text-gray-600">Years in Business</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Achievements */}
-              {firm.achievements && (
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                  <h2 className="text-xl font-bold text-[#0F2944] mb-4">Achievements & Recognition</h2>
-                  <p className="text-gray-600">{firm.achievements}</p>
-                </div>
-              )}
-
-              {/* Services */}
-              {firm.services && (
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                  <h2 className="text-xl font-bold text-[#0F2944] mb-4">Services Offered</h2>
-                  <div className="grid grid-cols-2 gap-3">
-                    {firm.services.map((service, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-gray-600">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span>{service}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-
-            {/* Right Column - Contact Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-6"
-            >
-              {/* Contact Details */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h2 className="text-xl font-bold text-[#0F2944] mb-4">Contact Details</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#0F2944]/10 rounded-lg flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-[#0F2944]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Phone</p>
-                      <p className="text-sm text-[#0F2944] font-medium">{firm.phone}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#0F2944]/10 rounded-lg flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-[#0F2944]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Email</p>
-                      <p className="text-sm text-[#0F2944] font-medium">{firm.email}</p>
-                    </div>
-                  </div>
-                  {firm.website && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#0F2944]/10 rounded-lg flex items-center justify-center">
-                        <Globe className="w-5 h-5 text-[#0F2944]" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Website</p>
-                        <p className="text-sm text-[#0F2944] font-medium">{firm.website}</p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-[#0F2944]/10 rounded-lg flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-[#0F2944]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Address</p>
-                      <p className="text-sm text-[#0F2944] font-medium">{firm.address}</p>
-                      <p className="text-sm text-gray-600">{firm.city}, {firm.state} - {firm.pincode}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Working Hours */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h2 className="text-xl font-bold text-[#0F2944] mb-4">Working Hours</h2>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span>{firm.workingHours || '9:00 AM - 6:00 PM'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>{firm.workingDays || 'Monday - Saturday'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Registration Info */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h2 className="text-xl font-bold text-[#0F2944] mb-4">Registration</h2>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-gray-500">Registration Number</p>
-                    <p className="text-[#0F2944] font-medium">{firm.registration_number}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Established</p>
-                    <p className="text-[#0F2944] font-medium">{firm.established_year}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0a] py-8 px-4 flex justify-center pb-24">
+      {innerContent}
     </div>
   );
-};
-
-export default FirmProfile;
+}

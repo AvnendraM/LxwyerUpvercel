@@ -168,7 +168,18 @@ async def create_sos_request(req: SOSSessionRequest):
 
     if lawyers:
         lawyers.sort(key=score, reverse=True)
-        best = lawyers[0]
+        # We don't assign a lawyer yet, we broadcast to all matched lawyers in the state
+        potential_lawyers = []
+        for l in lawyers[:10]: # Top 10 matched lawyers
+            potential_lawyers.append({
+                "id": str(l.get('_id', l.get('id', ''))),
+                "name": l.get('full_name') or l.get('name'),
+                "phone": l.get('phone'),
+                "specialization": l.get('specialization'),
+                "city": l.get('city'),
+                "state": l.get('state')
+            })
+            
         session = SOSSession(
             user_phone=req.user_phone,
             user_name=req.user_name,
@@ -177,32 +188,17 @@ async def create_sos_request(req: SOSSessionRequest):
             issue_type=req.issue_type,
             sos_type=req.sos_type,
             base_amount=base_amount,
-            total_billed=base_amount,
-            matched_lawyer_id=str(best.get('_id', best.get('id', ''))),
-            matched_lawyer_name=best.get('full_name') or best.get('name'),
-            matched_lawyer_phone=best.get('phone'),
-            matched_lawyer_specialization=best.get('specialization'),
-            status='matched',
-            connected_at=datetime.now(timezone.utc).isoformat(),
-            transcript=[
-                SOSTranscriptMessage(
-                    sender='system',
-                    sender_name='LxwyerUp SOS',
-                    text=f"Emergency session started. Type: {req.sos_type}. Issue: {req.issue_type}. Location: {req.user_city}, {req.user_state}."
-                ).model_dump()
-            ]
+            total_billed=0,
+            status='searching',
+            transcript=[]
         )
         await db.sos_sessions.insert_one(session.model_dump())
         return {
             "session_id": session.id,
-            "status": "matched",
+            "status": "searching",
             "sos_type": req.sos_type,
             "base_amount": base_amount,
-            "lawyer": {
-                "name": session.matched_lawyer_name,
-                "phone": session.matched_lawyer_phone,
-                "specialization": session.matched_lawyer_specialization,
-            }
+            "potential_lawyers": potential_lawyers
         }
     else:
         session = SOSSession(
@@ -222,6 +218,90 @@ async def create_sos_request(req: SOSSessionRequest):
             "status": "no_lawyer",
             "message": "No SOS lawyer is currently available in your area. We have logged your request — our team will call you back within 5 minutes."
         }
+
+@router.get("/status/{session_id}")
+async def get_sos_status(session_id: str):
+    """
+    Client polls this during the 'searching' phase to check if a lawyer has accepted.
+    """
+    session = await db.sos_sessions.find_one({'id': session_id})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    res = {
+        "status": session.get('status'),
+        "session_id": session.get('id')
+    }
+    
+    if session.get('status') == 'matched':
+        res["lawyer"] = {
+            "name": session.get('matched_lawyer_name'),
+            "phone": session.get('matched_lawyer_phone'),
+            "specialization": session.get('matched_lawyer_specialization')
+        }
+    return res
+
+@router.get("/active-broadcasts")
+async def get_active_broadcasts(user: dict = Depends(get_current_user)):
+    """
+    Lawyer dashboard polls this to get active searches in their state.
+    """
+    if user.get('user_type') != 'lawyer':
+        raise HTTPException(status_code=403, detail="Only lawyers can view broadcasts")
+        
+    # Get active searches in the lawyer's state
+    searches = await db.sos_sessions.find({
+        'status': 'searching',
+        'user_state': {'$regex': user.get('state', ''), '$options': 'i'}
+    }).to_list(100)
+    
+    for s in searches:
+        s['_id'] = str(s['_id'])
+        
+    return {"broadcasts": searches}
+
+@router.post("/accept/{session_id}")
+async def accept_sos_request(session_id: str, user: dict = Depends(get_current_user)):
+    """
+    Lawyer accepts a broadcasted SOS request.
+    First lawyer to accept gets it.
+    """
+    if user.get('user_type') != 'lawyer':
+        raise HTTPException(status_code=403, detail="Only lawyers can accept SOS requests")
+        
+    session = await db.sos_sessions.find_one({'id': session_id})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    if session.get('status') != 'searching':
+        raise HTTPException(status_code=400, detail="This session has already been accepted or cancelled.")
+        
+    # Update to matched
+    result = await db.sos_sessions.update_one(
+        {'id': session_id, 'status': 'searching'},  # atomic check
+        {'$set': {
+            'status': 'matched',
+            'matched_lawyer_id': user.get('id'),
+            'matched_lawyer_name': user.get('full_name') or user.get('name', 'Lawyer'),
+            'matched_lawyer_phone': user.get('phone', ''),
+            'matched_lawyer_specialization': user.get('specialization', 'Legal Expert'),
+            'connected_at': datetime.now(timezone.utc).isoformat(),
+            'total_billed': session.get('base_amount', 300),
+            'transcript': [
+                SOSTranscriptMessage(
+                    sender='system',
+                    sender_name='LxwyerUp SOS',
+                    text=f"Emergency session started. Type: {session.get('sos_type')}. Issue: {session.get('issue_type')}. Location: {session.get('user_city')}, {session.get('user_state')}."
+                ).model_dump()
+            ]
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to accept. It might have just been taken by another lawyer.")
+        
+    return {"message": "You have successfully accepted the SOS request"}
+
 
 # ── OTP Routes ────────────────────────────────────────────────────────────────
 

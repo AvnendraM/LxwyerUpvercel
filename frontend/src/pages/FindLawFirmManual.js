@@ -84,7 +84,7 @@ const FloatingCard = ({ children, delay = 0, className = "" }) => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, delay }}
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
-    className={`bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl shadow-blue-900/5 dark:shadow-blue-900/20 rounded-2xl ${className}`}
+    className={`bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl shadow-blue-900/5 dark:shadow-blue-900/20 rounded-2xl ${className}`}
   >
     {children}
   </motion.div>
@@ -385,6 +385,16 @@ export default function FindLawFirmManual() {
                       </span>
                     )}
                   </div>
+                  
+                  {firm.platform_metrics && (
+                    <div className="flex items-center gap-4 mb-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <span className="flex items-center gap-1"><Award className="w-3.5 h-3.5 text-yellow-500" /> {firm.platform_metrics.cases_resolved}+ Cases</span>
+                      <span className="flex items-center gap-1"><Sparkles className="w-3.5 h-3.5 text-blue-500" /> {firm.platform_metrics.csat}/5.0 CSAT</span>
+                      {firm.average_response_time_mins && (
+                        <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-green-500" /> &lt; {firm.average_response_time_mins}m resp</span>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700 mt-auto">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
@@ -485,7 +495,7 @@ export default function FindLawFirmManual() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-4xl bg-white dark:bg-[#121212] rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               <div className="relative h-64">
                 <img
@@ -527,12 +537,83 @@ export default function FindLawFirmManual() {
                         ))}
                       </div>
                     </div>
+                    
+                    {/* Managing Partners */}
+                    {selectedFirm.managing_partners && selectedFirm.managing_partners.length > 0 && (
+                      <div className="pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Managing Partners</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {selectedFirm.managing_partners.map((partner, idx) => (
+                            <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-slate-100 dark:border-[#2a2a2a]">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                {partner.name.charAt(0)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{partner.name}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">ID: {partner.bar_council_id}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Additional Details */}
+                    <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+                      {selectedFirm.languages_spoken && (
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Languages</h4>
+                          <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{selectedFirm.languages_spoken.join(', ')}</p>
+                        </div>
+                      )}
+                      {selectedFirm.billing_models && (
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Billing</h4>
+                          <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{selectedFirm.billing_models.join(' • ')}</p>
+                        </div>
+                      )}
+                      {selectedFirm.branch_offices && (
+                        <div className="col-span-2">
+                          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Branch Offices</h4>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {selectedFirm.branch_offices.map((office, idx) => (
+                              <span key={idx} className="text-xs font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-300">
+                                {office}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 h-fit">
-                  <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">{d.bookConsultation}</h3>
-                  <p className="text-sm text-indigo-700 dark:text-indigo-400 mb-4">{d.scheduleMeeting}</p>
-                  <Button
+                <div className="space-y-6 h-fit">
+                  {selectedFirm.platform_metrics && (
+                   <div className="p-5 bg-slate-50 dark:bg-[#1a1a1a] rounded-2xl border border-slate-100 dark:border-[#2a2a2a]">
+                     <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-sm tracking-widest uppercase">Firm Performance</h3>
+                     <div className="space-y-3">
+                        <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                           <span className="text-xs font-semibold text-slate-500">Cases Handled</span>
+                           <span className="font-black text-blue-600">{selectedFirm.platform_metrics.cases_resolved}+</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                           <span className="text-xs font-semibold text-slate-500">Client Score</span>
+                           <span className="font-black text-yellow-500 flex items-center gap-1">{selectedFirm.platform_metrics.csat} <Star className="w-3 h-3 fill-current" /></span>
+                        </div>
+                        {selectedFirm.average_response_time_mins && (
+                          <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                             <span className="text-xs font-semibold text-slate-500">Avg Response</span>
+                             <span className="font-black text-emerald-500">&lt; {selectedFirm.average_response_time_mins}m</span>
+                          </div>
+                        )}
+                     </div>
+                   </div>
+                  )}
+
+                  <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+                    <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">{d.bookConsultation}</h3>
+                    <p className="text-sm text-indigo-700 dark:text-indigo-400 mb-4">{d.scheduleMeeting}</p>
+                    <Button
                     onClick={() => navigate('/book-consultation-signup', {
                       state: {
                         lawyer: {
@@ -551,10 +632,11 @@ export default function FindLawFirmManual() {
                   </Button>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
 
 
       {/* Floating AI Lawyer Matching Button */}

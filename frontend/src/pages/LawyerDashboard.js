@@ -114,10 +114,11 @@ export default function LawyerDashboard() {
   // SOS Dispute Modal State
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [selectedCallForDispute, setSelectedCallForDispute] = useState(null);
-  const [disputeReason, setDisputeReason] = useState("");
   const [disputeFile, setDisputeFile] = useState(null);
   const [sosType, setSosType] = useState(null); // 'sos_talk' | 'sos_full' — loaded from user profile
   const [sosTypeLoading, setSosTypeLoading] = useState(false);
+  const [activeBroadcasts, setActiveBroadcasts] = useState([]);
+  const [acceptingSos, setAcceptingSos] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -374,6 +375,41 @@ export default function LawyerDashboard() {
       fetchData();
     }
   }, [fetchData]);
+
+  // ── SOS Polling ──
+  useEffect(() => {
+    let interval;
+    if (user && user.application_type && user.application_type.includes("sos")) {
+      const fetchBroadcasts = async () => {
+        try {
+          const res = await axios.get(`${API}/sos/active-broadcasts`, { headers: { Authorization: `Bearer ${token}` } });
+          setActiveBroadcasts(res.data.broadcasts || []);
+        } catch (e) {
+          // Silent catch
+        }
+      };
+      fetchBroadcasts();
+      interval = setInterval(fetchBroadcasts, 5000);
+    }
+    return () => { if (interval) clearInterval(interval); }
+  }, [user, token]);
+
+  const handleAcceptSos = async (sessionId) => {
+    setAcceptingSos(true);
+    try {
+      await axios.post(`${API}/sos/accept/${sessionId}`, {}, {
+         headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("SOS Request accepted successfully!");
+      setActiveBroadcasts((prev) => prev.filter(b => b._id !== sessionId && b.id !== sessionId));
+      // Option to navigate to session or open it based on your UI
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to accept SOS request. It might have been taken.");
+      setActiveBroadcasts((prev) => prev.filter(b => b._id !== sessionId && b.id !== sessionId));
+    } finally {
+      setAcceptingSos(false);
+    }
+  };
 
   const handleImageUpload = (newPhotoUrl) => {
     if (typeof newPhotoUrl !== 'string') return;
@@ -1197,6 +1233,43 @@ export default function LawyerDashboard() {
                       </p>
                     </div>
                   </div>
+                )}
+
+                {/* SOS Active Broadcasts Overlay */}
+                {activeBroadcasts.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    key="sos-radar"
+                    className="mb-6 p-6 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6"
+                    style={{ background: 'linear-gradient(135deg, #1e3a8a, #dc2626)', border: '2px solid rgba(255,255,255,0.2)' }}
+                  >
+                    <div className="absolute inset-0 z-0">
+                       <div className="absolute top-1/2 left-12 w-24 h-24 -translate-y-1/2 rounded-full border border-white/30" style={{ animation: 'esPing 2s infinite' }}></div>
+                       <div className="absolute top-1/2 left-12 w-48 h-48 -translate-x-12 -translate-y-1/2 rounded-full border border-white/20" style={{ animation: 'esPing 2s infinite 0.5s' }}></div>
+                    </div>
+                    
+                    <div className="relative z-10 flex flex-col text-white">
+                       <div className="flex items-center gap-3 mb-2">
+                          <AlertTriangle className="w-8 h-8 text-yellow-300" />
+                          <h2 className="text-2xl font-black uppercase tracking-wider text-white">SOS Alert in your area</h2>
+                       </div>
+                       <p className="text-white/90 font-medium text-lg">
+                         <strong className="text-yellow-300">{activeBroadcasts[0].sos_type === 'sos_full' ? 'Full Legal SOS' : 'SOS Talk'}</strong> for <strong>{activeBroadcasts[0].issue_type}</strong> issue.
+                       </p>
+                       <p className="text-white/80 text-sm mt-1">Location: {activeBroadcasts[0].user_city}, {activeBroadcasts[0].user_state} | ₹{activeBroadcasts[0].base_amount}</p>
+                    </div>
+
+                    <div className="relative z-10 w-full sm:w-auto shrink-0 flex items-center justify-center">
+                       <Button 
+                          onClick={() => handleAcceptSos(activeBroadcasts[0].id || activeBroadcasts[0]._id)}
+                          disabled={acceptingSos}
+                          className="w-full sm:w-48 h-14 bg-white hover:bg-slate-100 text-[#b91c1c] font-bold text-xl uppercase tracking-wider rounded-xl shadow-lg transition-transform hover:scale-105"
+                       >
+                         {acceptingSos ? "Accepting..." : "ACCEPT NOW"}
+                       </Button>
+                    </div>
+                  </motion.div>
                 )}
 
                 {/* Greeting Header & Actions */}

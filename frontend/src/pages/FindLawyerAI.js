@@ -6,7 +6,9 @@ import axios from 'axios';
 import { API } from '../App';
 import { Button } from '../components/ui/button';
 import LawyerCard from '../components/LawyerCard';
+import FirmCard from '../components/FirmCard';
 import { dummyLawyers, specializations } from '../data/lawyersData';
+import { dummyLawFirms } from '../data/lawFirmsData';
 import { greetings, farewells, thanks, acknowledgements, aboutBot, legalInfo, customQA, fallbackResponses, caseTypeKeywords, locationKeywords, advancedLegalInfo, hindiPhrases, proceduralQA, advancedCaseTypeKeywords, nameQueryResponses } from '../data/chatbotData';
 import { legalKnowledge, csvQAPairs, topAdvocates, totalCasesProcessed } from '../data/processedLegalData';
 import { WaveLayout } from '../components/WaveLayout';
@@ -226,7 +228,28 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
           casesWon: lawyer.cases_won || 50,
           featured: false
         }));
-        const merged = [...formattedDbLawyers, ...dummyLawyers];
+        
+        let formattedDbFirms = [];
+        try {
+          const firmResponse = await axios.get(`${API}/lawfirms`);
+          formattedDbFirms = firmResponse.data.map(firm => ({
+            ...firm,
+            id: firm.id || firm._id,
+            name: firm.firm_name || firm.name,
+            isFirm: true,
+            city: firm.city,
+            state: firm.state,
+            practiceAreas: firm.practice_areas || [],
+            lawyersCount: firm.total_lawyers || 0,
+            description: firm.description || 'No description provided',
+            image: firm.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200',
+            unique_id: firm.unique_id,
+            feeMin: firm.min_fee || firm.consultation_fee,
+          }));
+        } catch (e) { }
+
+        const mappedDummyFirms = dummyLawFirms.map(f => ({ ...f, isFirm: true }));
+        const merged = [...formattedDbLawyers, ...dummyLawyers, ...formattedDbFirms, ...mappedDummyFirms];
         setAllLawyersList(merged);
 
         // ── AUTO-TRAIN: build live index from backend data ──────────────────
@@ -245,6 +268,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
             }
           }
           (l.secondarySpecializations || []).forEach(s => specs.add(s.toLowerCase()));
+          (l.practiceAreas || []).forEach(s => specs.add(s.toLowerCase()));
         });
         setLiveIndex({ cities, specs, specCityMap });
 
@@ -431,7 +455,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
     const factors = [];
 
     const caseType = detectCaseType(userQuery);
-    if (caseType && lawyer.specialization === caseType) { score += 40; factors.push('Specialization Match'); }
+    if (caseType && (lawyer.specialization === caseType || (lawyer.practiceAreas && lawyer.practiceAreas.includes(caseType)))) { score += 40; factors.push('Specialization Match'); }
     else if (caseType && lawyer.secondarySpecializations?.includes(caseType)) { score += 25; factors.push('Related Spec'); }
 
     const location = detectLocation(userQuery);
@@ -1098,6 +1122,20 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                 {(showAllLawyers ? recommendedLawyers : recommendedLawyers.slice(0, 5)).map((lawyer, index) => {
                   const grad = GRADIENTS[index % GRADIENTS.length];
                   const photoSrc = getLawyerPhoto(lawyer.photo, lawyer.name);
+
+                  if (lawyer.isFirm) {
+                    return (
+                      <div key={lawyer.id} className="cursor-pointer">
+                        <FirmCard 
+                           firm={lawyer} 
+                           index={index} 
+                           onProfileClick={(firm) => setSelectedLawyer({ ...firm, isFirm: true })} 
+                           onBookClick={(firm) => handleBookConsultation(firm)} 
+                        />
+                      </div>
+                    );
+                  }
+
                   return (
                     <motion.div
                       key={lawyer.id}
@@ -1203,11 +1241,125 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               <div className="h-36 bg-gradient-to-br from-blue-700 via-indigo-600 to-violet-700 dark:from-slate-800 dark:via-[#111] dark:to-black relative shrink-0">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5" />
                 <span className="absolute top-5 right-7 text-white/20 dark:text-white/5 font-black text-5xl tracking-widest select-none pointer-events-none uppercase">Lxwyer Up</span>
-                <button onClick={() => setSelectedLawyer(null)} className="absolute top-5 left-5 p-2 bg-white/10 hover:bg-white/20 dark:bg-black/20 dark:hover:bg-black/40 rounded-full text-white transition-colors backdrop-blur-md">
+                <button onClick={() => setSelectedLawyer(null)} className="absolute top-5 left-5 p-2 bg-white/10 hover:bg-white/20 dark:bg-black/20 dark:hover:bg-black/40 rounded-full text-white transition-colors backdrop-blur-md z-50">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
+              {selectedLawyer.isFirm ? (
+                 <div className="flex-1 overflow-y-auto overscroll-contain">
+                 <div className="relative h-64">
+                   <img src={selectedLawyer.image} alt={selectedLawyer.name} className="w-full h-full object-cover" />
+                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                   <div className="absolute bottom-6 left-8 right-8 text-white">
+                     <h2 className="text-3xl font-bold mb-2">{selectedLawyer.name}</h2>
+                     <div className="flex items-center gap-4 text-slate-200">
+                       <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {selectedLawyer.city}, {selectedLawyer.state}</span>
+                       <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {selectedLawyer.lawyersCount} {d.lawyers}</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 p-5 sm:p-8">
+                   <div className="md:col-span-2 space-y-8">
+                     <div>
+                       <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">{d.aboutFirm || 'About Firm'}</h3>
+                       <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{selectedLawyer.description}</p>
+                     </div>
+                     <div>
+                       <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Practice Areas</h3>
+                       <div className="flex flex-wrap gap-2">
+                         {selectedLawyer.practiceAreas?.map((area, idx) => (
+                           <div key={idx} className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium rounded-lg border border-blue-100 dark:border-blue-800">
+                             {area}
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                     
+                     {/* Managing Partners */}
+                     {selectedLawyer.managing_partners && selectedLawyer.managing_partners.length > 0 && (
+                       <div className="pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Managing Partners</h3>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           {selectedLawyer.managing_partners.map((partner, idx) => (
+                             <div key={idx} className="flex items-center gap-3 bg-slate-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-slate-100 dark:border-[#2a2a2a]">
+                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                 {partner.name.charAt(0)}
+                               </div>
+                               <div className="min-w-0">
+                                 <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{partner.name}</p>
+                                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">ID: {partner.bar_council_id}</p>
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     )}
+                     
+                     {/* Additional Details */}
+                     <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-[#2a2a2a]">
+                       {selectedLawyer.languages_spoken && (
+                         <div>
+                           <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Languages</h4>
+                           <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{selectedLawyer.languages_spoken.join(', ')}</p>
+                         </div>
+                       )}
+                       {selectedLawyer.billing_models && (
+                         <div>
+                           <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Billing</h4>
+                           <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{selectedLawyer.billing_models.join(' • ')}</p>
+                         </div>
+                       )}
+                       {selectedLawyer.branch_offices && (
+                         <div className="col-span-2">
+                           <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Branch Offices</h4>
+                           <div className="flex flex-wrap gap-2 mt-1">
+                             {selectedLawyer.branch_offices.map((office, idx) => (
+                               <span key={idx} className="text-xs font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-300">
+                                 {office}
+                               </span>
+                             ))}
+                           </div>
+                         </div>
+                       )}
+                     </div>                     
+                   </div>
+                   
+                   <div className="space-y-6 h-fit">
+                     {selectedLawyer.platform_metrics && (
+                      <div className="p-5 bg-slate-50 dark:bg-[#1a1a1a] rounded-2xl border border-slate-100 dark:border-[#2a2a2a]">
+                        <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-sm tracking-widest uppercase">Firm Performance</h3>
+                        <div className="space-y-3">
+                           <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                              <span className="text-xs font-semibold text-slate-500">Cases Handled</span>
+                              <span className="font-black text-blue-600">{selectedLawyer.platform_metrics.cases_resolved}+</span>
+                           </div>
+                           <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                              <span className="text-xs font-semibold text-slate-500">Client Score</span>
+                              <span className="font-black text-yellow-500 flex items-center gap-1">{selectedLawyer.platform_metrics.csat} / 5.0</span>
+                           </div>
+                           {selectedLawyer.average_response_time_mins && (
+                             <div className="flex justify-between items-center bg-white dark:bg-[#222] p-3 rounded-xl border border-slate-100 dark:border-[#333]">
+                                <span className="text-xs font-semibold text-slate-500">Avg Response</span>
+                                <span className="font-black text-emerald-500">&lt; {selectedLawyer.average_response_time_mins}m</span>
+                             </div>
+                           )}
+                        </div>
+                      </div>
+                     )}                   
+                     <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+                       <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">{d.bookConsultation}</h3>
+                       <p className="text-sm text-indigo-700 dark:text-indigo-400 mb-4">{d.scheduleMeeting || 'Schedule a meeting'}</p>
+                       <Button onClick={() => handleBookConsultation(selectedLawyer)} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20">
+                         {d.bookConsultation}
+                       </Button>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+              ) : (
+                <>
               {/* Scrollable body */}
               <div className="flex-1 overflow-y-auto overscroll-contain px-6 sm:px-10 pb-10">
                 {/* Avatar + name row */}
@@ -1337,6 +1489,8 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                   {d.bookConsultation} <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
+              </>
+              )}
             </motion.div>
           </div>
         )}

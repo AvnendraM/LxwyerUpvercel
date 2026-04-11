@@ -604,6 +604,10 @@ export default function LawyerApplication() {
         toast.error("Please select your law firm");
         return false;
       }
+      if (formData.applicationType.includes("sos") && !formData.sosTermsAccepted) {
+        toast.error("Please accept the SOS Lawyer Terms & Conditions to proceed");
+        return false;
+      }
     }
     if (stepNum === 2) {
       if (
@@ -671,10 +675,6 @@ export default function LawyerApplication() {
       }
       if (formData.sosMatters.length === 0) {
         toast.error("Please select at least one urgent matter you can handle");
-        return false;
-      }
-      if (!formData.sosTermsAccepted) {
-        toast.error("Please accept the SOS Missed Call Penalty terms");
         return false;
       }
     }
@@ -1161,6 +1161,18 @@ export default function LawyerApplication() {
                         <li>Missing more than one SOS call will result in a <strong>₹250 penalty</strong> deducted from your earnings.</li>
                         <li>You will have an option to dispute penalties with a valid reason.</li>
                       </ul>
+                      
+                      <label className="flex items-start gap-3 cursor-pointer mt-4 bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-red-200/50 dark:border-red-900/50">
+                        <input
+                          type="checkbox"
+                          checked={formData.sosTermsAccepted}
+                          onChange={(e) => updateField("sosTermsAccepted", e.target.checked)}
+                          className="mt-0.5 w-5 h-5 accent-red-600 rounded focus:ring-red-500 shrink-0"
+                        />
+                        <span className="text-sm font-semibold text-red-900 dark:text-red-200">
+                          I agree to the SOS Missed Call Penalty Terms & Conditions.
+                        </span>
+                      </label>
                     </motion.div>
                   )}
                 </div>
@@ -1448,13 +1460,13 @@ export default function LawyerApplication() {
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <Input
-                        type="month"
+                        type="date"
                         value={formData.practiceStart}
                         onChange={(e) =>
                           updateField("practiceStart", e.target.value)
                         }
                         className="pl-10 bg-white/5 border-white/10 text-white focus:border-blue-500 focus:ring-blue-500/20"
-                        max={new Date().toISOString().slice(0, 7)}
+                        max={new Date().toISOString().slice(0, 10)}
                       />
                     </div>
                   </div>
@@ -1781,18 +1793,18 @@ export default function LawyerApplication() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-200 mb-2">
-                    Graduation Month/Year *
+                    Graduation Date *
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <Input
-                      type="month"
+                      type="date"
                       value={formData.graduationDate}
                       onChange={(e) =>
                         updateField("graduationDate", e.target.value)
                       }
                       className="pl-10 bg-white/5 border-white/10 text-white focus:border-blue-500 focus:ring-blue-500/20"
-                      max={new Date().toISOString().slice(0, 7)}
+                      max={new Date().toISOString().slice(0, 10)}
                     />
                   </div>
                 </div>
@@ -2028,7 +2040,7 @@ export default function LawyerApplication() {
                     </div>
                   )}
 
-                  {/* Districts by State */}
+                  {/* Districts for Selected State */}
                   {[
                     {
                       state: 'Delhi',
@@ -2042,7 +2054,9 @@ export default function LawyerApplication() {
                       state: 'Uttar Pradesh',
                       districts: ['Agra', 'Aligarh', 'Ayodhya', 'Baghpat', 'Bulandshahr', 'Firozabad', 'Gautam Buddha Nagar (Noida)', 'Ghaziabad', 'Hapur', 'Kanpur Nagar', 'Lucknow', 'Mathura', 'Meerut', 'Muzaffarnagar', 'Prayagraj', 'Saharanpur', 'Varanasi']
                     }
-                  ].map(({ state, districts }) => (
+                  ]
+                    .filter(s => s.state === formData.state || !formData.state)
+                    .map(({ state, districts }) => (
                     <div key={state} className="mb-4">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">{state}</span>
@@ -2137,16 +2151,10 @@ export default function LawyerApplication() {
 
                 {/* Penalty Agreement */}
                 <div className="bg-slate-800/60 border border-slate-600/50 rounded-2xl p-5">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.sosTermsAccepted}
-                      onChange={(e) => updateField("sosTermsAccepted", e.target.checked)}
-                      className="mt-0.5 w-5 h-5 accent-blue-500 rounded focus:ring-blue-500 shrink-0"
-                    />
+                  <label className="flex items-start gap-3">
                     <div>
                       <span className="block text-sm font-bold text-white mb-1">
-                        ⚠️ SOS Commitment Agreement <span className="text-red-400">*</span>
+                        ⚠️ SOS Commitment Agreement (Accepted in Step 1) <span className="text-red-400">✓</span>
                       </span>
                       <span className="block text-xs text-slate-400 leading-relaxed">
                         I understand my duties as an SOS Lawyer on LxwyerUp. Unanswered requests (beyond one) without valid reason will incur a <strong className="text-slate-200">₹250 penalty</strong> on payouts.
@@ -2272,7 +2280,7 @@ export default function LawyerApplication() {
                 ) : (
                   <>
                     <CreditCard className="w-5 h-5 mr-2" />
-                    Pay ₹2500 & Submit Application
+                    Pay {formData.applicationType.includes("sos") ? "₹3,000" : "₹2,000"} & Submit Application
                   </>
                 )}
               </Button>
