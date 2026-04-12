@@ -17,7 +17,7 @@ const TEXT = {
     firmSub: 'Discover top-rated firms with full specialist teams.',
     trust1: 'Bar Council Verified',
     trust2: 'End-to-end Encrypted',
-    trust3: 'Free Consultation',
+    trust3: 'Get Best Affordable Consultation',
     stat1: 'Verified Lawyers',
     stat2: 'Cases Resolved',
     stat3: 'States Covered',
