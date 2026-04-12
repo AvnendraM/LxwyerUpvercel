@@ -109,7 +109,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
           flexDirection: 'column',
           boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.08)',
           willChange: 'transform',
-          minHeight: 460,
+          minHeight: 520,
           position: 'relative',
         }}
       >
@@ -122,7 +122,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
 
         {/* ════ PREMIUM BANNER ════ */}
         <div style={{
-          height: 120,
+          height: 140,
           background: `linear-gradient(135deg, #0a0a0a 0%, #151515 100%)`,
           position: 'relative',
           overflow: 'hidden',
@@ -169,8 +169,8 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
         {/* ════ PREMIUM AVATAR ROW ════ */}
         <div style={{
           padding: '0 20px',
-          marginTop: -45,
-          marginBottom: 10,
+          marginTop: -55,
+          marginBottom: 12,
           zIndex: 2,
           position: 'relative',
           display: 'flex',
@@ -179,7 +179,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
         }}>
           {/* Avatar Base */}
           <div style={{
-            width: 80, height: 80, borderRadius: '25%',
+            width: 110, height: 110, borderRadius: '25%',
             border: `2px solid rgba(212, 175, 55, 0.6)`,
             outline: '4px solid #040404',
             overflow: 'hidden', flexShrink: 0,
@@ -212,7 +212,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
                 background: 'linear-gradient(135deg, #1f1f1f, #0a0a0a)'
               }}>
                 <span style={{
-                  fontSize: 30, fontWeight: 900,
+                  fontSize: 36, fontWeight: 900,
                   color: '#d4af37',
                   letterSpacing: '-0.03em',
                 }}>
@@ -241,7 +241,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
 
           {/* Name */}
           <h3 style={{
-            fontSize: 20, fontWeight: 800, color: '#ffffff',
+            fontSize: 24, fontWeight: 800, color: '#ffffff',
             letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 4,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             fontFamily: '"Playfair Display", serif'
@@ -316,7 +316,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
             <button
               onClick={() => onProfileClick && onProfileClick(lawyer)}
               style={{
-                flex: 1, padding: '10px 0', borderRadius: 10,
+                flex: 1, padding: '12px 0', borderRadius: 10,
                 background: 'rgba(212, 175, 55, 0.1)',
                 color: '#d4af37', fontSize: 12, fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -331,7 +331,7 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
             <button
               onClick={() => onBookClick && onBookClick(lawyer)}
               style={{
-                flex: 1, padding: '10px 0', borderRadius: 10,
+                flex: 1, padding: '12px 0', borderRadius: 10,
                 background: 'linear-gradient(135deg, #d4af37 0%, #b5952f 100%)',
                 color: '#000000', fontSize: 12, fontWeight: 800,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
