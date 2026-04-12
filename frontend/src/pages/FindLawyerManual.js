@@ -285,6 +285,14 @@ export default function FindLawyerManual() {
     setCurrentPage(1);
   };
 
+  const handleProfileClick = (lawyer) => {
+    if (lawyer.isSignature) {
+      navigate('/signature-profile/' + lawyer.id);
+    } else {
+      setSelectedLawyer(lawyer);
+    }
+  };
+
   const handleBookConsultation = (lawyer) => {
     if (lawyer.isSignature) {
       navigate('/signature-booking', { state: { lawyer } });
@@ -590,7 +598,7 @@ export default function FindLawyerManual() {
                 key={lawyer.id}
                 lawyer={lawyer}
                 index={index}
-                onProfileClick={setSelectedLawyer}
+                onProfileClick={handleProfileClick}
                 onBookClick={handleBookConsultation}
               />
             ))}
