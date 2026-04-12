@@ -256,7 +256,7 @@ export default function FindLawyerManual() {
     if (filters.withAchievement && (!lawyer.achievements || !Array.isArray(lawyer.achievements) || lawyer.achievements.length === 0)) return false;
 
     return true;
-  }), [shuffledLawyers, debouncedQuery, filters]);
+  }), [activeTab, shuffledLawyers, debouncedQuery, filters]);
 
   // Pagination
   const totalPages = Math.ceil(filteredLawyers.length / lawyersPerPage);
