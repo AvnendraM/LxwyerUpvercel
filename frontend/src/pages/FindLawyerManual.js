@@ -286,7 +286,11 @@ export default function FindLawyerManual() {
   };
 
   const handleBookConsultation = (lawyer) => {
-    navigate('/book-consultation-signup', { state: { lawyer } });
+    if (lawyer.isSignature) {
+      navigate('/signature-booking', { state: { lawyer } });
+    } else {
+      navigate('/book-consultation-signup', { state: { lawyer } });
+    }
   };
 
   const getCities = () => {
@@ -311,16 +315,24 @@ export default function FindLawyerManual() {
 
   return (
     <WaveLayout activePage="find-lawyer">
+      {/* Dynamic Luxury Background Overlay */}
+      <div 
+        className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-700 ease-in-out ${activeTab === 'signature' ? 'opacity-100' : 'opacity-0'}`}
+        style={{ background: 'radial-gradient(ellipse at center, #111 0%, #030303 100%)' }}
+      >
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 mix-blend-screen" />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 relative z-10">
 
         {/* Header Section */}
-        <div className="text-center mb-6 sm:mb-12">
+        <div className="text-center mb-6 sm:mb-12 transition-colors duration-500">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-6 tracking-tight"
+            className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-6 tracking-tight transition-colors duration-500 ${activeTab === 'signature' ? 'text-white' : 'text-slate-900 dark:text-white'}`}
           >
-            {t('fl_title')} <span className="text-blue-600 dark:text-slate-200">{t('fl_title_2')}</span>
+            {t('fl_title')} <span className={`transition-colors duration-500 ${activeTab === 'signature' ? 'text-[#d4af37]' : 'text-blue-600 dark:text-slate-200'}`}>{t('fl_title_2')}</span>
           </motion.h1>
 
           <motion.p
@@ -339,16 +351,16 @@ export default function FindLawyerManual() {
             className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 dark:bg-[#1A1A1A] border border-blue-100 dark:border-[#333] rounded-full"
           >
             <Scale className="w-3.5 h-3.5 text-blue-600 dark:text-slate-400" />
-            <span className="text-xs font-medium text-blue-600 dark:text-slate-400">{t('fl_verified')}</span>
+            <span className={`text-xs font-medium transition-colors duration-500 ${activeTab === 'signature' ? 'text-[#d4af37]' : 'text-blue-600 dark:text-slate-400'}`}>{t('fl_verified')}</span>
           </motion.div>
         </div>
 
         {/* Premium Tab Toggle */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 relative z-20">
           <div className="inline-flex bg-slate-100 dark:bg-[#111] p-1.5 rounded-full border border-slate-200 dark:border-[#222]">
             <button
               onClick={() => { setActiveTab('standard'); setCurrentPage(1); }}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'standard' 
+              className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'standard' 
                 ? 'bg-white dark:bg-[#222] text-slate-900 dark:text-white shadow-sm' 
                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
             >
@@ -356,21 +368,16 @@ export default function FindLawyerManual() {
             </button>
             <button
               onClick={() => { setActiveTab('signature'); setCurrentPage(1); }}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 relative overflow-hidden group ${activeTab === 'signature' 
+              className={`px-8 py-3 rounded-full transition-all duration-300 relative overflow-hidden group flex items-center justify-center min-w-[140px] ${activeTab === 'signature' 
                 ? 'bg-[#050505] text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.15)] border border-[#d4af37]/30' 
                 : 'text-slate-500 hover:text-[#d4af37]'}`}
-              style={{ fontFamily: activeTab === 'signature' ? '"Playfair Display", serif' : 'inherit' }}
+              style={{ fontFamily: activeTab === 'signature' ? '"Great Vibes", cursive' : 'inherit' }}
             >
               {activeTab === 'signature' && (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
               )}
-              <style>{`
-                @keyframes shimmer {
-                  100% { transform: translateX(100%); }
-                }
-              `}</style>
-              <span className="relative z-10 flex items-center gap-1.5">
-                {activeTab === 'signature' && <Sparkles className="w-3.5 h-3.5" />} Signature
+              <span className={`relative z-10 flex items-center gap-2 ${activeTab === 'signature' ? 'text-2xl font-normal tracking-wide' : 'text-sm font-bold'}`}>
+                {activeTab === 'signature' && <Sparkles className="w-4 h-4" />} Signature
               </span>
             </button>
           </div>

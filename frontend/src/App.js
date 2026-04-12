@@ -47,6 +47,7 @@ import JoinLawFirmWithSignup   from './pages/JoinLawFirmWithSignup';
 import LawyerProfile           from './pages/LawyerProfile';
 import FirmProfile             from './pages/FirmProfile';
 import BookingSignup           from './pages/BookingSignup';
+import SignatureBookingSignup  from './pages/SignatureBookingSignup';
 import JoinFirmSignup          from './pages/JoinFirmSignup';
 import MonitorDashboard        from './pages/MonitorDashboard';
 import MonitorLogin            from './pages/MonitorLogin';
@@ -132,6 +133,7 @@ function AnimatedRoutes({ user }) {
           <Route path="/login" element={<PageTransition><UnifiedLogin /></PageTransition>} />
           <Route path="/lawyer/:id" element={<PageTransition><LawyerProfile /></PageTransition>} />
           <Route path="/booking/:id" element={<PageTransition><BookingSignup /></PageTransition>} />
+          <Route path="/signature-booking" element={<PageTransition><SignatureBookingSignup /></PageTransition>} />
           <Route path="/firm/:id" element={<PageTransition><FirmProfile /></PageTransition>} />
           <Route path="/join-firm/:firmId" element={<PageTransition><JoinFirmSignup /></PageTransition>} />
           <Route path="/ai-firm-finder" element={<PageTransition><FindLawFirmAI /></PageTransition>} />

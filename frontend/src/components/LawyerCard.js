@@ -107,9 +107,9 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.05)',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.08)',
           willChange: 'transform',
-          minHeight: 420,
+          minHeight: 460,
           position: 'relative',
         }}
       >
@@ -134,13 +134,12 @@ function LawyerCard({ lawyer, index = 0, onProfileClick, onBookClick }) {
             position: 'absolute',
             top: '50%', left: '50%',
             transform: 'translate(-50%, -50%) rotate(-5deg)',
-            fontSize: 52,
-            color: 'rgba(212, 175, 55, 0.04)',
+            fontSize: 64,
+            color: 'rgba(212, 175, 55, 0.05)',
             userSelect: 'none', pointerEvents: 'none',
             whiteSpace: 'nowrap',
-            fontFamily: '"Playfair Display", serif',
-            fontStyle: 'italic',
-            fontWeight: 700
+            fontFamily: '"Great Vibes", cursive',
+            fontWeight: 400
           }}>
             Signature
           </span>
