@@ -2227,7 +2227,7 @@ const LandingPageWave = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '0 clamp(1.5rem,6vw,4rem)',
-                textAlign: 'left',
+                textAlign: 'center',
             }}>
                 {/* Subtle ambient glow */}
                 <div style={{ position: 'absolute', top: '30%', left: '20%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
@@ -2253,8 +2253,9 @@ const LandingPageWave = () => {
                         lineHeight: 1.12,
                         letterSpacing: '-0.02em',
                         color: 'rgba(226,232,240,0.75)',
-                        margin: 0,
-                        whiteSpace: 'nowrap',
+                        margin: '0 auto',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
                     }}>
                         Driven by{' '}
                         <AnimatedTextCycle
@@ -2277,7 +2278,7 @@ const LandingPageWave = () => {
                     </p>
 
                     {/* Divider */}
-                    <div style={{ width: 48, height: 2, background: 'linear-gradient(90deg,#3b82f6,#6366f1)', borderRadius: 2, marginTop: 'clamp(1.4rem,4vw,2.2rem)' }} />
+                    <div style={{ width: 48, height: 2, background: 'linear-gradient(90deg,#3b82f6,#6366f1)', borderRadius: 2, margin: 'clamp(1.4rem,4vw,2.2rem) auto 0 auto' }} />
 
                     {/* Sub text */}
                     <p style={{
@@ -2286,7 +2287,7 @@ const LandingPageWave = () => {
                         fontWeight: 300,
                         lineHeight: 1.75,
                         color: 'rgba(148,163,184,0.6)',
-                        marginTop: 'clamp(0.8rem,2vw,1.2rem)',
+                        margin: 'clamp(0.8rem,2vw,1.2rem) auto 0 auto',
                         maxWidth: '32rem',
                     }}>
                         AI-matched lawyers &middot; SOS legal help &middot; Verified advocates &middot; Your language
