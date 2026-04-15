@@ -1795,7 +1795,7 @@ const EcosystemSection = () => {
 
 const AnimatedCounter = ({ target, suffix = '' }) => {
     const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: '-200px' });
+    const isInView = useInView(ref, { once: true, amount: 0.8 });
     const endValue = parseInt(target.replace(/,/g, ''));
 
     return (
@@ -1808,7 +1808,7 @@ const AnimatedCounter = ({ target, suffix = '' }) => {
 
 const StatsSection = () => {
     const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: '-200px' });
+    const isInView = useInView(ref, { once: true, amount: 0.5 });
     const { t } = useLang();
 
     const stats = [
