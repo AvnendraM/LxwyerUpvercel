@@ -606,6 +606,9 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                 <div style={{ width: '1px', height: '14px', background: 'linear-gradient(to bottom, transparent, rgba(100,116,139,0.5))', borderRadius: '1px' }} />
                                 <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M1 1L7 8L13 1" stroke="rgba(100,116,139,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
                     </motion.div>
                 </motion.div>
 
