@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionValueEvent, useInView, AnimatePresence } from 'framer-motion';
-import Lenis from 'lenis';
+
 import {
     ArrowRight, Shield, Zap, Users, Brain,
     Clock, FileText, Gavel, BookOpen,
@@ -290,37 +290,6 @@ const StyleInjector = () => {
     return null;
 };
 
-// Initialize Lenis for smooth scrolling
-const SmoothScrolling = () => {
-    useEffect(() => {
-        // Lenis smooth scroll only on desktop — on mobile, native scroll is faster
-        if (window.innerWidth <= 768) return;
-
-        const lenis = new Lenis({
-            duration: 0.85,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            gestureDirection: 'vertical',
-            smooth: true,
-            smoothTouch: false,
-            touchMultiplier: 1.5,
-        });
-
-        let rafId;
-        function raf(time) {
-            lenis.raf(time);
-            rafId = requestAnimationFrame(raf);
-        }
-
-        rafId = requestAnimationFrame(raf);
-
-        return () => {
-            cancelAnimationFrame(rafId);
-            lenis.destroy();
-        };
-    }, []);
-
-    return null;
-};
 
 /* ─────────────────────────────────────────────
    MOUSE-REACTIVE GRADIENT ORBS (full page)
@@ -446,7 +415,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
 
     // On mobile (≤768px) use 100vh so it doesn't waste 2 full screens
     return (
-        <section ref={ref} className="relative bg-[#f8faff] dark:bg-black transition-colors duration-500 min-h-[100vh] lg:min-h-[90vh] flex items-center justify-center pt-16 md:pt-20 pb-48 md:pb-32 overflow-hidden">
+        <section ref={ref} className="relative bg-[#f8faff] dark:bg-black transition-colors duration-500 min-h-[100vh] lg:min-h-[100vh] flex items-center justify-center pt-16 md:pt-20 pb-48 md:pb-32 overflow-hidden">
             <div style={{ zIndex: 20, pointerEvents: 'none', overflow: 'visible', width: '100%' }}>
                 {/* Hero tubelight effect removed as requested */}
                 <motion.div 
@@ -637,9 +606,6 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                 <div style={{ width: '1px', height: '14px', background: 'linear-gradient(to bottom, transparent, rgba(100,116,139,0.5))', borderRadius: '1px' }} />
                                 <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M1 1L7 8L13 1" stroke="rgba(100,116,139,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
                     </motion.div>
                 </motion.div>
 
@@ -2323,7 +2289,7 @@ const LandingPageWave = () => {
             className="min-h-screen relative bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500"
         >
             <StyleInjector />
-            <SmoothScrolling />
+
             <GradientOrbs />
             <FloatingEmergencyButton />
             <div className="relative" style={{ zIndex: 2 }}>

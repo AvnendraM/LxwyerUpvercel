@@ -1,4 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
+import Lenis from 'lenis';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -109,6 +110,34 @@ const ProtectedRoute = ({ children, requiredType }) => {
   return children;
 };
 
+const SmoothScrolling = () => {
+  useEffect(() => {
+    // Only apply Lenis on desktop; mobile native scroll is better aligned with touch
+    if (window.innerWidth <= 768) return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+      smoothTouch: false,
+    });
+
+    let rafId;
+    function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
+
+  return null;
+};
+
 /* AnimatedRoutes — must be inside BrowserRouter so useLocation works */
 function AnimatedRoutes({ user }) {
   const location = useLocation();
@@ -201,6 +230,7 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
       <LanguageProvider>
+        <SmoothScrolling />
         <AuthContext.Provider value={{ user, setUser }}>
           <div className="App">
             <BrowserRouter>

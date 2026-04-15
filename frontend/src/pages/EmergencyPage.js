@@ -343,8 +343,8 @@ const EmergencyPage = () => {
       {/* Navbar Minimal Setup */}
       <nav style={{ position: 'relative', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '0 clamp(16px, 4vw, 48px)', height: '4rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <img src="/logo.png" alt="Lxwyer Up Logo" className="w-7 h-7 md:w-12 md:h-12 object-contain rounded" style={{ mixBlendMode: 'screen' }} />
-          <span className="text-[1.1rem] md:text-3xl font-bold tracking-tight text-white font-['Outfit'] select-none mt-0 md:mt-1">Lxwyer Up <span style={{ color: '#f87171' }}>SOS</span></span>
+          <img src="/logo.png" alt="Lxwyer Up Logo" className="w-7 h-7 md:w-8 md:h-8 xl:w-9 xl:h-9 object-contain rounded" style={{ mixBlendMode: 'screen' }} />
+          <span className="text-[1.1rem] md:text-xl xl:text-2xl font-bold tracking-tight text-white font-['Outfit'] select-none mt-0 md:mt-0.5">Lxwyer Up <span style={{ color: '#f87171' }}>SOS</span></span>
         </div>
       </nav>
 
