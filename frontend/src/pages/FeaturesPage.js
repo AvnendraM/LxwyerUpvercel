@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { NavbarWave } from '../components/NavbarWave';
 import {
   MessageSquare, FileText, Calendar, Bell, Shield,
-  BarChart, Users, Clock, Siren, Fingerprint,
+  BarChart, Users, Clock, Siren, Fingerprint, Phone,
   Scale, Star, ArrowRight, Lock, CheckCircle,
   Award, Search, BadgeCheck, ClipboardCheck, Microscope, TrendingUp
 } from 'lucide-react';
