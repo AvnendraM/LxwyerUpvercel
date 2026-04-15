@@ -2051,7 +2051,7 @@ const SpatialPushBridge = ({ justTransitioned, grainContent }) => {
     );
 
     return (
-        <div ref={ref} style={{ position: 'relative', height: '260vh', background: 'black' }}>
+        <div ref={ref} style={{ position: 'relative', height: '170vh', background: 'black' }}>
             {/* Scene A — sticky, scales down + dims */}
             <motion.div style={{
                 position: 'sticky',
