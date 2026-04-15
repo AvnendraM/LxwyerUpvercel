@@ -446,7 +446,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
             <div style={{ zIndex: 20, pointerEvents: 'none', overflow: 'visible', width: '100%' }}>
                 {/* Hero tubelight effect removed as requested */}
                 <motion.div 
-                    className="relative flex flex-col items-center gap-6 w-full scale-[2] md:scale-[1.6] md:mt-20"
+                    className="relative flex flex-col items-center gap-6 w-full scale-[1.8] md:scale-[1.6] md:mt-20"
                     style={{ transformOrigin: 'center center' }}
                 >
                     <motion.div
@@ -1800,7 +1800,7 @@ const AnimatedCounter = ({ target, suffix = '' }) => {
 
     return (
         <span ref={ref}>
-            {isInView ? <CountUp end={endValue} duration={6} separator="," /> : '0'}
+            {isInView ? <CountUp end={endValue} duration={1.2} separator="," /> : '0'}
             {suffix}
         </span>
     );
