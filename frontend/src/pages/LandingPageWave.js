@@ -978,10 +978,8 @@ const SphereExplosion = () => {
     // "Lxwyer Up" Text Reveal — appears then BLURS AWAY when Easy & Efficient comes
     const textScaleRaw = useTransform(scrollYProgress, [0.32, 0.37, 0.48, 0.54], [0, 1.05, 1, 0.8]);
     const textOpacity = useTransform(scrollYProgress, [0.32, 0.36, 0.48, 0.54], [0, 1, 1, 0]);
-    const textBlur = useTransform(scrollYProgress, [0.32, 0.37, 0.48, 0.54], [30, 0, 0, 30]);
-    const textGlow = useTransform(scrollYProgress, [0.32, 0.37, 0.46], [40, 15, 0]);
+    const textGlowOpacity = useTransform(scrollYProgress, [0.32, 0.37, 0.46], [0, 1, 0]);
     const textScaleSpring = useSpring(textScaleRaw, { stiffness: 180, damping: 18 });
-    const filterBlur = useTransform(textBlur, v => `blur(${v}px)`);
 
 
     return (
@@ -1007,6 +1005,7 @@ const SphereExplosion = () => {
                 border: '2px solid rgba(147,197,253,0.5)',
                 scale: ring1Scale, opacity: ring1Opacity,
                 boxShadow: '0 0 30px rgba(147,197,253,0.15)',
+                willChange: 'transform, opacity',
             }} />
 
             {/* Shockwave Ring 2 (delayed) */}
@@ -1014,6 +1013,7 @@ const SphereExplosion = () => {
                 position: 'absolute', width: '300px', height: '300px', borderRadius: '50%',
                 border: '1.5px solid rgba(96,165,250,0.3)',
                 scale: ring2Scale, opacity: ring2Opacity,
+                willChange: 'transform, opacity',
             }} />
 
             {/* Mist / Sparkle Cloud */}
@@ -1027,8 +1027,8 @@ const SphereExplosion = () => {
                 position: 'relative', zIndex: 5,
                 scale: textScaleSpring,
                 opacity: textOpacity,
-                filter: filterBlur,
                 textAlign: 'center',
+                willChange: 'transform, opacity',
             }}>
                 <motion.h1 style={{
                     fontFamily: "'Outfit', sans-serif",
@@ -1051,8 +1051,10 @@ const SphereExplosion = () => {
                     transform: 'translate(-50%, -50%)',
                     width: '400px', height: '120px',
                     background: 'radial-gradient(ellipse, rgba(96,165,250,0.25) 0%, transparent 70%)',
-                    filter: useTransform(textGlow, v => `blur(${v}px)`),
+                    filter: 'blur(20px)',
+                    opacity: textGlowOpacity,
                     zIndex: -1,
+                    willChange: 'opacity',
                 }} />
                 <p style={{
                     fontFamily: "'Outfit', sans-serif",
@@ -1087,9 +1089,6 @@ const ScrollReactiveSphere = () => {
     // Opacity: Fade in -> out at burst - Smoother fade out (extended range)
     const opacity = useTransform(scrollYProgress, [0, 0.06, 0.35, 0.55], [0, 1, 1, 0]);
 
-    // Blur increases slightly before burst (tension)
-    const blurVal = useTransform(scrollYProgress, [0.35, 0.50], [0, 12]);
-    const sphereFilter = useTransform(blurVal, v => `blur(${v}px)`);
 
     // Glow intensity grows
     const glowIntensity = useTransform(scrollYProgress, [0, 0.30, 0.39], [0.15, 0.2, 0.5]);
@@ -1123,7 +1122,7 @@ const ScrollReactiveSphere = () => {
                     ? '0 0 60px rgba(30,58,138,0.1), 0 0 120px rgba(15,23,42,0.1), inset 0 0 60px rgba(255,255,255,0.05)'
                     : '0 0 60px rgba(96,165,250,0.15), 0 0 120px rgba(147,197,253,0.08), inset 0 0 60px rgba(255,255,255,0.3)',
                 opacity,
-                filter: sphereFilter,
+                willChange: 'transform, opacity',
             }} />
 
             {/* Inner highlight - white frost */}
