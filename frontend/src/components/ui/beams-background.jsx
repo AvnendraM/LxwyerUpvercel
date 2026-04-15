@@ -119,11 +119,21 @@ export function BeamsBackground({
             ctx.restore();
         }
 
-        function animate() {
+        let lastTime = 0;
+        const TARGET_FPS = 30;
+        const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+        function animate(timestamp) {
             if (!canvas || !ctx) return;
 
+            // Throttle to 30 fps — skips frames on fast displays, halving GPU load
+            if (timestamp - lastTime < FRAME_INTERVAL) {
+                animationFrameRef.current = requestAnimationFrame(animate);
+                return;
+            }
+            lastTime = timestamp;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Removed ctx.filter = "blur(35px)" to prevent severe lag. CSS blur on the canvas handles it via GPU composite.
 
             const totalBeams = beamsRef.current.length;
             beamsRef.current.forEach((beam, index) => {
@@ -141,10 +151,21 @@ export function BeamsBackground({
             animationFrameRef.current = requestAnimationFrame(animate);
         }
 
-        animate();
+        // Pause when tab is hidden — saves GPU entirely
+        const handleVisibility = () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationFrameRef.current);
+            } else {
+                animationFrameRef.current = requestAnimationFrame(animate);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        animate(0);
 
         return () => {
             window.removeEventListener("resize", updateCanvasSize);
+            document.removeEventListener('visibilitychange', handleVisibility);
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }

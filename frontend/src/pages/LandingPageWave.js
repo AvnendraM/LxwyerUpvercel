@@ -292,6 +292,9 @@ const StyleInjector = () => {
 // Initialize Lenis for smooth scrolling
 const SmoothScrolling = () => {
     useEffect(() => {
+        // Lenis smooth scroll only on desktop — on mobile, native scroll is faster
+        if (window.innerWidth <= 768) return;
+
         const lenis = new Lenis({
             duration: 0.85,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -2328,18 +2331,18 @@ const LandingPageWave = () => {
                 </div>
 
                 {/* Normal Scrolling Content */}
-                {/* Once the user finishes the cinematic scroll, the rest of the page flows naturally */}
+                {/* content-visibility:auto tells the browser to skip layout+paint for off-screen sections */}
                 <div className="relative w-full z-[20] bg-white dark:bg-black">
-                    <div className="pt-20 pb-20 bg-black text-white">
+                    <div className="pt-20 pb-20 bg-black text-white" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}>
                         <StatsSection />
                     </div>
-                    <div className="bg-[#f8faff] dark:bg-[#040810]">
+                    <div className="bg-[#f8faff] dark:bg-[#040810]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
                         <EcosystemSection />
                     </div>
-                    <div className="bg-white dark:bg-[#0a0a0a]">
+                    <div className="bg-white dark:bg-[#0a0a0a]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
                         <CTASection />
                     </div>
-                    <div className="bg-[#f8faff] dark:bg-[#040810]">
+                    <div className="bg-[#f8faff] dark:bg-[#040810]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
                         <Footer />
                     </div>
                 </div>

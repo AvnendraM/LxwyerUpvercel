@@ -23,7 +23,11 @@ const ORBS = [
   },
 ];
 
-export const GradientOrbs = () => (
+export const GradientOrbs = () => {
+  // On mobile, skip orbs entirely — they strain the GPU without adding much visible value
+  if (typeof window !== 'undefined' && window.innerWidth <= 768) return null;
+
+  return (
   <div
     style={{
       position: 'fixed',
@@ -54,4 +58,5 @@ export const GradientOrbs = () => (
       />
     ))}
   </div>
-);
+  );
+};
