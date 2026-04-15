@@ -280,7 +280,7 @@ function FeatureCard({ feature, index }) {
             animationDelay: `${index * 0.07}s`,
         }}
       >
-          <CardHeader className="pb-3 text-center relative z-10">
+          <CardHeader className="pb-4 pt-8 px-8 text-center relative z-10">
               {feature.badge && (
                   <div className="absolute -top-1 -right-2 transform scale-75">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${feature.color === 'red' ? 'text-red-600 border-red-500/30 bg-red-500/10' : feature.color === 'green' ? 'text-emerald-600 border-emerald-500/30 bg-emerald-500/10' : 'text-blue-600 border-blue-500/30 bg-blue-500/10'} animate-pulse`}>
@@ -289,14 +289,14 @@ function FeatureCard({ feature, index }) {
                   </div>
               )}
               <CardDecorator colorTheme={feature.color}>
-                  <feature.icon className="size-6" aria-hidden />
+                  <feature.icon className="size-7" aria-hidden />
               </CardDecorator>
 
-              <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white transition-colors">{feature.title}</h3>
+              <h3 className="mt-5 text-[1.35rem] font-bold text-slate-900 dark:text-white transition-colors">{feature.title}</h3>
           </CardHeader>
 
-          <CardContent className="text-center relative z-10">
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{feature.description}</p>
+          <CardContent className="text-center relative z-10 px-8 pb-8">
+              <p className="text-[0.95rem] text-slate-500 dark:text-slate-400 leading-relaxed">{feature.description}</p>
           </CardContent>
           
           {/* Subtle background glow on hover */}
@@ -318,25 +318,15 @@ export default function FeaturesPage() {
       <NavbarWave />
 
       {/* ── HERO ───────────────────────────────────────────────────── */}
-      <section className="pt-36 pb-16 px-6 text-center">
+      <section className="pt-28 pb-10 px-6 text-center">
         {/* Formal badge */}
-        <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-1.5 mb-8">
+        <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-1.5 mb-5">
           {d.heroBadge}
         </div>
 
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-slate-900 dark:text-white">
-          {d.heroTitle1}<br />
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">
-            {d.heroTitle2}
-          </span>
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-3 leading-tight text-slate-900 dark:text-white">
+          {d.heroTitle1}
         </h1>
-
-        <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10">
-          {d.heroSub}
-        </p>
-
-        {/* Animated trust indicators */}
-        <TrustCounters />
       </section>
 
       {/* Thin divider */}
@@ -346,15 +336,13 @@ export default function FeaturesPage() {
 
 
       {/* ── PLATFORM CAPABILITIES ─────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 pt-16 pb-24">
+      <section className="max-w-7xl mx-auto px-6 pt-10 pb-24">
         {/* Platform capabilities title */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.18em]">{d.cap_sub}</span>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mt-3 transition-colors">{d.cap_title}</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm max-w-xl mx-auto">{d.cap_desc}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuresList.map((f, i) => (
             <FeatureCard key={i} feature={f} index={i} />
           ))}
