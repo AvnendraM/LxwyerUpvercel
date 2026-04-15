@@ -446,7 +446,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
             <div style={{ zIndex: 20, pointerEvents: 'none', overflow: 'visible', width: '100%' }}>
                 {/* Hero tubelight effect removed as requested */}
                 <motion.div 
-                    className="relative flex flex-col items-center gap-6 w-full scale-100 md:scale-[1.6] md:mt-20"
+                    className="relative flex flex-col items-center gap-6 w-full scale-[2] md:scale-[1.6] md:mt-20"
                     style={{ transformOrigin: 'center center' }}
                 >
                     <motion.div

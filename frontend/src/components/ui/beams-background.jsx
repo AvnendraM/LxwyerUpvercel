@@ -44,14 +44,17 @@ export function BeamsBackground({
         if (!ctx) return;
 
         const updateCanvasSize = () => {
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // Cap DPR to prevent extreme lag on retina screens
+            const isMobile = window.innerWidth <= 768;
+            // Cap DPR to 1 on mobile to prevent extreme lag, 1.5 on desktop
+            const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5); 
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
             canvas.style.width = `${window.innerWidth}px`;
             canvas.style.height = `${window.innerHeight}px`;
             ctx.scale(dpr, dpr);
 
-            const totalBeams = MINIMUM_BEAMS * 1.5;
+            const effectiveMinBeams = isMobile ? Math.floor(MINIMUM_BEAMS / 2.5) : MINIMUM_BEAMS;
+            const totalBeams = effectiveMinBeams * 1.5;
             beamsRef.current = Array.from({ length: totalBeams }, () =>
                 createBeam(canvas.width, canvas.height)
             );
