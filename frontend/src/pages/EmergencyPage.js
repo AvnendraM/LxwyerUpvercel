@@ -341,14 +341,10 @@ const EmergencyPage = () => {
       </div>
 
       {/* Navbar Minimal Setup */}
-      <nav style={{ position: 'relative', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 clamp(16px, 4vw, 48px)', height: '4rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <nav style={{ position: 'relative', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '0 clamp(16px, 4vw, 48px)', height: '4rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <img src="/logo.png" alt="Lxwyer Up Logo" className="w-8 h-8 xl:w-9 xl:h-9 object-contain rounded" style={{ mixBlendMode: 'screen' }} />
-          <span className="text-base md:text-lg xl:text-[20px] font-bold tracking-tight text-white font-['Outfit'] select-none">Lxwyer Up <span style={{ color: '#f87171' }}>SOS</span></span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={() => setLang(lang === 'en' ? 'hi' : 'en')} style={{ padding: '5px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94a3b8', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>{lang === 'en' ? 'हिं' : 'EN'}</button>
-          <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}><ChevronLeft style={{ width: 14, height: 14 }} /> {lang === 'hi' ? 'मुख्य पृष्ठ' : 'Home'}</button>
+          <img src="/logo.png" alt="Lxwyer Up Logo" className="w-7 h-7 md:w-12 md:h-12 object-contain rounded" style={{ mixBlendMode: 'screen' }} />
+          <span className="text-[1.1rem] md:text-3xl font-bold tracking-tight text-white font-['Outfit'] select-none mt-0 md:mt-1">Lxwyer Up <span style={{ color: '#f87171' }}>SOS</span></span>
         </div>
       </nav>
 
