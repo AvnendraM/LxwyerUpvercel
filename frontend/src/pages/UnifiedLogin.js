@@ -18,7 +18,8 @@ const redirectMap = {
 
 const UnifiedLogin = () => {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const isHi = lang === 'hi';
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -74,8 +75,8 @@ const UnifiedLogin = () => {
   };
 
   return (
-    <main className="relative w-screen h-screen bg-gray-900 font-['Outfit']">
-      <SmokeyBackground className="absolute inset-0" color="#1E40AF" />
+    <main className="relative w-screen h-screen bg-gray-950 font-['Outfit']">
+      <SmokeyBackground className="absolute inset-0" color="#112060" />
 
       {/* Home Button Top Left */}
       <div className="absolute top-6 left-6 z-20">
@@ -96,8 +97,8 @@ const UnifiedLogin = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="text-center relative z-10">
-            <h2 className="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
-            <p className="mt-2 text-sm text-blue-100/70">Access your legal space</p>
+            <h2 className="text-3xl font-bold text-white tracking-tight">{isHi ? 'वापस स्वागत है' : 'Welcome Back'}</h2>
+            <p className="mt-2 text-sm text-blue-100/70">{isHi ? 'अपने कानूनी स्पेस में प्रवेश करें' : 'Access your legal space'}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6 relative z-10">
@@ -156,11 +157,11 @@ const UnifiedLogin = () => {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
-                  Authenticating...
+                  {t('login_authenticating') || (isHi ? 'प्रमाणीकरण हो रहा है...' : 'Authenticating...')}
                 </span>
               ) : (
                 <>
-                  Sign In
+                  {isHi ? 'साइन इन करें' : 'Sign In'}
                   <ArrowRight className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -169,7 +170,7 @@ const UnifiedLogin = () => {
             {/* Divider */}
             <div className="relative flex py-2 items-center">
               <div className="flex-grow border-t border-white/10"></div>
-              <span className="flex-shrink mx-4 text-white/40 text-[10px] font-bold tracking-wider uppercase">OR CONTINUE WITH</span>
+              <span className="flex-shrink mx-4 text-white/40 text-[10px] font-bold tracking-wider uppercase">{isHi ? 'या जारी रखें' : 'OR CONTINUE WITH'}</span>
               <div className="flex-grow border-t border-white/10"></div>
             </div>
 
@@ -198,25 +199,25 @@ const UnifiedLogin = () => {
                 <svg className="w-4 h-4" viewBox="0 0 48 48">
                   <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.802 8.841C34.553 4.806 29.613 2.5 24 2.5C11.983 2.5 2.5 11.983 2.5 24s9.483 21.5 21.5 21.5S45.5 36.017 45.5 24c0-1.538-.135-3.022-.389-4.417z"></path><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12.5 24 12.5c3.059 0 5.842 1.154 7.961 3.039l5.839-5.841C34.553 4.806 29.613 2.5 24 2.5C16.318 2.5 9.642 6.723 6.306 14.691z"></path><path fill="#4CAF50" d="M24 45.5c5.613 0 10.553-2.306 14.802-6.341l-5.839-5.841C30.842 35.846 27.059 38 24 38c-5.039 0-9.345-2.608-11.124-6.481l-6.571 4.819C9.642 41.277 16.318 45.5 24 45.5z"></path><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l5.839 5.841C44.196 35.123 45.5 29.837 45.5 24c0-1.538-.135-3.022-.389-4.417z"></path>
                 </svg>
-                <span className="text-white text-sm font-semibold tracking-wide">Sign in with Google</span>
+                <span className="text-white text-sm font-semibold tracking-wide">{isHi ? 'Google से साइन इन करें' : 'Sign in with Google'}</span>
               </div>
             </div>
           </form>
 
           <div className="flex flex-col items-center gap-3 relative z-10 pt-4 pb-2 text-sm text-white/50">
-            <p className="text-xs">Don't have an account?</p>
+            <p className="text-xs">{isHi ? 'खाता नहीं है?' : "Don't have an account?"}</p>
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[340px]">
               <button
                 onClick={() => navigate('/user-get-started')}
                 className="flex-1 py-2 px-3 font-bold bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 rounded-lg transition-all border border-blue-500/20 shadow-md text-xs"
               >
-                Find a lawyer
+                {isHi ? 'वकील खोजें' : 'Find a lawyer'}
               </button>
               <button
                 onClick={() => navigate('/register')}
                 className="flex-1 py-2 px-3 font-semibold bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg transition-all border border-white/5 shadow-md text-xs"
               >
-                Sign up as legal practitioner
+                {isHi ? 'कानूनी विशेषज्ञ के रूप में रजिस्टर करें' : 'Sign up as legal practitioner'}
               </button>
             </div>
           </div>

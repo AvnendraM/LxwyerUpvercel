@@ -1928,7 +1928,7 @@ const Footer = () => {
                     {/* Brand */}
                     <div>
                         <div className="mb-5 flex items-center gap-2">
-                            <img src="/logo.png" alt="Lxwyer Up Logo" className="w-8 h-8 object-contain rounded" style={{ mixBlendMode: "screen" }} />
+                            <img src="/logo.png" alt="Lxwyer Up Logo" className="w-8 h-8 xl:w-9 xl:h-9 object-contain rounded" style={{ mixBlendMode: "screen" }} />
                             <span className="text-lg font-bold text-slate-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Lxwyer Up</span>
                         </div>
                         <p className="text-sm leading-relaxed" style={{ color: 'rgba(148,163,184,0.5)' }}>
@@ -2115,6 +2115,9 @@ const LandingPageWave = () => {
         window.scrollTo(0, 0);
     }, []);
 
+    const { lang, t } = useLang();
+    const isHi = lang === 'hi';
+
     const grainHeroContent = (
         <GrainHeroSection>
             <div style={{
@@ -2138,21 +2141,21 @@ const LandingPageWave = () => {
                     color: '#fff',
                     wordBreak: 'break-word',
                 }}>
-                    Justice You&nbsp;
+                    {isHi ? 'न्याय जो आप' : 'Justice You'}&nbsp;
                     <span style={{
                         backgroundImage: 'linear-gradient(135deg,#93c5fd 0%,#60a5fa 45%,#818cf8 100%)',
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                    }}>Understand,</span>
+                    }}>{isHi ? 'समझें,' : 'Understand,'}</span>
                     <br />
-                    Technology You&nbsp;
+                    {isHi ? 'तकनीक जिस पर आप' : 'Technology You'}&nbsp;
                     <span style={{
                         backgroundImage: 'linear-gradient(135deg,#818cf8 0%,#60a5fa 55%,#93c5fd 100%)',
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                    }}>Trust.</span>
+                    }}>{isHi ? 'भरोसा करें।' : 'Trust.'}</span>
                 </h1>
 
                 {/* Accent line */}
@@ -2170,7 +2173,7 @@ const LandingPageWave = () => {
                     marginBottom: 'clamp(1.4rem, 4vw, 2rem)',
                     padding: '0 0.5rem',
                 }}>
-                    Connect with verified lawyers, get instant AI legal guidance, and access legal help in your language — all in one platform.
+                    {t('landing_hero_subtitle')}
                 </p>
 
                 {/* CTA Buttons */}
@@ -2188,7 +2191,7 @@ const LandingPageWave = () => {
                         onMouseEnter={e => { e.currentTarget.style.background = '#1d4ed8'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = '#2563eb'; e.currentTarget.style.transform = 'none'; }}
                     >
-                        Find Lawyer
+                        {t('landing_find_lawyer')}
                         {/* Bouncing arrow — matches navbar style */}
                         <span style={{ display: 'inline-flex', animation: 'arrowBounce 1.6s ease-in-out infinite' }}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -2209,7 +2212,10 @@ const LandingPageWave = () => {
 
                 {/* Trust row */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(0.6rem,2vw,1.2rem)', justifyContent: 'center', marginTop: 'clamp(1rem,3vw,1.6rem)', opacity: 0.5 }}>
-                    {['✓ Verified Lawyers', '✓ AI Legal Guidance', '✓ Your Language'].map(txt => (
+                    {(isHi
+                        ? ['✓ सत्यापित वकील', '✓ AI कानूनी मार्गदर्शन', '✓ आपकी भाषा']
+                        : ['✓ Verified Lawyers', '✓ AI Legal Guidance', '✓ Your Language']
+                    ).map(txt => (
                         <span key={txt} style={{ fontSize: 'clamp(0.62rem,1.5vw,0.72rem)', color: '#cbd5e1', fontFamily: "'Outfit',sans-serif", letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>{txt}</span>
                     ))}
                 </div>
@@ -2243,7 +2249,7 @@ const LandingPageWave = () => {
                         textTransform: 'uppercase',
                         color: 'rgba(148,163,184,0.5)',
                         marginBottom: 'clamp(1rem,3vw,1.4rem)',
-                    }}>India&apos;s Legal Future</p>
+                    }}>{isHi ? "भारत की क़ानूनी भविष्य" : "India's Legal Future"}</p>
 
                     {/* Main cycling statement */}
                     <h2 style={{
@@ -2256,9 +2262,11 @@ const LandingPageWave = () => {
                         margin: 0,
                         whiteSpace: 'nowrap',
                     }}>
-                        Driven by{' '}
+                        {isHi ? 'संचालित' : 'Driven by'}{' '}
                         <AnimatedTextCycle
-                            words={['Artificial Intelligence', 'Faster Justice', 'Apex Lawyers']}
+                            words={isHi
+                                ? ['आर्टिफिशियल इंटेलिजेंस', 'तेज़ न्याय', 'शीर्ष वकील']
+                                : ['Artificial Intelligence', 'Faster Justice', 'Apex Lawyers']}
                             interval={3000}
                             className="text-blue-500"
                         />
@@ -2273,7 +2281,7 @@ const LandingPageWave = () => {
                         color: '#fff',
                         marginTop: 'clamp(0.3rem,1vw,0.5rem)',
                     }}>
-                        Built for every Indian.
+                        {isHi ? 'हर भारतीय के लिए।' : 'Built for every Indian.'}
                     </p>
 
                     {/* Divider */}
@@ -2289,7 +2297,9 @@ const LandingPageWave = () => {
                         marginTop: 'clamp(0.8rem,2vw,1.2rem)',
                         maxWidth: '32rem',
                     }}>
-                        AI-matched lawyers &middot; SOS legal help &middot; Verified advocates &middot; Your language
+                        {isHi
+                            ? 'AI-मिलान वकील · SOS कानूनी सहायता · सत्यापित वकील · आपकी भाषा'
+                            : 'AI-matched lawyers · SOS legal help · Verified advocates · Your language'}
                     </p>
                 </div>
             </div>
