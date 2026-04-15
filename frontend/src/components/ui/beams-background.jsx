@@ -120,7 +120,7 @@ export function BeamsBackground({
         }
 
         let lastTime = 0;
-        const TARGET_FPS = 30;
+        const TARGET_FPS = 45;
         const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
         function animate(timestamp) {

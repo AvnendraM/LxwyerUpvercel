@@ -189,6 +189,13 @@ const pageKeyframes = `
   80%  { opacity: 0.8; }
   100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
 }
+@keyframes floatOrbit {
+  0%   { transform: translate(var(--startX), var(--startY)) scale(0.7); opacity: 0; }
+  12%  { opacity: 1; transform: translate(var(--startX), var(--startY)) scale(1); }
+  50%  { opacity: 0.85; transform: translate(var(--midX), var(--midY)) scale(1.05); }
+  88%  { opacity: 1; transform: translate(var(--startX), var(--startY)) scale(1); }
+  100% { transform: translate(var(--startX), var(--startY)) scale(0.7); opacity: 0; }
+}
 @keyframes rayPulse {
   0%   { opacity: 0; transform: scaleX(0); }
   30%  { opacity: 0.6; transform: scaleX(1); }
@@ -450,7 +457,13 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                 {/* Hero tubelight effect removed as requested */}
                 <motion.div 
                     className="relative flex flex-col items-center gap-6 w-full scale-[1.8] md:scale-[1.6] md:mt-20"
-                    style={{ transformOrigin: 'center center' }}
+                    style={{
+                        transformOrigin: 'center center',
+                        scale: isMobile ? 1 : scaleVal,
+                        opacity: isMobile ? 1 : opacityVal,
+                        y: isMobile ? 0 : yVal,
+                        filter: isMobile ? undefined : filterVal,
+                    }}
                 >
                     <motion.div
                         initial={justTransitioned ? { opacity: 0, scale: 0.8, filter: 'blur(10px)' } : false}
@@ -484,14 +497,17 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                         })}
 
 
-                        {/* Animated legal laws drifting slowly - continuous, not restarted on nav */}
+                        {/* Animated legal laws drifting around the perimeter */}
                         {legalDataItems.map((item, i) => {
                             if (item.type === 'feature') return null;
 
                             const rad = (item.angle * Math.PI) / 180;
                             const startX = Math.cos(rad) * item.dist;
                             const startY = Math.sin(rad) * item.dist;
-                            // Compute negative delay so animation appears always in-flight
+                            // Midpoint slightly offset for gentle arc motion
+                            const midRad = rad + 0.18;
+                            const midX = Math.cos(midRad) * (item.dist * 1.06);
+                            const midY = Math.sin(midRad) * (item.dist * 1.06);
                             const continuousDelay = `-${((performance.now() / 1000 + item.delay) % item.dur).toFixed(2)}s`;
 
                             return (
@@ -504,7 +520,9 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
                                         zIndex: 10,
                                         '--startX': `${startX}px`,
                                         '--startY': `${startY}px`,
-                                        animation: `convergeToCenter ${item.dur}s ease-in-out ${continuousDelay} infinite`,
+                                        '--midX': `${midX}px`,
+                                        '--midY': `${midY}px`,
+                                        animation: `floatOrbit ${item.dur}s ease-in-out ${continuousDelay} infinite`,
                                         willChange: 'transform, opacity',
                                     }}
                                 >
