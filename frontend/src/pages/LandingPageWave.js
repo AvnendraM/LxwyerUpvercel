@@ -2049,26 +2049,28 @@ const ThreeScenePushBridge = ({ sceneA, sceneB, sceneC }) => {
         offset: ['start start', 'end start'],
     });
 
-    // Scene A -> Scene B transition (0.33 to 0.66)
-    const aScale = useTransform(scrollYProgress, [0.33, 0.66], [1, 0.92]);
-    const aBright = useTransform(scrollYProgress, [0.33, 0.66], [1, 0.40]);
-    const aRadius = useTransform(scrollYProgress, [0.33, 0.66], [0, 20]);
+    // Scene A -> Scene B transition (0.0 to 0.35)
+    const aScale = useTransform(scrollYProgress, [0.0, 0.35], [1, 0.92]);
+    const aBright = useTransform(scrollYProgress, [0.0, 0.35], [1, 0.40]);
+    const aRadius = useTransform(scrollYProgress, [0.0, 0.35], [0, 20]);
     const aFilter = useTransform(aBright, v => `brightness(${v})`);
     const aBorderRadius = useTransform(aRadius, v => `${v}px`);
+    // Crucial opacity fade so Scene A vanishes once fully covered, preventing background overlapping artifacts
+    const aOpacity = useTransform(scrollYProgress, [0.34, 0.35], [1, 0]);
 
-    const bY1 = useTransform(scrollYProgress, [0.33, 0.66], ['100%', '0%']);
-    const bShadow1 = useTransform(scrollYProgress, [0.33, 0.66],
+    const bY1 = useTransform(scrollYProgress, [0.0, 0.35], ['100%', '0%']);
+    const bShadow1 = useTransform(scrollYProgress, [0.0, 0.35],
         ['0 0px 0px rgba(0,0,0,0)', '0 -40px 100px rgba(0,0,0,0.85)']);
 
-    // Scene B -> Scene C transition (0.66 to 1.00)
-    const bScale = useTransform(scrollYProgress, [0.66, 1.00], [1, 0.92]);
-    const bBright = useTransform(scrollYProgress, [0.66, 1.00], [1, 0.40]);
-    const bRadius = useTransform(scrollYProgress, [0.66, 1.00], [0, 20]);
+    // Scene B -> Scene C transition (0.60 to 0.95)
+    const bScale = useTransform(scrollYProgress, [0.60, 0.95], [1, 0.92]);
+    const bBright = useTransform(scrollYProgress, [0.60, 0.95], [1, 0.40]);
+    const bRadius = useTransform(scrollYProgress, [0.60, 0.95], [0, 20]);
     const bFilter = useTransform(bBright, v => `brightness(${v})`);
     const bBorderRadius = useTransform(bRadius, v => `${v}px`);
 
-    const cY = useTransform(scrollYProgress, [0.66, 1.00], ['100%', '0%']);
-    const cShadow = useTransform(scrollYProgress, [0.66, 1.00],
+    const cY = useTransform(scrollYProgress, [0.60, 0.95], ['100%', '0%']);
+    const cShadow = useTransform(scrollYProgress, [0.60, 0.95],
         ['0 0px 0px rgba(0,0,0,0)', '0 -40px 100px rgba(0,0,0,0.85)']);
 
     if (isMobile) {
@@ -2087,8 +2089,8 @@ const ThreeScenePushBridge = ({ sceneA, sceneB, sceneC }) => {
             {/* Scene A */}
             <motion.div style={{
                 position: 'sticky', top: 0, height: '100vh', overflow: 'hidden',
-                scale: aScale, filter: aFilter, borderRadius: aBorderRadius,
-                zIndex: 10, willChange: 'transform, filter', transformOrigin: 'center center',
+                scale: aScale, filter: aFilter, borderRadius: aBorderRadius, opacity: aOpacity,
+                zIndex: 10, willChange: 'transform, filter, opacity', transformOrigin: 'center center',
             }}>
                 {sceneA}
             </motion.div>
