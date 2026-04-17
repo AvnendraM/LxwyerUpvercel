@@ -993,12 +993,6 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-300 text-[10px] font-bold uppercase transition hover:text-white"
-              >
-                {lang === 'en' ? 'hi' : 'en'}
-              </button>
               {recommendedLawyers.length > 0 && (
                 <>
                   {/* Mobile toggle — show on small screens only */}
