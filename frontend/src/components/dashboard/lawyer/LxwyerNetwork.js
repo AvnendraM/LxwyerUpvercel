@@ -117,10 +117,20 @@ export default function LxwyerNetwork({ currentUser, darkMode, selectedState }) 
     const [showGuidelines, setShowGuidelines] = useState(false);
     const [networkLawyers, setNetworkLawyers] = useState([]);
     const [loadingLawyers, setLoadingLawyers] = useState(false);
+    // Track optimistic (pending) message IDs so we don't duplicate them after fetch
+    const optimisticIds = useRef(new Set());
+    const scrollContainerRef = useRef(null);
 
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
     const token = sessionStorage.getItem('token');
+
+    // Helper: is the user scrolled near the bottom?
+    const isNearBottom = useCallback(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return true;
+        return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    }, []);
 
     // Admin can override state, otherwise use the user's state
     const activeState = selectedState || currentUser?.state;
@@ -133,7 +143,15 @@ export default function LxwyerNetwork({ currentUser, darkMode, selectedState }) 
             const res = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setMessages(res.data.reverse());
+            const serverMessages = res.data.reverse();
+            setMessages(prev => {
+                // Remove optimistic messages whose IDs now exist in server data
+                const serverIds = new Set(serverMessages.map(m => m.id).filter(Boolean));
+                // Collect optimistic messages not yet confirmed by server
+                const pending = prev.filter(m => m._optimistic && !serverIds.has(m.id));
+                // Merge: server messages + any still-pending optimistic ones
+                return [...serverMessages, ...pending];
+            });
         } catch (error) {
             console.error('Error fetching network messages', error);
         }
@@ -151,17 +169,21 @@ export default function LxwyerNetwork({ currentUser, darkMode, selectedState }) 
 
     useEffect(() => {
         fetchMessages();
-        const interval = setInterval(fetchMessages, 10000);
+        // Poll every 3 seconds for near-real-time updates
+        const interval = setInterval(fetchMessages, 3000);
         return () => clearInterval(interval);
     }, [fetchMessages]);
 
     const prevMsgCount = useRef(0);
     useEffect(() => {
         if (messages.length !== prevMsgCount.current) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            // Only auto-scroll if user is already near the bottom
+            if (isNearBottom()) {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }
             prevMsgCount.current = messages.length;
         }
-    }, [messages.length]);
+    }, [messages.length, isNearBottom]);
 
     // Unique members visible in chat (memoized)
     const members = useMemo(() => [...new Map(
@@ -178,34 +200,64 @@ export default function LxwyerNetwork({ currentUser, darkMode, selectedState }) 
     const handleSendMessage = async (e) => {
         e?.preventDefault();
         if ((!newMessage.trim() && !selectedFile) || loading) return;
+
+        const messageText = newMessage.trim();
+        const fileToSend = selectedFile;
+
+        // --- Optimistic UI: show message immediately ---
+        const optimisticId = `optimistic-${Date.now()}`;
+        const optimisticMsg = {
+            id: optimisticId,
+            _optimistic: true,
+            sender_id: currentUser?.id,
+            sender_name: currentUser?.full_name || 'You',
+            sender_photo: currentUser?.photo,
+            sender_unique_id: currentUser?.unique_id,
+            content: messageText,
+            timestamp: new Date().toISOString(),
+            state: activeState,
+            file_url: null,
+            file_name: null,
+            file_type: null,
+        };
+        setMessages(prev => [...prev, optimisticMsg]);
+        // Scroll to bottom immediately
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+
+        setNewMessage('');
+        setSelectedFile(null);
         setLoading(true);
+
         try {
             let fileData = {};
-            if (selectedFile) {
+            if (fileToSend) {
                 setUploading(true);
                 const formData = new FormData();
-                formData.append('file', selectedFile);
+                formData.append('file', fileToSend);
                 const uploadRes = await axios.post(`${API}/documents/upload`, formData, {
                     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
                 });
                 fileData = {
                     file_url: uploadRes.data.url || uploadRes.data.file_url,
-                    file_name: selectedFile.name,
-                    file_type: selectedFile.type
+                    file_name: fileToSend.name,
+                    file_type: fileToSend.type
                 };
                 setUploading(false);
             }
-            const postUrl = activeState 
+            const postUrl = activeState
                 ? `${API}/network/messages?state=${encodeURIComponent(activeState)}`
                 : `${API}/network/messages`;
-            
-            await axios.post(postUrl, { content: newMessage, ...fileData }, {
+
+            await axios.post(postUrl, { content: messageText, ...fileData }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setNewMessage('');
-            setSelectedFile(null);
+            // Remove optimistic message — the next fetchMessages will include the real one
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
             fetchMessages();
         } catch {
+            // Remove the failed optimistic message and restore the input
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+            setNewMessage(messageText);
             toast.error('Failed to send message');
         } finally {
             setLoading(false);
@@ -478,7 +530,7 @@ export default function LxwyerNetwork({ currentUser, darkMode, selectedState }) 
                 </AnimatePresence>
 
                 {/* Main Content Area (Messages OR Overlays) */}
-                <div className="relative z-10 flex-1 overflow-y-auto px-4 py-3"
+                <div ref={scrollContainerRef} className="relative z-10 flex-1 overflow-y-auto px-4 py-3"
                     style={{ scrollbarWidth: 'thin', scrollbarColor: darkMode ? 'rgba(255,255,255,0.1) transparent' : 'rgba(0,0,0,0.1) transparent' }}>
 
                     {grouped.length === 0 && (

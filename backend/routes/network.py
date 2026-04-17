@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
+import asyncio
 
 from models.network import NetworkMessage, NetworkMessageCreate
 from models.user import User
@@ -9,6 +10,33 @@ from services.database import db
 from routes.auth import get_current_user
 
 router = APIRouter(prefix="/network", tags=["Network"])
+
+# ── Simple in-memory user-info cache (avoids repeated DB lookups on every 3-second poll) ──
+_user_cache: dict = {}          # id -> (data, expiry_datetime)
+_CACHE_TTL = timedelta(seconds=30)
+
+async def _get_user_info(user_id: str) -> dict:
+    """Return cached user info, refreshing from DB when stale."""
+    entry = _user_cache.get(user_id)
+    if entry and entry[1] > datetime.now(timezone.utc):
+        return entry[0]
+    user = await db.users.find_one({'id': user_id}, {
+        'photo': 1, 'unique_id': 1, 'bio': 1,
+        'specialization': 1, 'education': 1, '_id': 0
+    })
+    info = user or {}
+    _user_cache[user_id] = (info, datetime.now(timezone.utc) + _CACHE_TTL)
+    return info
+
+# Ensure indexes exist (called once on startup via lifespan or first request)
+_index_created = False
+async def _ensure_indexes():
+    global _index_created
+    if not _index_created:
+        await db.network_messages.create_index(
+            [("state", 1), ("timestamp", -1)], background=True
+        )
+        _index_created = True
 
 @router.post("/messages")
 async def send_network_message(
@@ -55,14 +83,14 @@ async def send_network_message(
 async def get_network_messages(
     state: str = Query(None),
     current_user: dict = Depends(get_current_user),
-    limit: int = Query(50, ge=1, le=100)
+    limit: int = Query(80, ge=1, le=100)
 ):
     """Get messages for the user's state network with sender details"""
+    await _ensure_indexes()
+
     user_state = state if state else current_user.get("state")
-    
+
     if not user_state or user_state == "All States":
-        # Note: If admin selects "All States", it might be useful to not filter
-        # But for now let's fall back to "Delhi" if really missing, though we can support "All States"
         if user_state == "All States":
             cursor = db.network_messages.find({}).sort("timestamp", -1).limit(limit)
         else:
@@ -70,28 +98,34 @@ async def get_network_messages(
             cursor = db.network_messages.find({"state": user_state}).sort("timestamp", -1).limit(limit)
     else:
         cursor = db.network_messages.find({"state": user_state}).sort("timestamp", -1).limit(limit)
-        
+
     messages = await cursor.to_list(length=limit)
-    
-    # Enrich messages with sender details (photo, unique_id)
-    # This is inefficient for large scale w/o cache, but fine for now.
-    sender_ids = list(set(msg['sender_id'] for msg in messages))
-    users = await db.users.find({'id': {'$in': sender_ids}}).to_list(length=len(sender_ids))
-    user_map = {u['id']: u for u in users}
-    
+
+    # Enrich messages with cached sender details
+    unique_sender_ids = list(set(msg['sender_id'] for msg in messages))
+    # Fetch all at once for cache misses, then prime the cache
+    cache_misses = [uid for uid in unique_sender_ids if uid not in _user_cache or _user_cache[uid][1] <= datetime.now(timezone.utc)]
+    if cache_misses:
+        users = await db.users.find(
+            {'id': {'$in': cache_misses}},
+            {'id': 1, 'photo': 1, 'unique_id': 1, 'bio': 1, 'specialization': 1, 'education': 1, '_id': 0}
+        ).to_list(length=len(cache_misses))
+        expiry = datetime.now(timezone.utc) + _CACHE_TTL
+        for u in users:
+            _user_cache[u['id']] = (u, expiry)
+
     result = []
     for msg in messages:
         if "_id" in msg:
             del msg["_id"]
-        
-        sender = user_map.get(msg['sender_id'])
-        if sender:
+        sender_entry = _user_cache.get(msg['sender_id'])
+        if sender_entry:
+            sender = sender_entry[0]
             msg['sender_photo'] = sender.get('photo')
             msg['sender_unique_id'] = sender.get('unique_id')
-            msg['sender_bio'] = sender.get('bio') # For profile view
+            msg['sender_bio'] = sender.get('bio')
             msg['sender_specialization'] = sender.get('specialization')
-            msg['sender_education'] = sender.get('education') # Added education for profile view
-        
+            msg['sender_education'] = sender.get('education')
         result.append(msg)
-        
+
     return result
