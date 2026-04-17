@@ -857,7 +857,6 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
             if (urgent) badges.push('⚡ Urgent');
             return { ...l, matchBadges: badges };
           });
-        });
       }
 
       // --- NEW: Universal Shuffling and Signature Priority Algorithm ---
