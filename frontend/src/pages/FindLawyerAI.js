@@ -1079,7 +1079,6 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                 className="flex-1 bg-transparent border-none text-white placeholder-slate-600 font-medium py-2 text-sm"
                 style={{ outline: 'none', boxShadow: 'none' }}
               />
-              />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputMessage.trim() || isLoading}
@@ -1534,7 +1533,6 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               )}
             </motion.div>
           </div>
-        )}
         )}
       </AnimatePresence>
     </>
