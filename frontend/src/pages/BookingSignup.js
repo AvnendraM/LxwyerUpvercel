@@ -18,7 +18,7 @@ const SimpleNavbar = ({ navigate }) => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <button onClick={() => navigate('/')} className="flex items-center space-x-2">
+          <button onClick={() => navigate('/home')} className="flex items-center space-x-2">
             <img src="/logo.png" alt="Lxwyer Up Logo" className="w-8 h-8 xl:w-9 xl:h-9 object-contain rounded-md" style={{ mixBlendMode: "screen" }} />
             <span className="text-xl font-bold text-[#0F2944]">Lxwyer Up</span>
           </button>
@@ -665,7 +665,7 @@ const BookingSignup = () => {
                       Login to Dashboard
                     </Button>
                     <Button
-                      onClick={() => navigate('/')}
+                      onClick={() => navigate('/home')}
                       variant="outline"
                       className="flex-1 border-gray-200 text-[#0F2944] hover:bg-gray-50 rounded-xl py-3"
                     >

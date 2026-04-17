@@ -166,7 +166,7 @@ const ContactFormSection = ({ formData, handleChange, handleSubmit, isSubmitting
     {
       icon: MapPin,
       title: d.location,
-      value: 'Sonipat, Haryana, India',
+      value: 'New Delhi, Delhi, India',
       link: null
     }
   ];
@@ -354,23 +354,24 @@ const FinalCTA = ({ fadeInUp }) => {
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
           variants={fadeInUp}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white shadow-2xl relative overflow-hidden"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 sm:p-12 text-center text-white shadow-2xl relative overflow-hidden"
         >
           {/* Background shine effect */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
-          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 border border-white/10">
-            <CheckCircle className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-5 relative z-10 border border-white/10">
+            <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 relative z-10">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 relative z-10">
             {d.notSure}
           </h2>
-          <p className="text-xl text-slate-300 mb-8 relative z-10">
+          <p className="text-base sm:text-xl text-slate-300 mb-7 relative z-10 max-w-xs sm:max-w-md mx-auto leading-relaxed">
             {d.bookFreeSub}
           </p>
           <Button
             onClick={() => window.location.href = '/user-get-started'}
-            className="bg-white text-slate-900 hover:bg-slate-100 text-lg px-10 py-6 rounded-full font-semibold shadow-lg hover:scale-105 transition-all duration-300 relative z-10"
+            style={{ whiteSpace: 'normal', lineHeight: 1.4, minHeight: 48 }}
+            className="bg-white text-slate-900 hover:bg-slate-100 text-sm sm:text-base font-semibold px-6 sm:px-10 py-3 sm:py-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 relative z-10 w-full sm:w-auto"
           >
             {d.bookFreeBtn}
           </Button>

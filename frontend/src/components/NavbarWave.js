@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sparkles, ChevronDown, Scale, Building2, ArrowRight, Zap, Languages, Search } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
@@ -140,6 +140,8 @@ const RegisterDropdown = ({ onClose }) => {
 
 export const NavbarWave = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const isHome = location.pathname === '/';
     const { lang, setLang, t } = useLang();
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -220,6 +222,7 @@ export const NavbarWave = () => {
                     <div className="hidden md:flex absolute right-0 items-center gap-1 xl:gap-2 shrink-0">
 
                         {/* Language toggle */}
+                        {isHome && (
                         <button
                             onClick={toggleLang}
                             title={lang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
@@ -232,6 +235,7 @@ export const NavbarWave = () => {
                         >
                             {lang === 'en' ? 'हिं' : 'EN'}
                         </button>
+                        )}
 
                         {/* Login */}
                         <button
@@ -304,6 +308,7 @@ export const NavbarWave = () => {
                         </button>
 
                         {/* Language toggle mobile */}
+                        {isHome && (
                         <button
                             onClick={toggleLang}
                             className="px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all duration-200"
@@ -315,6 +320,7 @@ export const NavbarWave = () => {
                         >
                             {lang === 'en' ? 'हिं' : 'EN'}
                         </button>
+                        )}
                         <button
                             className="p-2 text-slate-600 dark:text-slate-300"
                             onClick={() => setMenuOpen(!menuOpen)}

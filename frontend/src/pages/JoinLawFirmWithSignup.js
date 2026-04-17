@@ -638,7 +638,7 @@ export default function JoinLawFirmWithSignup() {
                 <ArrowRight className="w-5 h-5" />
               </button>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
                 className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 rounded-xl transition-all"
               >
                 Back to Home

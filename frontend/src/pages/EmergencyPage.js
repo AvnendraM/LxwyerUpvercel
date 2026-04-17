@@ -365,7 +365,7 @@ const EmergencyPage = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16, maxWidth: 800, margin: '0 auto 32px auto' }}>
                   {/* Talk Mode */}
-                  <button className="es-card-talk" onClick={() => { setSosMode('talk'); setStep('form'); }} style={{ position: 'relative', padding: 'clamp(20px,3vw,36px) clamp(18px,3vw,32px)', borderRadius: 20, textAlign: 'left', background: 'rgba(15,23,42,0.7)', border: '1px solid rgba(37,99,235,0.25)', backdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'all 0.25s ease', outline: 'none', overflow: 'hidden' }}>
+                  <button className="es-card-talk" onClick={() => { setSosMode('talk'); setStep('form'); }} style={{ position: 'relative', padding: 'clamp(20px,3vw,36px) clamp(18px,3vw,32px)', borderRadius: 20, textAlign: 'left', background: '#000000', border: '1px solid rgba(37,99,235,0.25)', backdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'all 0.25s ease', outline: 'none', overflow: 'hidden' }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Phone style={{ width: 20, height: 20, color: '#60a5fa' }} /></div>
                     <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 18, margin: '0 0 8px 0' }}>{lang === 'hi' ? 'SOS कॉल' : 'SOS Talk'}</h3>
                     <p style={{ color: '#64748b', fontSize: 12.5, lineHeight: 1.6, margin: '0 0 14px 0' }}>{lang === 'hi' ? 'फ़ोन या वीडियो कॉल के माध्यम से SOS वकील के साथ तत्काल परामर्श।' : 'Immediate consultation with an SOS lawyer via phone or video call.'}</p>
@@ -381,7 +381,7 @@ const EmergencyPage = () => {
                   </button>
 
                   {/* Visit Mode */}
-                  <button className="es-card-visit" onClick={() => { setSosMode('visit'); setStep('form'); }} style={{ position: 'relative', padding: 'clamp(20px,3vw,36px) clamp(18px,3vw,32px)', borderRadius: 20, textAlign: 'left', background: 'rgba(15,23,42,0.7)', border: '1px solid rgba(185,28,28,0.25)', backdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'all 0.25s ease', outline: 'none', overflow: 'hidden' }}>
+                  <button className="es-card-visit" onClick={() => { setSosMode('visit'); setStep('form'); }} style={{ position: 'relative', padding: 'clamp(20px,3vw,36px) clamp(18px,3vw,32px)', borderRadius: 20, textAlign: 'left', background: '#000000', border: '1px solid rgba(185,28,28,0.25)', backdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'all 0.25s ease', outline: 'none', overflow: 'hidden' }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(185,28,28,0.15)', border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Car style={{ width: 20, height: 20, color: '#f87171' }} /></div>
                     <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 18, margin: '0 0 8px 0' }}>{lang === 'hi' ? 'पूर्ण SOS' : 'Full SOS'}</h3>
                     <p style={{ color: '#64748b', fontSize: 12.5, lineHeight: 1.6, margin: '0 0 14px 0' }}>{lang === 'hi' ? 'सत्यापित SOS वकील 30 मिनट के अंदर आपके स्थान पर पहुंचता है।' : 'A verified SOS lawyer physically travels to your location within 30 minutes.'}</p>
@@ -404,7 +404,7 @@ const EmergencyPage = () => {
             <motion.div key="form" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ maxWidth: 520, margin: '0 auto' }}>
               <button onClick={() => { setStep('select'); setSosMode(null); }} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24, padding: 0 }}><ChevronLeft style={{ width: 15, height: 15 }} /> {lang === 'hi' ? 'मोड बदलें' : 'Change mode'}</button>
               
-              <div style={{ background: 'rgba(10,15,30,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 'clamp(24px,4vw,36px)', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: '#000000', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 'clamp(24px,4vw,36px)', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
                 <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 22, margin: '0 0 6px 0' }}>{lang === 'hi' ? 'आपका विवरण' : 'Your Details'}</h3>
                 <p style={{ color: '#475569', fontSize: 13.5, margin: '0 0 28px 0' }}>{lang === 'hi' ? 'हम आपके क्षेत्र के सबसे अच्छे उपलब्ध SOS वकील से आपका मिलान करेंगे।' : "We'll match you with the best available SOS lawyer in your area."}</p>
                 
@@ -512,7 +512,7 @@ const EmergencyPage = () => {
             <motion.div key="payment" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ maxWidth: 520, margin: '0 auto' }}>
               <button onClick={() => setStep('form')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 13, background: 'transparent', border: 'none', cursor: 'pointer', marginBottom: 24 }}><ChevronLeft style={{ width: 15, height: 15 }} /> {lang === 'hi' ? 'वापस जाएं' : 'Back'}</button>
               
-              <div style={{ background: 'rgba(10,15,30,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 'clamp(20px,4vw,32px)' }}>
+              <div style={{ background: '#000000', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 'clamp(20px,4vw,32px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContents: 'space-between', marginBottom: 24 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(34,197,94,0.15)', borderRadius: '20px', marginBottom: '8px' }}>
@@ -619,7 +619,7 @@ const EmergencyPage = () => {
 
           {/* ── Matched ── */}
           {step === 'matched' && matchedLawyer && (
-            <motion.div key="matched" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ maxWidth: 480, margin: '0 auto', background: 'rgba(10,15,30,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '32px' }}>
+            <motion.div key="matched" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ maxWidth: 480, margin: '0 auto', background: '#000000', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, padding: '12px 16px', background: 'rgba(34,197,94,0.1)', borderRadius: 12, border: '1px solid rgba(34,197,94,0.2)' }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContents: 'center' }}><CheckCircle2 style={{ width: 20, height: 20, color: '#fff' }} /></div>
                 <div><p style={{ color: '#4ade80', fontWeight: 800, fontSize: 16, margin: 0 }}>{lang === 'hi' ? 'वकील मिल गया!' : 'Lawyer Found!'}</p></div>
@@ -644,7 +644,7 @@ const EmergencyPage = () => {
 
           {/* ── No Lawyer / Error ── */}
           {(step === 'no_lawyer' || step === 'error') && (
-            <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: 440, margin: '0 auto', textAlign: 'center', padding: '40px', background: 'rgba(10,15,30,0.8)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.05)' }}>
+            <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: 440, margin: '0 auto', textAlign: 'center', padding: '40px', background: '#000000', borderRadius: 20, border: '1px solid rgba(255,255,255,0.05)' }}>
               <AlertCircle style={{ width: 64, height: 64, color: '#f59e0b', margin: '0 auto 20px auto' }} />
               <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 20, marginBottom: 12 }}>{step === 'no_lawyer' ? 'All lawyers are currently busy' : 'Something went wrong'}</h3>
               {step === 'no_lawyer' ? (

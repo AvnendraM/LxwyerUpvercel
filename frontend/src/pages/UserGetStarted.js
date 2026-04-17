@@ -223,7 +223,7 @@ export default function UserGetStarted() {
 
         {/* Back link */}
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="flex items-center gap-1.5 text-xs text-white/20 hover:text-white/50 transition-colors group"
         >
           <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />

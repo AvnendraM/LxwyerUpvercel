@@ -12,9 +12,13 @@ export const Footer = () => {
               <img src="/logo.png" alt="Lxwyer Up Logo" className="w-8 h-8 xl:w-9 xl:h-9 object-contain rounded-md" style={{ mixBlendMode: "screen" }} />
               <span className="text-xl font-bold">Lxwyer Up</span>
             </div>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-400 text-sm mb-4">
               Simplifying the justice system using technology and AI
             </p>
+            <a href="https://www.linkedin.com/company/lxwyerup" target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-full text-sm font-semibold transition-colors w-fit border border-white/10 shadow-lg">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              <span>Follow on LinkedIn</span>
+            </a>
           </div>
 
           {/* Quick Links */}
@@ -51,14 +55,14 @@ export const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-slate-400 text-sm">
                 <MapPin className="w-4 h-4" />
-                <span>Sonipat, Haryana, India</span>
+                <span>New Delhi, Delhi, India</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} Lxwyer Up. All rights reserved.</p>
+          <p>&copy; 2026 Lxwyer Up. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -227,7 +227,7 @@ const translations = {
     footer_tagline: 'Legal help for every Indian',
     footer_company: 'Company',
     footer_legal: 'Legal',
-    footer_rights: '© 2024 LxwyerUp. All rights reserved.',
+    footer_rights: '© 2026 LxwyerUp. All rights reserved.',
 
     // ── SOS ────────────────────────────────────────────────────────────────
     sos_emergency: 'SOS / Emergency',

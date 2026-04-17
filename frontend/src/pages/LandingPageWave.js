@@ -409,7 +409,7 @@ const ScalesOfJusticeIntro = React.memo(({ justTransitioned }) => {
             <div style={{ zIndex: 20, pointerEvents: 'none', overflow: 'visible', width: '100%' }}>
                 {/* Hero tubelight effect removed as requested */}
                 <motion.div 
-                    className="relative flex flex-col items-center gap-6 w-full scale-[1.6] md:scale-[1.6] md:mt-20"
+                    className="relative flex flex-col items-center gap-6 w-full scale-[1.6] md:scale-[1.6] mt-[110px] md:mt-20"
                     style={{
                         transformOrigin: 'center center',
                     }}
@@ -738,7 +738,7 @@ const SolutionParticles = ({ xPos, yPos, opacity }) => {
                                 padding: '2px 6px',
                                 borderRadius: '4px',
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                                backdropFilter: 'blur(4px)',
+                                backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)',
                                 transform: `rotate(${-p.angle}deg)`, // Keep text upright
                             }}
                         >
@@ -915,7 +915,7 @@ const EasyEfficientReveal = ({ scrollProgress }) => {
             y,
             pointerEvents: 'none'
         }}>
-            <div className="flex flex-col items-center gap-2.5 px-14 py-8 rounded-[28px] border-2 border-blue-500/15 dark:border-blue-500/30 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl shadow-[0_25px_80px_rgba(37,99,235,0.25),0_0_0_1px_rgba(255,255,255,0.6),0_0_120px_rgba(96,165,250,0.15)] dark:shadow-[0_25px_80px_rgba(30,58,138,0.4),0_0_0_1px_rgba(255,255,255,0.1),0_0_120px_rgba(30,58,138,0.2)]">
+            <div className="flex flex-col items-center gap-2.5 px-14 py-8 rounded-[28px] border-2 border-blue-500/15 dark:border-blue-500/30 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl transform-gpu shadow-[0_25px_80px_rgba(37,99,235,0.25),0_0_0_1px_rgba(255,255,255,0.6),0_0_120px_rgba(96,165,250,0.15)] dark:shadow-[0_25px_80px_rgba(30,58,138,0.4),0_0_0_1px_rgba(255,255,255,0.1),0_0_120px_rgba(30,58,138,0.2)]">
                 <span style={{
                     fontSize: '0.9rem',
                     fontWeight: 600,
@@ -1445,7 +1445,7 @@ const BentoCard = ({ number, icon: Icon, title, description, span = 1, index }) 
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: index * 0.08 }}
-            className={`group relative p-8 rounded-3xl transition-all duration-500 cursor-default ${span === 2 ? 'md:col-span-2' : ''} bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-black/5 dark:border-slate-200 dark:border-white/10 shadow-sm`}
+            className={`group relative p-8 rounded-3xl transition-all duration-500 cursor-default ${span === 2 ? 'md:col-span-2' : ''} bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl transform-gpu border border-black/5 dark:border-slate-200 dark:border-white/10 shadow-sm`}
             onMouseEnter={(e) => {
                 e.currentTarget.style.border = '1px solid rgba(59,130,246,0.2)';
                 e.currentTarget.style.boxShadow = '0 8px 40px rgba(59,130,246,0.08)';
@@ -1544,7 +1544,7 @@ const ServiceCard = ({ icon: Icon, title, description, index }) => {
             className="group p-7 rounded-3xl transition-all duration-500 flex flex-col items-center text-center"
             style={{
                 background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(16px)',
+                backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)',
                 border: '1px solid rgba(255,255,255,0.06)',
             }}
             onMouseEnter={(e) => {
@@ -1724,7 +1724,7 @@ const EcosystemSection = () => {
                                     whileHover={{ y: -6 }}
                                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                                 >
-                                    <div className="group relative p-8 rounded-3xl bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-slate-200/50 dark:border-slate-100 dark:border-white/5 hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-all duration-500"
+                                    <div className="group relative p-8 rounded-3xl bg-white/40 dark:bg-black/40 backdrop-blur-xl transform-gpu border border-slate-200/50 dark:border-slate-100 dark:border-white/5 hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-all duration-500"
                                         style={{ boxShadow: '0 4px 30px rgba(0,0,0,0.06)' }}
                                         onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 40px rgba(59,130,246,0.15), 0 4px 30px rgba(0,0,0,0.08)'}
                                         onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 30px rgba(0,0,0,0.06)'}
@@ -1936,7 +1936,7 @@ const Footer = () => {
                         <ul className="space-y-3 text-sm" style={{ color: 'rgba(148,163,184,0.5)' }}>
                             <li>avnendram.7@gmail.com</li>
                             <li>+91 8318216968</li>
-                            <li>Sonipat, Haryana</li>
+                            <li>New Delhi, Delhi</li>
                         </ul>
                     </div>
                 </div>

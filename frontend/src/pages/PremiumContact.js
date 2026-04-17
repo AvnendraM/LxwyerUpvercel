@@ -147,7 +147,7 @@ const ContactFormSection = ({ formData, handleChange, handleSubmit, isSubmitting
     {
       icon: MapPin,
       title: 'Location',
-      value: 'Sonipat, Haryana, India',
+      value: 'New Delhi, Delhi, India',
       link: null
     }
   ];

@@ -21,6 +21,25 @@ const BORDER = 'rgba(201,168,76,0.15)';
 const FONT_SERIF = '"Playfair Display", Georgia, serif';
 const FONT_SANS  = '"Inter", system-ui, sans-serif';
 
+/* ─── Expandable Text ────────────────────────────────────── */
+const ExpandableText = ({ text, maxLength = 160 }) => {
+  const [expanded, setExpanded] = React.useState(false);
+  if (!text) return null;
+  if (text.length <= maxLength) return <span>{text}</span>;
+  return (
+    <span>
+      {expanded ? text : text.slice(0, maxLength) + '...'}
+      {' '}
+      <span
+        onClick={() => setExpanded(v => !v)}
+        style={{ color: GOLD, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'inline-block', marginTop: expanded ? 4 : 0 }}
+      >
+        {expanded ? 'Show less' : 'Read more'}
+      </span>
+    </span>
+  );
+};
+
 /* ─── Topbar ─────────────────────────────────────────────── */
 const SignatureNavbar = ({ navigate }) => (
   <nav style={{
@@ -366,7 +385,7 @@ export default function SignatureLawyerProfile() {
               <SectionLabel><BookOpen size={9} style={{ display: 'inline', marginRight: 6 }} />Executive Summary</SectionLabel>
               <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 1.85,
                 fontFamily: FONT_SANS }}>
-                {lawyer.bio || `${displayName} is a distinguished member of the LxwyerUp Signature panel — hand-selected for exceptional legal standing, verified conduct, and demonstrated mastery in ${lawyer.specialization?.toLowerCase() || 'legal advisory'}. Available exclusively through Priority Access channels.`}
+                <ExpandableText text={lawyer.bio || `${displayName} is a distinguished member of the LxwyerUp Signature panel — hand-selected for exceptional legal standing, verified conduct, and demonstrated mastery in ${lawyer.specialization?.toLowerCase() || 'legal advisory'}. Available exclusively through Priority Access channels.`} maxLength={140} />
               </p>
             </motion.div>
 

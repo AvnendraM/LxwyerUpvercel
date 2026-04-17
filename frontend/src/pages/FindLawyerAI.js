@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scale, Send, Bot, User, Loader2, Star, Briefcase, MapPin, ArrowRight, ArrowLeft, X, CheckCircle, MessageSquare, Mic, MicOff, Sparkles, Phone, Mail, Calendar, GraduationCap, Check, Video, Users, Award, ChevronDown, ChevronUp, HelpCircle, Zap, Shield, Clock } from 'lucide-react';
+import { Scale, Send, Bot, User, Loader2, Star, Briefcase, MapPin, ArrowRight, ArrowLeft, X, CheckCircle, MessageSquare, Sparkles, Phone, Mail, Calendar, GraduationCap, Check, Video, Users, Award, ChevronDown, ChevronUp, HelpCircle, Zap, Shield, Clock } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../App';
 import { Button } from '../components/ui/button';
@@ -13,7 +13,6 @@ import { greetings, farewells, thanks, acknowledgements, aboutBot, legalInfo, cu
 import { legalKnowledge, csvQAPairs, topAdvocates, totalCasesProcessed } from '../data/processedLegalData';
 import { WaveLayout } from '../components/WaveLayout';
 import { getLawyerPhoto, onPhotoError } from '../utils/lawyerPhoto';
-import VoiceModeOverlay from '../components/VoiceModeOverlay';
 import { buildKnowledgeBase, lookupByName, getPlatformAwarenessResponse, getSuggestiveChips } from '../utils/lawyerKnowledgeBase';
 import { useLang } from '../context/LanguageContext';
 
@@ -194,7 +193,6 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
   const [knowledgeBase, setKnowledgeBase] = useState(() => buildKnowledgeBase(dummyLawyers));
   // Multi-turn memory
   const [memory, setMemory] = useState({ caseType: null, location: null, budget: null, language: null, consultType: null, urgent: false });
-  const [showVoiceMode, setShowVoiceMode] = useState(false);
   // Suggestive chips from typing
   const [typingChips, setTypingChips] = useState([]);
   const suggestDebounceRef = useRef(null);
@@ -1081,13 +1079,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                 className="flex-1 bg-transparent border-none text-white placeholder-slate-600 font-medium py-2 text-sm"
                 style={{ outline: 'none', boxShadow: 'none' }}
               />
-              <button
-                onClick={() => setShowVoiceMode(true)}
-                title="Voice Mode"
-                className="p-2.5 rounded-full transition-all text-slate-500 hover:text-blue-400 hover:bg-blue-400/10"
-              >
-                <Mic className="w-4 h-4" />
-              </button>
+              />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputMessage.trim() || isLoading}
@@ -1543,13 +1535,8 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
             </motion.div>
           </div>
         )}
+        )}
       </AnimatePresence>
-      <VoiceModeOverlay
-        open={showVoiceMode}
-        onClose={() => setShowVoiceMode(false)}
-        onSend={(text) => handleSendMessage(text)}
-        accentColor="#3b82f6"
-      />
     </>
   );
 

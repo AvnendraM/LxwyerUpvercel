@@ -574,33 +574,33 @@ export default function BookConsultationWithSignup() {
                           <button
                             type="button"
                             onClick={() => setBookingData({ ...bookingData, duration: '30' })}
-                            className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${bookingData.duration === '30'
+                            className={`rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${bookingData.duration === '30'
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 shadow-sm'
                               : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 bg-white dark:bg-slate-900/50'
                               }`}
+                            style={{ height: 88, padding: '0 12px' }}
                           >
-                            <div className="text-xl mb-1">⏱️</div>
-                            <div className={`text-sm font-semibold ${bookingData.duration === '30' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                            <div className={`text-sm font-bold leading-tight ${bookingData.duration === '30' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}>
                               30 Minutes
                             </div>
-                            <div className={`text-xs font-bold mt-1 ${bookingData.duration === '30' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                            <div className={`text-xs font-bold mt-1 ${bookingData.duration === '30' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
                               ₹{Math.ceil(consultationFee / 2)}
                             </div>
                           </button>
-                          
+
                           <button
                             type="button"
                             onClick={() => setBookingData({ ...bookingData, duration: '60' })}
-                            className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${bookingData.duration === '60'
+                            className={`rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${bookingData.duration === '60'
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 shadow-sm'
                               : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 bg-white dark:bg-slate-900/50'
                               }`}
+                            style={{ height: 88, padding: '0 12px' }}
                           >
-                            <div className="text-xl mb-1">⏳</div>
-                            <div className={`text-sm font-semibold ${bookingData.duration === '60' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                            <div className={`text-sm font-bold leading-tight ${bookingData.duration === '60' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}>
                               1 Hour
                             </div>
-                            <div className={`text-xs font-bold mt-1 ${bookingData.duration === '60' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                            <div className={`text-xs font-bold mt-1 ${bookingData.duration === '60' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
                               ₹{consultationFee}
                             </div>
                           </button>

@@ -471,7 +471,7 @@ export default function BookConsultation() {
                 <ArrowRight className="w-5 h-5" />
               </button>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
                 className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-4 rounded-xl transition-all"
               >
                 Back to Home
