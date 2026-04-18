@@ -979,14 +979,23 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
   const content = (
     <>
       <div
-        style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: '#000', color: '#fff', paddingTop: embedded ? 0 : '4rem' }}
+        style={{ display: 'flex', height: '100dvh', background: '#000', color: '#fff', paddingTop: embedded ? 0 : '4rem', position: 'relative' }}
       >
 
         {/* ── Left: Chat Panel ── */}
-        <div className={`flex flex-col transition-all duration-500
-          ${mobileView === 'matches' ? 'hidden lg:flex' : 'flex'}
-          ${recommendedLawyers.length > 0 ? 'w-full lg:w-[52%]' : 'w-full'}
-          border-r border-slate-800/60`}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            minWidth: 0,
+            maxWidth: recommendedLawyers.length > 0 ? '52%' : '100%',
+            borderRight: recommendedLawyers.length > 0 ? '1px solid rgba(51,65,85,0.6)' : 'none',
+            transition: 'max-width 0.5s',
+            overflow: 'hidden',
+          }}
+          className={mobileView === 'matches' ? 'hidden lg:flex' : 'flex'}
+        >
 
           {/* Top bar */}
           <div className="shrink-0 h-14 border-b border-slate-800/60 bg-black/80 backdrop-blur-sm px-5 flex items-center justify-between">
@@ -1140,20 +1149,25 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
         <AnimatePresence>
           {recommendedLawyers.length > 0 && (
             <motion.div
+              key="lawyer-panel"
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
-              className={mobileView === 'matches' ? 'absolute inset-0 z-50' : 'hidden lg:flex'}
+              className={mobileView === 'matches' ? 'flex' : 'hidden lg:flex'}
               style={{
+                position: 'fixed',
+                top: embedded ? 0 : 64,
+                right: 0,
+                bottom: 0,
+                width: mobileView === 'matches' ? '100%' : '48%',
                 flexDirection: 'column',
-                width: '48%',
-                height: '100dvh',
-                overflow: 'hidden',
-                flexShrink: 0,
                 background: '#000',
+                zIndex: mobileView === 'matches' ? 50 : 20,
+                borderLeft: '1px solid rgba(51,65,85,0.6)',
               }}
             >
-              <div style={{ flexShrink: 0, height: 56, borderBottom: '1px solid rgba(51,65,85,0.6)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {/* Fixed header */}
+              <div style={{ flexShrink: 0, height: 56, borderBottom: '1px solid rgba(51,65,85,0.6)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#000' }}>
                 <h3 className="font-bold text-white text-sm flex items-center gap-2">
 
                   {d.topMatches}
@@ -1179,13 +1193,15 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                   </button>
                 </div>
               </div>
+              {/* Scrollable cards list — flex:1 + minHeight:0 guarantees trackpad scrolling */}
               <div
                 style={{
-                  flex: 1,
+                  flex: '1 1 0',
                   minHeight: 0,
                   overflowY: 'auto',
                   WebkitOverflowScrolling: 'touch',
                   padding: '16px',
+                  boxSizing: 'border-box',
                 }}
               >
                 {(showAllLawyers ? recommendedLawyers : recommendedLawyers.slice(0, 5)).map((lawyer, index) => {
