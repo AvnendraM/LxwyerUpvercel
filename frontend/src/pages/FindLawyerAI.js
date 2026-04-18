@@ -1172,7 +1172,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 h-0 overflow-y-auto overscroll-contain p-4 space-y-4">
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 block" style={{ WebkitOverflowScrolling: "touch", WebkitTransform: "translate3d(0,0,0)", touchAction: "pan-y" }}>
                 {(showAllLawyers ? recommendedLawyers : recommendedLawyers.slice(0, 5)).map((lawyer, index) => {
                   const grad = GRADIENTS[index % GRADIENTS.length];
                   const photoSrc = getLawyerPhoto(lawyer.photo, lawyer.name);
@@ -1244,7 +1244,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               </div>
 
               {selectedLawyer.isFirm ? (
-                 <div className="flex-1 overflow-y-auto overscroll-contain">
+                 <div className="flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
                  <div className="relative h-64">
                    <img src={selectedLawyer.image} alt={selectedLawyer.name} className="w-full h-full object-cover" />
                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
@@ -1358,7 +1358,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               ) : (
                 <>
               {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto overscroll-contain px-6 sm:px-10 pb-10">
+              <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-10" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
                 {/* Avatar + name row */}
                 <div className="flex items-center gap-5 pt-6 pb-6 mb-2 border-b border-slate-100 dark:border-slate-800">
                   <div className="w-20 h-20 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl shrink-0">

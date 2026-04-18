@@ -8,7 +8,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    user_type: Literal['client', 'lawyer', 'law_firm']
+    user_type: Optional[str] = None
     phone: Optional[str] = None
     firm_name: Optional[str] = None
     practice_start_date: Optional[str] = None
@@ -18,7 +18,7 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-    user_type: Literal['client', 'lawyer', 'law_firm']
+    user_type: Optional[str] = None
 
 
 class User(BaseModel):
@@ -26,7 +26,7 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
     full_name: str
-    user_type: Literal['client', 'lawyer', 'law_firm']
+    user_type: Optional[str] = None
     phone: Optional[str] = None
     firm_name: Optional[str] = None
     practice_start_date: Optional[str] = None

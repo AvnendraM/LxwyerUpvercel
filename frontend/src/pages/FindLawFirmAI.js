@@ -715,7 +715,7 @@ export default function FindLawFirmAI() {
                 </div>
               </div>
 
-              <div className="flex-1 h-0 overflow-y-auto overscroll-contain p-4 space-y-4">
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 block" style={{ WebkitOverflowScrolling: "touch", WebkitTransform: "translate3d(0,0,0)", touchAction: "pan-y" }}>
                 {recommendedFirms.map((firm, index) => (
                   <FirmCard 
                     key={firm.id || index}
