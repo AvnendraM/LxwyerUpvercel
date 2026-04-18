@@ -30,7 +30,7 @@ export default function AdminLogin() {
       toast.success('Welcome, Admin!');
       navigate('/admin-dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Invalid admin credentials');
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Invalid admin credentials'));
     } finally {
       setLoading(false);
     }

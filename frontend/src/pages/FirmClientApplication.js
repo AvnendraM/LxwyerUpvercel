@@ -107,7 +107,7 @@ export default function FirmClientApplication() {
       toast.success('Application submitted successfully! You will receive an email once approved.');
       setTimeout(() => navigate('/lawfirm-role'), 2000);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to submit application');
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Failed to submit application'));
     } finally {
       setLoading(false);
     }

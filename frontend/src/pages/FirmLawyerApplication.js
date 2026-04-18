@@ -116,7 +116,7 @@ export default function FirmLawyerApplication() {
       setSubmitted(true);
       toast.success('Application submitted successfully!');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to submit application');
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Failed to submit application'));
     } finally {
       setLoading(false);
     }

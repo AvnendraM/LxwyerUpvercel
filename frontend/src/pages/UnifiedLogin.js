@@ -42,7 +42,9 @@ const UnifiedLogin = () => {
 
       handleSuccessfulLogin(response.data);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Invalid credentials');
+      const detail = error.response?.data?.detail;
+      const errorMsg = Array.isArray(detail) ? detail[0].msg : (typeof detail === 'string' ? detail : 'Invalid credentials');
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,10 @@ const UnifiedLogin = () => {
       });
       handleSuccessfulLogin(response.data);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Google Login Failed');
+    } catch (error) {
+      const detail = error.response?.data?.detail;
+      const errorMsg = Array.isArray(detail) ? detail[0].msg : (typeof detail === 'string' ? detail : 'Google Login Failed');
+      toast.error(errorMsg);
     } finally {
       setIsGoogleLoading(false);
     }

@@ -147,7 +147,7 @@ export default function JoinLawFirmWithSignup() {
       if (error.response?.data?.detail?.includes('already registered')) {
         toast.error('Email already registered. Please login instead.');
       } else {
-        toast.error(error.response?.data?.detail || 'Process failed. Please try again.');
+        toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Process failed. Please try again.'));
       }
     } finally {
       setLoading(false);

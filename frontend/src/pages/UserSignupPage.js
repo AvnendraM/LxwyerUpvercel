@@ -66,7 +66,7 @@ export default function UserSignupPage() {
       sessionStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/user-dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Signup failed');
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Signup failed'));
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export default function UserSignupPage() {
       sessionStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/user-dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Google signup failed');
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : 'Google signup failed'));
       throw error;
     } finally {
       setLoading(false);

@@ -519,7 +519,7 @@ export default function LawyerDashboard() {
       fetchData();
     } catch (error) {
       console.error("Error accepting booking:", error);
-      toast.error(error.response?.data?.detail || "Failed to accept booking");
+      toast.error(typeof error.response?.data?.detail === 'string' ? error.response.data.detail : (Array.isArray(error.response?.data?.detail) ? error.response.data.detail[0]?.msg : "Failed to accept booking"));
     }
   };
 
