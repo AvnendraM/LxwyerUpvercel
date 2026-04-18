@@ -1154,8 +1154,8 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
-              className={mobileView === 'matches' ? 'flex' : 'hidden lg:flex'}
               style={{
+                display: recommendedLawyers.length > 0 ? 'flex' : 'none',
                 position: 'fixed',
                 top: embedded ? 0 : 64,
                 right: 0,
@@ -1194,14 +1194,14 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
                   </button>
                 </div>
               </div>
-              {/* Scrollable cards list — focus on hover so trackpad wheel events route here immediately */}
+              {/* Scrollable cards — explicit height so browser has unambiguous scroll boundary */}
               <div
                 ref={scrollPanelRef}
                 tabIndex={-1}
                 onMouseEnter={() => { if (scrollPanelRef.current) scrollPanelRef.current.focus({ preventScroll: true }); }}
                 style={{
-                  flex: '1 1 0',
-                  minHeight: 0,
+                  display: 'block',
+                  height: `calc(100% - 56px)`,
                   overflowY: 'auto',
                   WebkitOverflowScrolling: 'touch',
                   padding: '16px',
