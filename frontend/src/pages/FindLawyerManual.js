@@ -440,6 +440,93 @@ export default function FindLawyerManual() {
           </div>
         </div>
 
+        {/* ── Mobile Filter Bottom Sheet (sm:hidden) ── */}
+        <AnimatePresence>
+          {showFilters && (
+            <div className="sm:hidden">
+              {/* Backdrop */}
+              <motion.div
+                key="filter-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                onClick={() => setShowFilters(false)}
+              />
+              {/* Slide-up sheet */}
+              <motion.div
+                key="filter-sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-3xl bg-white dark:bg-[#121212] border-t border-slate-200 dark:border-[#2a2a2a] shadow-2xl"
+                style={{ maxHeight: '88vh' }}
+              >
+                {/* Handle bar */}
+                <div className="flex justify-center pt-3 pb-1 shrink-0">
+                  <div className="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" />
+                </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-blue-500" /> Filters
+                    {currentFilters.length > 0 && <span className="w-5 h-5 bg-blue-600 text-white rounded-full text-xs flex items-center justify-center">{currentFilters.length}</span>}
+                  </h3>
+                  <button onClick={() => setShowFilters(false)} className="p-2 rounded-full bg-slate-100 dark:bg-[#222] text-slate-500">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                {/* Scrollable filter content */}
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+                  {[
+                    { label: t('fl_state'), key: 'state', options: Object.keys(states), defaultLabel: t('fl_all_states'), extra: (e) => { handleFilterChange('city', ''); handleFilterChange('court', ''); } },
+                    { label: t('fl_city'), key: 'city', options: getCities(), defaultLabel: t('fl_all_cities'), disabled: !filters.state },
+                    { label: t('fl_specialization'), key: 'specialization', options: specializations, defaultLabel: t('fl_all_specs') },
+                    { label: t('fl_court'), key: 'court', options: getCourts(), defaultLabel: t('fl_all_courts'), disabled: !filters.state },
+                    { label: d.maxFee, key: 'priceMax', options: ['1000', '3000', '5000', '10000', '20000', '50000'], labels: [`${d.under} ₹1,000`, `${d.under} ₹3,000`, `${d.under} ₹5,000`, `${d.under} ₹10,000`, `${d.under} ₹20,000`, `${d.under} ₹50,000`], defaultLabel: d.anyPrice },
+                  ].map(({ label, key, options, defaultLabel, disabled, labels, extra }) => (
+                    <div key={key} className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
+                      <select
+                        value={filters[key]}
+                        disabled={disabled}
+                        onChange={(e) => { handleFilterChange(key, e.target.value); extra && extra(e); }}
+                        className="w-full p-3 bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#333] rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                      >
+                        <option value="">{defaultLabel}</option>
+                        {options.map((opt, i) => <option key={opt} value={opt}>{labels ? labels[i] : opt}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                  {/* Consultation type */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('fl_consult_type')}</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {[{ val: '', label: 'Any' }, { val: 'video', label: '🎥 Video Call' }, { val: 'in_person', label: '🏛️ In-Person' }].map(opt => (
+                        <button key={opt.val} onClick={() => handleFilterChange('consultationType', opt.val)} className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filters.consultationType === opt.val ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{opt.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Achievements toggle */}
+                  <div className="flex items-center gap-3 pb-2">
+                    <button onClick={() => handleFilterChange('withAchievement', !filters.withAchievement)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${filters.withAchievement ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${filters.withAchievement ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2"><Award className="w-4 h-4 text-blue-500" /> {t('fl_achievements')}</span>
+                  </div>
+                </div>
+                {/* Pinned Apply bar — always visible, never scrolls away */}
+                <div className="shrink-0 px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#121212] flex gap-3">
+                  <button onClick={clearFilters} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-slate-200 dark:border-[#333] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#1A1A1A] transition-colors active:bg-slate-100">{t('fl_clear_filters')}</button>
+                  <Button onClick={() => setShowFilters(false)} className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-sm">Apply Filters</Button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Search & Filters */}
         <div className="sticky top-20 sm:top-24 z-30 mb-6 sm:mb-12 flex justify-end">
           {searchCollapsed && (
