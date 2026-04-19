@@ -2270,20 +2270,21 @@ const LandingPageWave = () => {
     );
 
     return (
-        <motion.div
-            initial={justTransitioned ? { opacity: 0, scale: 0.98, y: 20 } : false}
-            animate={justTransitioned ? { opacity: 1, scale: 1, y: 0 } : false}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="min-h-screen relative bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500"
-            style={{ WebkitTransform: 'translate3d(0, 0, 0)', WebkitPerspective: 1000, WebkitBackfaceVisibility: 'hidden', willChange: 'transform, opacity' }}
-        >
-            <StyleInjector />
-
-            <GradientOrbs />
+        <>
             <FloatingEmergencyButton />
-            <div className="relative" style={{ zIndex: 2 }}>
-                <NavbarWave />
-                <ScalesOfJusticeIntro justTransitioned={justTransitioned} />
+            <motion.div
+                initial={justTransitioned ? { opacity: 0, scale: 0.98, y: 20 } : false}
+                animate={justTransitioned ? { opacity: 1, scale: 1, y: 0 } : false}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                className="min-h-screen relative bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500"
+                style={{ WebkitTransform: 'translate3d(0, 0, 0)', WebkitPerspective: 1000, WebkitBackfaceVisibility: 'hidden', willChange: 'transform, opacity' }}
+            >
+                <StyleInjector />
+
+                <GradientOrbs />
+                <div className="relative" style={{ zIndex: 2 }}>
+                    <NavbarWave />
+                    <ScalesOfJusticeIntro justTransitioned={justTransitioned} />
 
                 {/* Normal sequential flow replacing the cinematic scroll bridges */}
                 <div className="flex flex-col w-full relative z-10">
@@ -2308,7 +2309,8 @@ const LandingPageWave = () => {
                     </div>
                 </div>
             </div>
-        </motion.div>
+            </motion.div>
+        </>
     );
 };
 
