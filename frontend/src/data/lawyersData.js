@@ -17,9 +17,10 @@ const lastNames = [
 ];
 
 const specializations = [
-  'Criminal Law', 'Civil Law', 'Family Law', 'Property Law', 'Corporate Law',
+  'Criminal Law', 'Civil Law', 'Family Law', 'Property Law', 'Real Estate', 'Corporate Law',
   'Tax Law', 'Labour Law', 'Consumer Law', 'Constitutional Law', 'Intellectual Property',
-  'Banking Law', 'Cyber Law', 'Immigration Law', 'Environmental Law', 'Medical Negligence'
+  'Banking Law', 'Cyber Law', 'Immigration Law', 'Environmental Law', 'Medical Negligence',
+  'Debt Recovery', 'Arbitration'
 ];
 
 // Data from LawyerApplication.js
@@ -131,11 +132,60 @@ const achievementPool = [
 ];
 
 const focusCities = [
-  { city: "New Delhi", state: "Delhi" },
-  { city: "Gurugram", state: "Haryana" },
-  { city: "Faridabad", state: "Haryana" },
-  { city: "Noida", state: "Uttar Pradesh" },
-  { city: "Lucknow", state: "Uttar Pradesh" }
+  // Delhi NCR
+  { city: "New Delhi",   state: "Delhi" },
+  { city: "Delhi",       state: "Delhi" },
+  // Haryana
+  { city: "Gurugram",   state: "Haryana" },
+  { city: "Gurgaon",    state: "Haryana" },
+  { city: "Faridabad",  state: "Haryana" },
+  // UP
+  { city: "Noida",      state: "Uttar Pradesh" },
+  { city: "Lucknow",    state: "Uttar Pradesh" },
+  { city: "Agra",       state: "Uttar Pradesh" },
+  { city: "Varanasi",   state: "Uttar Pradesh" },
+  { city: "Meerut",     state: "Uttar Pradesh" },
+  // Maharashtra
+  { city: "Mumbai",     state: "Maharashtra" },
+  { city: "Pune",       state: "Maharashtra" },
+  { city: "Nagpur",     state: "Maharashtra" },
+  { city: "Thane",      state: "Maharashtra" },
+  // Karnataka
+  { city: "Bangalore",  state: "Karnataka" },
+  { city: "Mysore",     state: "Karnataka" },
+  { city: "Hubli",      state: "Karnataka" },
+  // Tamil Nadu
+  { city: "Chennai",    state: "Tamil Nadu" },
+  { city: "Coimbatore", state: "Tamil Nadu" },
+  { city: "Madurai",    state: "Tamil Nadu" },
+  // Telangana
+  { city: "Hyderabad",  state: "Telangana" },
+  { city: "Warangal",   state: "Telangana" },
+  // Gujarat
+  { city: "Ahmedabad",  state: "Gujarat" },
+  { city: "Surat",      state: "Gujarat" },
+  { city: "Vadodara",   state: "Gujarat" },
+  // Rajasthan
+  { city: "Jaipur",     state: "Rajasthan" },
+  { city: "Jodhpur",    state: "Rajasthan" },
+  { city: "Udaipur",    state: "Rajasthan" },
+  // West Bengal
+  { city: "Kolkata",    state: "West Bengal" },
+  // Punjab
+  { city: "Chandigarh", state: "Punjab" },
+  { city: "Ludhiana",   state: "Punjab" },
+  { city: "Amritsar",   state: "Punjab" },
+  // Kerala
+  { city: "Kochi",      state: "Kerala" },
+  { city: "Trivandrum", state: "Kerala" },
+  // Madhya Pradesh
+  { city: "Bhopal",     state: "Madhya Pradesh" },
+  { city: "Indore",     state: "Madhya Pradesh" },
+  // Bihar / Jharkhand
+  { city: "Patna",      state: "Bihar" },
+  { city: "Ranchi",     state: "Jharkhand" },
+  // Odisha
+  { city: "Bhubaneswar",state: "Odisha" },
 ];
 
 const generateLawyers = () => {

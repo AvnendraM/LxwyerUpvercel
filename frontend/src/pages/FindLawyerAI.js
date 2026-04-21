@@ -62,7 +62,17 @@ const GRADIENTS = [
   'from-black to-black',
 ];
 
-const ALLOWED_LAWYER_STATES = ['delhi', 'haryana', 'uttar pradesh'];
+// All states allowed — dummy data now covers all major Indian cities
+// Spec alias map: AI detection label -> dummy data label (and reverse)
+const SPEC_ALIASES = {
+  'Real Estate':    ['Property Law', 'Real Estate', 'Civil Law'],
+  'Property Law':   ['Real Estate', 'Property Law', 'Civil Law'],
+  'Debt Recovery':  ['Debt Recovery', 'Banking Law', 'Civil Law'],
+  'Banking Law':    ['Banking Law', 'Debt Recovery', 'Civil Law'],
+  'Arbitration':    ['Arbitration', 'Corporate Law', 'Civil Law'],
+  'Constitutional Law': ['Constitutional Law', 'Civil Law'],
+  'Medical Negligence': ['Medical Negligence', 'Civil Law', 'Consumer Law'],
+};
 
 // ── FAQ Accordion Item ────────────────────────────────────────────────────
 const FAQItem = ({ faq, index }) => {
@@ -285,22 +295,43 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
     fetchLawyers();
   }, []);
 
-
-  // Data-driven case type detection — uses liveIndex for real-time enrichment
+  // Data-driven case type detection — priority-aware 4-tier system
   const detectCaseType = (message) => {
     const msg = message.toLowerCase();
 
-    // First pass: check live specialisation index from backend data
+    // ── 0: Show-all / FAQ guard ───────────────────────────────────────────────
+    if (/^(show all|browse all|see all|all lawyers|hello|hi there|thank you|thanks|how does|what is your|what is this|help me|i need help|call me)$/i.test(msg.trim())) return null;
+
+    // ── 1: High-specificity multi-word phrases (Family before Criminal, IP before Corporate) ──
+    const highPriority = [
+      ['Debt Recovery',        ['ibc insolvency','insolvency resolution','cheque bounce','cheque dishonour','sarfaesi','npa recovery','drt appeal','loan recovery','debt recovery']],
+      ['Cyber Law',            ['data breach','cyber crime','cyber fraud','online fraud','hacking of','phishing attack','identity theft','ransomware','deepfake','cyberbullying','social media crime']],
+      ['Intellectual Property',['trademark infringement','patent infringement','copyright infringement','intellectual property','patent filing','patent registration','trademark filing','ip law','trade secret','brand protection']],
+      ['Consumer Law',         ['consumer forum','consumer court','consumer complaint','consumer protection','product defect','unfair trade practice']],
+      ['Labour Law',           ['tds dispute with employer','wrongful dismissal','unfair termination','fired by employer','fired me','retrenchment','layoff','posh complaint','pf dispute','esic dispute','gratuity dispute','industrial dispute','maternity benefit','contract labour']],
+      ['Family Law',           ['498a','domestic violence','child custody','custody of child','guardianship of child','custody dispute','matrimonial dispute','alimony claim','dowry case','dowry harassment','domestic dispute','guardianship petition','adoption legal']],
+      ['Tax Law',              ['income tax notice','itr filing','tds dispute','tds notice','gst notice','gst demand','advance tax','benami property','tax tribunal','itat','tax evasion','tax raid','tax demand']],
+      ['Real Estate',          ['property dispute','property lawyer','property case','property registration','land encroachment','land dispute','tenant eviction','eviction case','eviction notice','partition of property','ancestral property','lease dispute','lease deed','commercial property','rera complaint','builder dispute','flat possession','boundary dispute','zameen','sale deed','registry help','stamp duty','conveyance deed','mutation help','possession dispute']],
+      ['Arbitration',          ['commercial arbitration','arbitration clause','arbitral award','dispute resolution','adr mediation','mediation for business']],
+      ['Environmental Law',    ['pollution case','ngt complaint','forest clearance','wildlife protection','environmental clearance','factory pollution','emission violation']],
+      ['Immigration Law',      ['visa overstay','oci card','nri legal','work permit','immigration case','deportation case','citizenship renounce','asylum claim']],
+      ['Banking Law',          ['bank fraud','banking regulation','rbi compliance','nbfc compliance','fema violation','foreign exchange violation']],
+      ['Criminal Law',         ['criminal case','fir filed','anticipatory bail','regular bail','bail application','bail for','murder case','narcotics case','ndps case','pocso case','money laundering','pmla','extortion threat','corruption case','cbi inquiry','forgery case','cheating case ipc','robbery case']],
+      ['Corporate Law',        ['company incorporation','shareholder dispute','merger acquisition','startup legal','sebi compliance','roc compliance','roc filing','llp registration','company registration','director dispute','nclt petition','due diligence','board meeting']],
+    ];
+    for (const [caseType, keywords] of highPriority) {
+      if (keywords.some(kw => msg.includes(kw))) return caseType;
+    }
+
+    // ── 2: Live specialisation index from backend data ────────────────────────
     for (const spec of liveIndex.specs) {
       const words = spec.split(/\s+/);
       if (words.every(w => msg.includes(w))) {
-        // Capitalise each word to match the stored format
-        const canonical = spec.replace(/\b\w/g, c => c.toUpperCase());
-        return canonical;
+        return spec.replace(/\b\w/g, c => c.toUpperCase());
       }
     }
 
-    // Second pass: hardcoded keyword bank
+    // ── 3: Hardcoded keyword bank (chatbotData) ───────────────────────────────
     for (const [caseType, keywords] of Object.entries(caseTypeKeywords)) {
       for (const kw of keywords) {
         if (kw.length <= 4 || ['bail', 'fir', 'ed', 'tax', 'esi', 'pf', 'oc', 'pod', 'npa', 'ibc'].includes(kw)) {
@@ -312,28 +343,23 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
       }
     }
 
-    // Third pass: advanced training keywords
-    for (const [caseType, keywords] of Object.entries(advancedCaseTypeKeywords)) {
-      if (keywords.some(kw => msg.includes(kw))) return caseType;
-    }
-
-    // Extended keyword bank trained on common Indian legal queries
-    const extendedKeywords = {
-      'Criminal Law': ['murder','robbery','extortion','cheating','fraud','assault','rape','kidnap','abduction','dowry','domestic violence','attempt to murder','hurt','grievous','dacoity','theft','possession','ndps','narcotics','drugs','eve teasing','stalking','sexual harassment','pocso','cybercrime','blackmail','forgery','counterfeit','bribe','corruption','money laundering','pcm act'],
-      'Family Law': ['matrimonial','custody','visitation','alimony','maintenance','guardianship','adoption','succession','inheritance','will','probate','domestic dispute','marital','conjugal','restitution','desertion','cruelty','dowry harassment','498a'],
-      'Property Law': ['land','plot','flat','apartment','registry','mutation','conveyance deed','sale deed','encroachment','possession','eviction','rent','landlord','tenant','lease','licence','trespassing','easement','khata','khasra','revenue','zameen','ghar','makaan','shop','commercial property','boundary dispute','partition'],
-      'Corporate Law': ['company','incorporation','compliance','board','director','shareholder','equity','merger','acquisition','demerger','joint venture','mou','nda','contract','agreement','llp','partnership','sebi','regulatory','annual return','incorporation','gst registration','startup','due diligence'],
-      'Labour Law': ['employment','employee','employer','termination','dismissal','retrenchment','layoff','salary','wages','pf','epf','esic','gratuity','bonus','leave','maternity','sexual harassment at workplace','posh','labour court','industrial dispute','union','contract labour'],
-      'Consumer Law': ['consumer forum','consumer court','deficiency of service','product defect','compensation','refund','cheat','mislead','fraud purchase','online shopping','ecommerce','unfair trade','warranty','guarantee'],
-      'Cyber Law': ['cyber','hacking','phishing','data breach','identity theft','online fraud','social media','stalking online','deepfake','digital','it act','computer crime','ransomware','malware'],
-      'Tax Law': ['income tax','itr','notice','demand','gst','tds','tax evasion','assessment','appeal','tribunal','tax raid','benami','black money','advance tax'],
-      'Immigration Law': ['visa','passport','oci','nri','citizenship','refugee','asylum','deportation','work permit','immigration','foreign national'],
-      'Intellectual Property': ['trademark','copyright','patent','design','trade secret','infringement','licensing','royalty','ip'],
-      'Debt Recovery': ['loan','recovery','npa','bank','emi','default','cheque bounce','dishonour','negotiable instrument','debt','drt','sarfaesi','auction','property seizure'],
-      'Environmental Law': ['pollution','environment','ecb','ngt','forest','wildlife','green','waste','emission'],
-      'Arbitration': ['arbitration','mediation','conciliation','dispute resolution','adr','arbitral','award','commercial dispute'],
-    };
-    for (const [caseType, keywords] of Object.entries(extendedKeywords)) {
+    // ── 4: Broad single-word fallback (ordered carefully) ────────────────────
+    const broad = [
+      ['Debt Recovery',        ['insolvency','liquidation','cheque','dishonour','sarfaesi','drt','npa','debt','loan recovery']],
+      ['Cyber Law',            ['cyber','hacking','phishing','ransomware','malware','deepfake','digital crime']],
+      ['Intellectual Property',['patent','trademark','copyright','trade secret','ip','infringement','licensing','royalty']],
+      ['Consumer Law',         ['consumer','deficiency','refund','warranty','guarantee','product defect']],
+      ['Family Law',           ['divorce','custody','alimony','maintenance','matrimonial','guardianship','adoption','inheritance','will','probate','dowry','498a','domestic violence']],
+      ['Tax Law',              ['income tax','itr','tds','gst','tax evasion','advance tax','benami','tribunal','tax audit']],
+      ['Labour Law',           ['labour','employment','employee','termination','dismissal','retrenchment','salary','wages','pf','epf','esic','gratuity','bonus','maternity','posh','union']],
+      ['Real Estate',          ['land','plot','flat','apartment','registry','mutation','sale deed','encroachment','eviction','rent','landlord','tenant','lease deed','trespassing','zameen','ghar','makaan','partition']],  // consolidated label
+      ['Criminal Law',         ['criminal','crime','arrest','bail','fir','murder','fraud','cheating','assault','robbery','narcotics','corruption','bribery','forgery','blackmail','extortion']],
+      ['Corporate Law',        ['company','corporate','startup','llp','partnership','director','shareholder','sebi','roc','compliance','merger','acquisition','mou','nda','contract','agreement']],
+      ['Arbitration',          ['arbitration','mediation','conciliation','adr']],
+      ['Environmental Law',    ['pollution','environment','ngt','forest','wildlife','waste','emission']],
+      ['Immigration Law',      ['visa','passport','oci','nri','citizenship','asylum','deportation','work permit','immigration']],
+    ];
+    for (const [caseType, keywords] of broad) {
       if (keywords.some(kw => msg.includes(kw))) return caseType;
     }
 
@@ -820,21 +846,31 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
         }));
       }
 
-      // ── Always merge local client-side matching to ensure rich dummy data ──────────────────────────
-      const basePool = allLawyersList.filter(l => {
-        const loc = ((l.state || '') + ' ' + (l.city || '')).toLowerCase();
-        return ALLOWED_LAWYER_STATES.some(s => loc.includes(s));
-      });
+      // ── Client-side matching — full pool, all cities ─────────────────────────
+      const basePool = allLawyersList; // No geography lock — covers all dummy cities
 
         const scoredLawyers = basePool.map(lawyer => {
           const prediction = predictLawyerMatch(userMessage, lawyer);
           return { ...lawyer, ...prediction };
         });
 
+        // Build spec alias list: if AI returns 'Real Estate', also match 'Property Law' etc.
+        const specAliases = caseType ? (SPEC_ALIASES[caseType] || [caseType]) : [];
+        const specMatchFn = (l) => caseType && (
+          specAliases.includes(l.specialization) ||
+          specAliases.some(alias => (l.secondarySpecializations || []).includes(alias)) ||
+          specAliases.some(alias => (l.practice_areas || []).includes(alias))
+        );
+
+        const locMatchFn = (l) => location && (
+          (location.city && (l.city === location.city || l.city?.toLowerCase() === location.city?.toLowerCase())) ||
+          (location.state && (l.state === location.state || l.state?.toLowerCase() === location.state?.toLowerCase()))
+        );
+
         const localEnriched = scoredLawyers
           .filter(l => {
-            const specMatch  = caseType && (l.specialization === caseType || l.secondarySpecializations?.includes(caseType));
-            const locMatch   = location && ((location.city && l.city === location.city) || (location.state && l.state === location.state));
+            const specMatch  = specMatchFn(l);
+            const locMatch   = locMatchFn(l);
             const expReq     = requiredExp ? l.experience >= requiredExp : true;
             const budgetReq  = budget ? ((l.feeMin || 0) <= budget.max || budget.max === 0) : true;
             const langReq    = language ? (l.languages || []).some(lg => lg.toLowerCase().includes(language.toLowerCase())) : true;
@@ -842,6 +878,7 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
               ? (l.consultation_preferences === consultType || l.consultation_preferences === 'both')
               : true;
 
+            // Priority: spec+location > spec-only > location-only > all
             let baseMatch = true;
             if (caseType && location) baseMatch = specMatch && locMatch;
             else if (caseType) baseMatch = specMatch;

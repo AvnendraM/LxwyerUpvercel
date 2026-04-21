@@ -62,15 +62,56 @@ function detectRecommendationIntent(text) {
 }
 
 function extractLocation(text) {
-  const cities = ['delhi', 'mumbai', 'bangalore', 'bengaluru', 'chennai', 'kolkata', 'hyderabad', 'pune', 'jaipur', 'lucknow', 'noida', 'gurgaon', 'ahmedabad', 'surat', 'faridabad']
+  const cities = ['delhi', 'new delhi', 'mumbai', 'bangalore', 'bengaluru', 'chennai', 'kolkata', 'hyderabad', 'pune', 'jaipur', 'jodhpur', 'lucknow', 'noida', 'gurgaon', 'gurugram', 'faridabad', 'ahmedabad', 'surat', 'chandigarh', 'ludhiana', 'kochi', 'bhopal', 'indore', 'patna', 'ranchi', 'bhubaneswar', 'agra', 'meerut'];
   const l = text.toLowerCase()
   return cities.find(c => l.includes(c)) || null
 }
 
 function extractSpecialization(text) {
-  const specs = ['criminal', 'family', 'divorce', 'property', 'corporate', 'civil', 'tax', 'labour', 'consumer', 'cyber', 'banking', 'constitutional', 'intellectual property']
-  const l = text.toLowerCase()
-  return specs.find(s => l.includes(s)) || null
+  const msg = text.toLowerCase();
+  
+  if (/^(show all|browse all|see all|all lawyers|hello|hi|help me)$/i.test(msg.trim())) return null;
+
+  const highPriority = [
+    ['Debt Recovery',        ['ibc insolvency','insolvency resolution','cheque bounce','cheque dishonour','sarfaesi','npa recovery','drt appeal','loan recovery','debt recovery']],
+    ['Cyber Law',            ['data breach','cyber crime','cyber fraud','online fraud','hacking of','phishing attack','identity theft','ransomware','deepfake','cyberbullying','social media crime']],
+    ['Intellectual Property',['trademark infringement','patent infringement','copyright infringement','intellectual property','patent filing','patent registration','trademark filing','ip law','trade secret','brand protection']],
+    ['Consumer Law',         ['consumer forum','consumer court','consumer complaint','consumer protection','product defect','unfair trade practice']],
+    ['Labour Law',           ['tds dispute with employer','wrongful dismissal','unfair termination','fired by employer','fired me','retrenchment','layoff','posh complaint','pf dispute','esic dispute','gratuity dispute','industrial dispute','maternity benefit','contract labour']],
+    ['Family Law',           ['498a','domestic violence','child custody','custody of child','guardianship of child','custody dispute','matrimonial dispute','alimony claim','dowry case','dowry harassment','domestic dispute','guardianship petition','adoption legal']],
+    ['Tax Law',              ['income tax notice','itr filing','tds dispute','tds notice','gst notice','gst demand','advance tax','benami property','tax tribunal','itat','tax evasion','tax raid','tax demand']],
+    ['Real Estate',          ['property dispute','property lawyer','property case','property registration','land encroachment','land dispute','tenant eviction','eviction case','eviction notice','partition of property','ancestral property','lease dispute','lease deed','commercial property','rera complaint','builder dispute','flat possession','boundary dispute','zameen','sale deed','registry help','stamp duty','conveyance deed','mutation help','possession dispute']],
+    ['Arbitration',          ['commercial arbitration','arbitration clause','arbitral award','dispute resolution','adr mediation','mediation for business']],
+    ['Environmental Law',    ['pollution case','ngt complaint','forest clearance','wildlife protection','environmental clearance','factory pollution','emission violation']],
+    ['Immigration Law',      ['visa overstay','oci card','nri legal','work permit','immigration case','deportation case','citizenship renounce','asylum claim']],
+    ['Banking Law',          ['bank fraud','banking regulation','rbi compliance','nbfc compliance','fema violation','foreign exchange violation']],
+    ['Criminal Law',         ['criminal case','fir filed','anticipatory bail','regular bail','bail application','bail for','murder case','narcotics case','ndps case','pocso case','money laundering','pmla','extortion threat','corruption case','cbi inquiry','forgery case','cheating case ipc','robbery case']],
+    ['Corporate Law',        ['company incorporation','shareholder dispute','merger acquisition','startup legal','sebi compliance','roc compliance','roc filing','llp registration','company registration','director dispute','nclt petition','due diligence','board meeting']],
+  ];
+  for (const [caseType, keywords] of highPriority) {
+    if (keywords.some(kw => msg.includes(kw))) return caseType;
+  }
+
+  const broad = [
+    ['Debt Recovery',        ['insolvency','liquidation','cheque','dishonour','sarfaesi','drt','npa','debt','loan recovery']],
+    ['Cyber Law',            ['cyber','hacking','phishing','ransomware','malware','deepfake','digital crime']],
+    ['Intellectual Property',['patent','trademark','copyright','trade secret','ip','infringement','licensing','royalty']],
+    ['Consumer Law',         ['consumer','deficiency','refund','warranty','guarantee','product defect']],
+    ['Family Law',           ['divorce','custody','alimony','maintenance','matrimonial','guardianship','adoption','inheritance','will','probate','dowry','498a','domestic violence']],
+    ['Tax Law',              ['income tax','itr','tds','gst','tax evasion','advance tax','benami','tribunal','tax audit']],
+    ['Labour Law',           ['labour','employment','employee','termination','dismissal','retrenchment','salary','wages','pf','epf','esic','gratuity','bonus','maternity','posh','union']],
+    ['Real Estate',          ['land','plot','flat','apartment','registry','mutation','sale deed','encroachment','eviction','rent','landlord','tenant','lease deed','trespassing','zameen','ghar','makaan','partition','property']],
+    ['Criminal Law',         ['criminal','crime','arrest','bail','fir','murder','fraud','cheating','assault','robbery','narcotics','corruption','bribery','forgery','blackmail','extortion']],
+    ['Corporate Law',        ['company','corporate','startup','llp','partnership','director','shareholder','sebi','roc','compliance','merger','acquisition','mou','nda','contract','agreement']],
+    ['Arbitration',          ['arbitration','mediation','conciliation','adr']],
+    ['Environmental Law',    ['pollution','environment','ngt','forest','wildlife','waste','emission']],
+    ['Immigration Law',      ['visa','passport','oci','nri','citizenship','asylum','deportation','work permit','immigration']],
+  ];
+  for (const [caseType, keywords] of broad) {
+    if (keywords.some(kw => msg.includes(kw))) return caseType;
+  }
+
+  return null;
 }
 
 const INTENT_LABELS = ['Criminal Law', 'Family/Civil', 'Corporate']
