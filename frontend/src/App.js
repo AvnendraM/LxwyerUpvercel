@@ -111,9 +111,14 @@ const ProtectedRoute = ({ children, requiredType }) => {
 };
 
 const SmoothScrolling = () => {
+  const location = useLocation();
+
   useEffect(() => {
-    // Only apply Lenis on desktop; mobile native scroll is better aligned with touch
-    if (window.innerWidth <= 768) return;
+    // Disable completely on AI routes because they use full-screen flex/absolute layouts
+    // with internal overflow scrolling. Lenis hijacks all scroll events and breaks this.
+    const isAiRoute = ['/lxwyerai', '/find-lawyer/ai', '/ai-firm-finder', '/find-lawfirm/ai'].includes(location.pathname);
+    
+    if (isAiRoute || window.innerWidth <= 768) return;
 
     const lenis = new Lenis({
       duration: 1.2,
@@ -133,7 +138,7 @@ const SmoothScrolling = () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, []);
+  }, [location.pathname]);
 
   return null;
 };
@@ -230,10 +235,10 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
       <LanguageProvider>
-        <SmoothScrolling />
         <AuthContext.Provider value={{ user, setUser }}>
           <div className="App">
             <BrowserRouter>
+              <SmoothScrolling />
               <ScrollToTop />
               <AnimatedRoutes user={user} />
             </BrowserRouter>

@@ -21,8 +21,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import LawyerProfile from './LawyerProfile'
 import FirmProfile from './FirmProfile'
 
-import GenerativeBubble from '../components/GenerativeBubble'
 import { buildKnowledgeBase, lookupByName } from '../utils/lawyerKnowledgeBase'
+import { getLawyerPhoto } from '../utils/lawyerPhoto'
 
 /* ========== CARD DEFINITIONS ========== */
 const CARD_DEFS = [
@@ -301,7 +301,21 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
           const matchData = await smartMatchLawyers(query);
           let results = [];
           if (matchData && matchData.results && matchData.results.length > 0) {
-            results = matchData.results;
+            results = matchData.results.map(r => ({
+              ...r,
+              id: r.id || r.lawyer_id,
+              name: r.name,
+              experience: r.experience || r.experience_years ? `${r.experience_years} yr EXP.` : undefined,
+              specialization: r.specialization,
+              city: r.city || r.location?.city,
+              state: r.state || r.location?.state,
+              feeMin: typeof r.fee === 'string' ? parseInt(String(r.fee).split('-')[0].replace(/\D/g, '')) || 0 : (r.fee || r.consultation_fee || 0),
+              fee: r.fee || (r.consultation_fee ? `₹${r.consultation_fee}/30m` : undefined),
+              languages: r.languages || ['English'],
+              photo: getLawyerPhoto(r.photo || r.photo_url, r.name),
+              verified: r.verified !== false, // default true
+              rating: r.rating || 4.8,
+            }));
           } else {
             const all = dummyLawyers;
             results = city ? all.filter(l => (l.city || '').toLowerCase().includes(city)) : all;
@@ -323,7 +337,17 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
           const matchData = await smartMatchFirms(query);
           let results = [];
           if (matchData && matchData.results && matchData.results.length > 0) {
-            results = matchData.results;
+            results = matchData.results.map(f => ({
+              ...f,
+              id: f.id || f._id,
+              name: f.name || f.firm_name,
+              practiceAreas: f.practiceAreas || f.practice_areas || [],
+              city: f.city || f.location?.city,
+              feeMin: f.feeMin || (f.feeRange ? parseInt(String(f.feeRange).split('-')[0].replace(/\D/g, '')) : 0),
+              feeRange: f.feeRange,
+              image: f.image || f.logo_url || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600&h=400',
+              lawyersCount: f.lawyersCount || f.team_size || '10+',
+            }));
           } else {
             const all = dummyLawFirms;
             results = city ? all.filter(f => (f.city || '').toLowerCase().includes(city)) : all;
