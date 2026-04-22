@@ -447,8 +447,44 @@ export default function FindLawFirmAI() {
 
     setMemory(prev => ({ ...prev, practiceArea, location, urgent, budget }));
 
+    // ── Region guard: if location outside service area, apologise immediately ──
+    const SERVED_FIRM_LOCS = new Set([
+      'delhi', 'new delhi', 'ncr', 'noida', 'greater noida', 'ghaziabad', 'meerut',
+      'agra', 'lucknow', 'kanpur', 'allahabad', 'prayagraj', 'varanasi', 'mathura',
+      'aligarh', 'moradabad', 'bareilly', 'uttar pradesh', 'up',
+      'gurgaon', 'gurugram', 'faridabad', 'rohtak', 'panipat', 'sonipat',
+      'ambala', 'hisar', 'karnal', 'haryana',
+    ]);
+    if (location) {
+      const locLower = (typeof location === 'string' ? location : '').toLowerCase().trim();
+      const inArea   = SERVED_FIRM_LOCS.has(locLower) ||
+        [...SERVED_FIRM_LOCS].some(s => locLower.includes(s) || s.includes(locLower));
+      if (!inArea) {
+        const locationName = typeof location === 'string' ? location : 'that location';
+        const areaLabel    = practiceArea ? `**${practiceArea}** ` : '';
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content:
+            `I'm sorry, we don't have verified ${areaLabel}law firms in **${locationName}** yet. 🙏\n\n` +
+            `Lxwyer Up currently operates in:\n\n` +
+            `📍 **Delhi NCR** — New Delhi, Noida, Greater Noida, Ghaziabad\n` +
+            `📍 **Uttar Pradesh** — Lucknow, Agra, Meerut, Varanasi, Kanpur\n` +
+            `📍 **Haryana** — Gurgaon, Faridabad, Rohtak, Panipat\n\n` +
+            `Would you like me to find ${areaLabel}firms in one of these areas?`,
+        }]);
+        setQuickChips([
+          `${practiceArea || 'Corporate'} firm in Delhi`,
+          `${practiceArea || 'Criminal'} firm in Noida`,
+          `${practiceArea || 'Family'} firm in Gurgaon`,
+        ]);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     // ── Run backend smart match first ─────────────────────────────────────
     const matchData = await smartMatchFirms(userMessage);
+
 
     let enriched = [];
     if (matchData && matchData.results && matchData.results.length > 0) {

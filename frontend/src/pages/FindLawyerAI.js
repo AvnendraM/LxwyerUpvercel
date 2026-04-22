@@ -820,6 +820,49 @@ export default function FindLawyerAI({ hideNavbar = false, embedded = false }) {
     // STEP 3: Run matching if we have at least one signal
     if (caseType || location || budget || language || consultType) {
 
+      // ── Region guard (MUST run before backend call) ──────────────────────
+      // If a city/state is mentioned that is outside our service area, stop
+      // immediately and apologise. Do NOT pass through to smartMatchLawyers.
+      const SERVED_LOCATIONS = new Set([
+        'delhi', 'new delhi', 'ncr', 'nct', 'dwarka', 'rohini', 'saket', 'lajpat nagar',
+        'noida', 'greater noida', 'ghaziabad', 'meerut', 'agra', 'lucknow',
+        'kanpur', 'allahabad', 'prayagraj', 'varanasi', 'mathura', 'aligarh',
+        'moradabad', 'bareilly', 'vrindavan', 'saharanpur', 'gorakhpur',
+        'uttar pradesh', 'up',
+        'gurgaon', 'gurugram', 'faridabad', 'rohtak', 'panipat', 'sonipat',
+        'ambala', 'hisar', 'karnal', 'rewari', 'bhiwani',
+        'haryana',
+      ]);
+      if (location) {
+        const cityStr  = (location.city  || '').toLowerCase().trim();
+        const stateStr = (location.state || '').toLowerCase().trim();
+        const inArea   = SERVED_LOCATIONS.has(cityStr) || SERVED_LOCATIONS.has(stateStr) ||
+          [...SERVED_LOCATIONS].some(s => cityStr.includes(s) || s.includes(cityStr)) ||
+          [...SERVED_LOCATIONS].some(s => stateStr.includes(s) || s.includes(stateStr));
+
+        if (!inArea) {
+          const locationName = location.city || location.state || 'that location';
+          const caseLabel    = caseType ? `**${caseType}** ` : '';
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content:
+              `I'm sorry, we don't have verified ${caseLabel}lawyers in **${locationName}** yet. 🙏\n\n` +
+              `Lxwyer Up currently operates in:\n\n` +
+              `📍 **Delhi NCR** — New Delhi, Noida, Greater Noida, Ghaziabad\n` +
+              `📍 **Uttar Pradesh** — Lucknow, Agra, Meerut, Varanasi, Kanpur\n` +
+              `📍 **Haryana** — Gurgaon, Faridabad, Rohtak, Panipat\n\n` +
+              `Would you like me to find ${caseLabel}lawyers in one of these areas?`,
+          }]);
+          setQuickChips([
+            `${caseType || 'Criminal'} lawyer in Delhi`,
+            `${caseType || 'Property'} lawyer in Noida`,
+            `${caseType || 'Family'} lawyer in Gurgaon`,
+          ]);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // ── Backend smart match ──────────────────────────────────────────────
       const backendResult = await smartMatchLawyers(userMessage);
 

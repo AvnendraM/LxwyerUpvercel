@@ -264,7 +264,39 @@ export default function QuickChat({ embedded = false, darkMode: darkModeProp }) 
     if (recIntent) {
       const city = extractLocation(query)
       const spec = extractSpecialization(query)
+
+      // ── Region guard: only serve Delhi / UP / Haryana ────────────────────
+      const QC_SERVED = new Set([
+        'delhi', 'noida', 'greater noida', 'gurgaon', 'gurugram', 'faridabad',
+        'ghaziabad', 'lucknow', 'agra', 'meerut', 'varanasi', 'kanpur',
+        'allahabad', 'prayagraj', 'mathura', 'rohtak', 'panipat', 'sonipat',
+        'ambala', 'hisar', 'karnal',
+      ]);
+      if (city && !QC_SERVED.has(city.toLowerCase())) {
+        const typeLabel = recIntent === 'firm' ? 'law firms' : 'lawyers';
+        const cityLabel = city.charAt(0).toUpperCase() + city.slice(1);
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          id: Date.now() + 1,
+          is_greeting: true,
+          greeting_text:
+            `I'm sorry, we don't have verified ${typeLabel} in **${cityLabel}** yet. 🙏\n\n` +
+            `Lxwyer Up currently operates in:\n\n` +
+            `📍 **Delhi NCR** — New Delhi, Noida, Greater Noida, Ghaziabad\n` +
+            `📍 **Uttar Pradesh** — Lucknow, Agra, Meerut, Varanasi, Kanpur\n` +
+            `📍 **Haryana** — Gurgaon, Faridabad, Rohtak, Panipat\n\n` +
+            `Would you like me to find ${typeLabel} in one of these areas?`,
+          intentLabel: 'Out of Region',
+          sentiment: 0,
+          cards: [],
+          sources: [],
+        }]);
+        setIsTyping(false);
+        return;
+      }
+
       try {
+
         if (recIntent === 'lawyer') {
           const matchData = await smartMatchLawyers(query);
           let results = [];
