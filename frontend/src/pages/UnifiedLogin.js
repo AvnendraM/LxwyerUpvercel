@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../App';
 import { useLang } from '../context/LanguageContext';
-import { SmokeyBackground } from '../components/ui/login-form';
+import { FluidParticlesBackground } from '../components/ui/fluid-particles-background';
 
 const redirectMap = {
   client: '/user-dashboard',
@@ -79,8 +79,7 @@ const UnifiedLogin = () => {
   };
 
   return (
-    <main className="relative w-screen h-screen bg-gray-950 font-['Outfit']">
-      <SmokeyBackground className="absolute inset-0" color="#112060" />
+    <FluidParticlesBackground className="font-['Outfit']">
 
       {/* Minimal Back Arrow */}
       <div className="absolute top-5 left-5 z-20">
@@ -230,7 +229,7 @@ const UnifiedLogin = () => {
           </div>
         </div>
       </div>
-    </main>
+    </FluidParticlesBackground>
   );
 };
 
