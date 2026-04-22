@@ -15,7 +15,7 @@ import { Button } from '../components/ui/button';
 import MagicButton from '../components/ui/MagicButton';
 import { useLang } from '../context/LanguageContext';
 import { ParticleTextEffect } from '../components/ui/particle-text-effect';
-import GrainHeroSection from '../components/ui/grain-gradient-hero-section';
+import { InteractiveNeuralVortex } from '../components/ui/interactive-neural-vortex-background';
 import AnimatedTextCycle from '../components/ui/animated-text-cycle';
 import { LogoCloud } from '../components/ui/logo-cloud-3';
 import { InfiniteSlider } from '../components/ui/infinite-slider';
@@ -2101,7 +2101,7 @@ const LandingPageWave = () => {
     const isHi = lang === 'hi';
 
     const grainHeroContent = (
-        <GrainHeroSection>
+        <InteractiveNeuralVortex>
             <div style={{
                 textAlign: 'center',
                 padding: '0 clamp(1rem, 5vw, 2.5rem)',
@@ -2202,7 +2202,7 @@ const LandingPageWave = () => {
                     ))}
                 </div>
             </div>
-        </GrainHeroSection>
+        </InteractiveNeuralVortex>
     );
 
     const beamsContent = (
