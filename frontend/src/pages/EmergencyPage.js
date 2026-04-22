@@ -325,7 +325,7 @@ const EmergencyPage = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#000000', fontFamily: "'Outfit', sans-serif", position: 'relative', overflowX: 'hidden' }}>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      {/* Fonts loaded globally via index.html */}
       <style>{`
         @keyframes esPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
         @keyframes esPing { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(2.4);opacity:0} }

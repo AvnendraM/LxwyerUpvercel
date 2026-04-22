@@ -74,7 +74,7 @@ export default function LawyerRegisterInfoPage() {
 
     return (
         <div className="min-h-screen bg-black text-white transition-colors duration-300" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+            {/* Fonts loaded globally via index.html */}
             <Navbar minimal />
 
             {/* Hero */}

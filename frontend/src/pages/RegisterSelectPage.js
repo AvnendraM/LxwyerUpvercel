@@ -105,8 +105,6 @@ export default function RegisterSelectPage() {
             className="min-h-screen bg-black text-white overflow-hidden"
             style={{ fontFamily: "'Outfit', sans-serif" }}
         >
-            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
             {/* ── CINEMATIC HERO SECTION ── */}
             <div className="relative min-h-screen lg:min-h-0 lg:h-auto flex flex-col lg:flex-row">
 
@@ -115,7 +113,7 @@ export default function RegisterSelectPage() {
                     {/* Particle canvas */}
                     <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 pointer-events-none" />
 
-                    {/* Hero image */}
+                    {/* Hero image — preloaded in index.html, decoded async to keep main thread free */}
                     <img
                         src="/register_hero.jpg"
                         alt="Futuristic legal AI — holographic scales of justice"
@@ -123,6 +121,7 @@ export default function RegisterSelectPage() {
                         style={{ filter: 'brightness(0.75) saturate(1.2)' }}
                         fetchPriority="high"
                         loading="eager"
+                        decoding="async"
                     />
 
                     {/* Gradient overlays for seamless blending */}

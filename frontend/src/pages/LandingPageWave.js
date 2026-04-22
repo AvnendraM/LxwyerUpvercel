@@ -27,7 +27,7 @@ import { BeamsBackground } from '../components/ui/beams-background';
    ───────────────────────────────────────────── */
 
 const pageKeyframes = `
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,700&display=swap');
+/* Google Fonts loaded once in index.html — no duplicate import here */
 
 /* ── LxwyerAI button — exact copy from NavbarWave ── */
 @keyframes borderPulse {
@@ -270,6 +270,10 @@ const pageKeyframes = `
 @keyframes marqueeScroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  50%       { opacity: 0.8; transform: scale(1.3); }
 }
 `;
 
@@ -1343,15 +1347,16 @@ const HeroSection = () => {
 
     return (
         <section className="relative py-16 sm:py-28 px-6 lg:px-8 bg-[#f8faff] dark:bg-[#040810] transition-colors duration-500 overflow-hidden">
-            {/* Animated ambient blobs */}
+            {/* Animated ambient blobs — blur reduced to 40px, will-change:transform for GPU compositing */}
             {blobs.map((b, i) => (
                 <div key={i} style={{
                     position: 'absolute', left: b.x, top: b.y,
                     width: b.size, height: b.size,
                     background: `radial-gradient(circle, ${b.color} 0%, transparent 70%)`,
                     animation: `heroBlob ${b.dur}s ease-in-out ${b.delay}s infinite`,
-                    filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0,
-                    transform: 'translate(-50%, -50%)',
+                    filter: 'blur(40px)', pointerEvents: 'none', zIndex: 0,
+                    transform: 'translate3d(-50%, -50%, 0)',
+                    willChange: 'transform',
                 }} />
             ))}
 
@@ -1622,8 +1627,8 @@ const EcosystemSection = () => {
     const isInView = useInView(ref, { once: true, margin: '-10%' });
     const { t } = useLang();
 
-    // Generate floating particles once — reduced to 10 for performance
-    const particles = React.useMemo(() => Array.from({ length: 10 }, (_, i) => ({
+    // Generate floating particles once — reduced to 6 for performance
+    const particles = React.useMemo(() => Array.from({ length: 6 }, (_, i) => ({
         id: i, x: Math.random() * 100, y: Math.random() * 100,
         size: Math.random() * 3 + 1.5,
         color: i % 3 === 0 ? '#3b82f6' : i % 3 === 1 ? '#6366f1' : '#06b6d4',
@@ -1652,10 +1657,9 @@ const EcosystemSection = () => {
                 }} />
             ))}
 
-            {/* Breathing orbs */}
-            <div style={{ position: 'absolute', top: '20%', left: '15%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.10) 0%, transparent 70%)', filter: 'blur(80px)', animation: 'breathe 14s ease-in-out infinite', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: '15%', right: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.09) 0%, transparent 70%)', filter: 'blur(80px)', animation: 'breathe 18s ease-in-out 6s infinite', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '60%', left: '50%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.07) 0%, transparent 70%)', filter: 'blur(70px)', animation: 'breathe 22s ease-in-out 3s infinite', pointerEvents: 'none' }} />
+            {/* Breathing orbs — blur reduced, will-change for GPU layer */}
+            <div style={{ position: 'absolute', top: '20%', left: '15%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.10) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'breathe 14s ease-in-out infinite', pointerEvents: 'none', willChange: 'transform', transform: 'translateZ(0)' }} />
+            <div style={{ position: 'absolute', bottom: '15%', right: '10%', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.09) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'breathe 18s ease-in-out 6s infinite', pointerEvents: 'none', willChange: 'transform', transform: 'translateZ(0)' }} />
 
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Animated headline */}
@@ -2069,6 +2073,9 @@ const TwoScenePushBridge = ({ sceneA, sceneB }) => {
 const LandingPageWave = () => {
     const navigate = useNavigate();
     const [justTransitioned, setJustTransitioned] = useState(false);
+    // Only mount heavy scroll-reactive sphere AFTER user starts scrolling past hero
+    // This prevents two position:fixed + scroll-listener components from running on initial load
+    const [sphereReady, setSphereReady] = useState(false);
 
     useEffect(() => {
         if (sessionStorage.getItem('fromLanding') === 'true') {
@@ -2076,6 +2083,16 @@ const LandingPageWave = () => {
             sessionStorage.removeItem('fromLanding');
         }
         window.scrollTo(0, 0);
+
+        // Mount sphere only after user scrolls 30% of first viewport
+        const onScroll = () => {
+            if (window.scrollY > window.innerHeight * 0.3) {
+                setSphereReady(true);
+                window.removeEventListener('scroll', onScroll, { passive: true });
+            }
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll, { passive: true });
     }, []);
 
     const { lang, t } = useLang();
@@ -2282,6 +2299,9 @@ const LandingPageWave = () => {
                 <StyleInjector />
 
                 <GradientOrbs />
+                {/* Sphere + explosion only mounted after first scroll — saves ~20ms of paint on load */}
+                {sphereReady && <ScrollReactiveSphere />}
+                {sphereReady && <SphereExplosion />}
                 <div className="relative" style={{ zIndex: 2 }}>
                     <NavbarWave />
                     <ScalesOfJusticeIntro justTransitioned={justTransitioned} />

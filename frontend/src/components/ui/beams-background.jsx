@@ -28,6 +28,7 @@ export function BeamsBackground({
     const canvasRef = useRef(null);
     const beamsRef = useRef([]);
     const animationFrameRef = useRef(0);
+    const isVisibleRef = useRef(true); // pause when scrolled off-screen
     const MINIMUM_BEAMS = 10;
 
     const opacityMap = {
@@ -155,17 +156,32 @@ export function BeamsBackground({
         const handleVisibility = () => {
             if (document.hidden) {
                 cancelAnimationFrame(animationFrameRef.current);
-            } else {
+            } else if (isVisibleRef.current) {
                 animationFrameRef.current = requestAnimationFrame(animate);
             }
         };
         document.addEventListener('visibilitychange', handleVisibility);
+
+        // Pause when section scrolls off-screen
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                isVisibleRef.current = entry.isIntersecting;
+                if (entry.isIntersecting) {
+                    animationFrameRef.current = requestAnimationFrame(animate);
+                } else {
+                    cancelAnimationFrame(animationFrameRef.current);
+                }
+            },
+            { threshold: 0 }
+        );
+        if (canvas) observer.observe(canvas);
 
         animate(0);
 
         return () => {
             window.removeEventListener("resize", updateCanvasSize);
             document.removeEventListener('visibilitychange', handleVisibility);
+            observer.disconnect();
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }

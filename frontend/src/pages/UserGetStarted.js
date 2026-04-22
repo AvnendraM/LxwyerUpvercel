@@ -89,7 +89,7 @@ export default function UserGetStarted() {
       className="min-h-screen bg-black text-white flex flex-col overflow-hidden"
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+      {/* Fonts loaded globally in index.html */}
 
       <Navbar minimal />
 

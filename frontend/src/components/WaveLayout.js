@@ -8,7 +8,7 @@ import { NavbarWave } from './NavbarWave';
    CSS KEYFRAMES
    ───────────────────────────────────────────── */
 const pageKeyframes = `
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* Fonts loaded once in index.html — no duplicate @import */
 
 @keyframes orbFloat1 {
   0%   { transform: translate(0, 0) scale(1); }
@@ -68,6 +68,10 @@ const pageKeyframes = `
   0%   { box-shadow: 0 6px 24px rgba(220,38,38,0.45), 0 0 0 0 rgba(239,68,68,0.4); }
   50%  { box-shadow: 0 6px 24px rgba(220,38,38,0.45), 0 0 0 10px rgba(239,68,68,0); }
   100% { box-shadow: 0 6px 24px rgba(220,38,38,0.45), 0 0 0 0 rgba(239,68,68,0); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  50%       { opacity: 0.8; transform: scale(1.3); }
 }
 `;
 
