@@ -2265,25 +2265,6 @@ const LandingPageWave = () => {
                     }}>
                         {isHi ? 'हर भारतीय के लिए।' : 'Built for every Indian.'}
                     </p>
-
-                    {/* Divider */}
-                    <div style={{ width: 48, height: 2, background: 'linear-gradient(90deg,#3b82f6,#6366f1)', borderRadius: 2, marginTop: 'clamp(1.4rem,4vw,2.2rem)', margin: 'clamp(1.4rem,4vw,2.2rem) auto 0' }} />
-
-                    {/* Sub text */}
-                    <p style={{
-                        fontFamily: "'Outfit',sans-serif",
-                        fontSize: 'clamp(0.82rem,1.8vw,0.95rem)',
-                        fontWeight: 300,
-                        lineHeight: 1.75,
-                        color: 'rgba(148,163,184,0.6)',
-                        marginTop: 'clamp(0.8rem,2vw,1.2rem)',
-                        maxWidth: '32rem',
-                        margin: 'clamp(0.8rem,2vw,1.2rem) auto 0',
-                    }}>
-                        {isHi
-                            ? 'AI-मिलान वकील · SOS कानूनी सहायता · सत्यापित वकील · आपकी भाषा'
-                            : 'AI-matched lawyers · SOS legal help · Verified advocates · Your language'}
-                    </p>
                 </div>
             </div>
         </TubesCursor>

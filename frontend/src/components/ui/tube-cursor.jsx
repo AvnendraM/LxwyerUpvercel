@@ -64,12 +64,12 @@ const TubesCursor = ({
   }, [initialColors, lightColors, lightIntensity, enableRandomizeOnClick]);
 
   return (
-    <div className={`relative min-h-screen w-full overflow-hidden bg-black ${className}`}>
+    <div className={`relative min-h-screen w-full flex flex-col overflow-hidden bg-black ${className}`}>
       {/* Background canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full pointer-events-none z-0 opacity-70" />
 
       {/* Children layer */}
-      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center">
+      <div className="relative z-10 flex flex-1 w-full flex-col items-center justify-center">
         {children}
       </div>
     </div>
