@@ -185,7 +185,7 @@ export const InteractiveNeuralVortex = ({ children, className }) => {
   }, []);
 
   return (
-    <div className={cn("relative min-h-screen flex flex-col items-center justify-center overflow-x-hidden font-sans", className)}>
+    <div className={cn("relative min-h-screen flex flex-col items-center justify-center overflow-x-hidden font-sans bg-black", className)}>
       {/* Canvas Background */}
       <canvas 
         ref={canvasRef} 
