@@ -2298,7 +2298,7 @@ const LandingPageWave = () => {
             >
                 <StyleInjector />
 
-                <GradientOrbs />
+
                 <div className="relative" style={{ zIndex: 2 }}>
                     <NavbarWave />
                     <ScalesOfJusticeIntro justTransitioned={justTransitioned} />

@@ -67,15 +67,6 @@ export const Footer = () => {
             <a href="https://www.linkedin.com/company/lxwyerup1" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors" aria-label="LinkedIn">
               <Linkedin className="w-5 h-5" />
             </a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Twitter">
-              <Twitter className="w-5 h-5" />
-            </a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Instagram">
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook className="w-5 h-5" />
-            </a>
           </div>
         </div>
       </div>
