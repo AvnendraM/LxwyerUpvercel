@@ -33,7 +33,7 @@ export default function FirmCard({ firm, onBook, onDetails, index = 0, dm = true
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={`rounded-3xl overflow-hidden border shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full
+      className={`rounded-3xl overflow-hidden border shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col
         ${dm ? 'border-slate-800 bg-[#121212]' : 'border-slate-200 bg-white'}`}
       onClick={(e) => { e.stopPropagation(); onDetails && onDetails(firm); }}
     >
@@ -71,9 +71,12 @@ export default function FirmCard({ firm, onBook, onDetails, index = 0, dm = true
           )}
         </div>
 
-        <p className={`text-sm line-clamp-2 mb-4 flex-1 ${dm ? 'text-slate-300' : 'text-slate-600'}`}>
+        <p className={`text-sm line-clamp-2 mb-4 ${dm ? 'text-slate-300' : 'text-slate-600'}`}>
           {firm.description || firm.bio || 'Professional firm providing legal services.'}
         </p>
+        
+        {/* Spacer to push footer to bottom if card is stretched */}
+        <div className="flex-1" />
         
         {firm.platform_metrics && (
           <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-[11px] sm:text-xs font-bold ${dm ? 'text-slate-400' : 'text-slate-500'}`}>
