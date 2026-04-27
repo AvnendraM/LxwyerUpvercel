@@ -153,6 +153,7 @@ export default function RevolutionisingSoon() {
   const [mounted, setMounted] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [trianglePhase, setTrianglePhase] = useState('idle'); // 'idle' | 'zoom' | 'done'
+  const [showRestricted, setShowRestricted] = useState(false);
   const signupRef = useRef(null);
   const bannerRef = useRef(null);
 
@@ -203,15 +204,10 @@ export default function RevolutionisingSoon() {
   }, []);
 
   const goDemo = () => {
-    if (transitioning) return;
-    setTransitioning(true);
-    // Start the triangle zoom animation after a short delay (let overlay appear first)
-    setTimeout(() => setTrianglePhase('zoom'), 50);
-    // Navigate to /home after the triangle animation completes (~2.2s)
+    setShowRestricted(true);
     setTimeout(() => {
-      sessionStorage.setItem('fromLanding', 'true');
-      navigate('/home');
-    }, 2200);
+      setShowRestricted(false);
+    }, 3000);
   };
 
   const sx = spot.x.toFixed(1), sy = spot.y.toFixed(1), sr = spot.r.toFixed(1);
@@ -239,6 +235,7 @@ export default function RevolutionisingSoon() {
         @keyframes reveal  { from{opacity:0;transform:scale(0.97);} to{opacity:1;transform:scale(1);} }
         @keyframes mirrorShimmer { 0%{opacity:0.08;} 50%{opacity:0.18;} 100%{opacity:0.08;} }
         @keyframes reflectionReveal { from{opacity:0;transform:scaleY(0.7);} to{opacity:1;transform:scaleY(1);} }
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-100%);} to{opacity:1;transform:translateY(0);} }
 
         .rs-reveal { opacity:0; transform:translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .rs-reveal.rs-in { opacity:1; transform:translateY(0); }
@@ -295,6 +292,21 @@ export default function RevolutionisingSoon() {
           animation: triangleZoomOut 2.2s cubic-bezier(0.25, 1, 0.4, 1) forwards;
         }
       `}</style>
+
+      {/* Restricted Banner */}
+      {showRestricted && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, zIndex: 999999,
+          background: '#ef4444', color: '#fff',
+          textAlign: 'center', padding: '12px',
+          fontWeight: 600, fontSize: '0.95rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          animation: 'fadeDown 0.3s ease-out forwards',
+        }}>
+          This website is restricted for some time
+        </div>
+      )}
 
       {/* ── Triangle transition overlay (black screen + blue triangle) ── */}
       {transitioning && (
@@ -447,9 +459,7 @@ export default function RevolutionisingSoon() {
           }}>India's legal revolution — AI, Dashboard, Apex lawyers, SOS help, transparent fees and more.</p>
 
           {/* Explore Demo */}
-          {/* Currently disabled per user request. To activate, remove display: 'none' */}
           <div style={{
-            display: 'none',
             marginTop: 'clamp(2rem,4vw,2.5rem)',
             opacity: mounted ? 1 : 0,
             transform: mounted ? 'translateY(0)' : 'translateY(8px)',
