@@ -228,6 +228,7 @@ function AnimatedRoutes({ user, isWebsiteRestricted }) {
           <Route path="/admin-login" element={<LocalOnlyRoute><PageTransition><AdminLogin /></PageTransition></LocalOnlyRoute>} />
           <Route path="/admin-dashboard" element={<LocalOnlyRoute><PageTransition><AdminDashboard /></PageTransition></LocalOnlyRoute>} />
           <Route path="/admin" element={<LocalOnlyRoute><PageTransition><AdminDashboard /></PageTransition></LocalOnlyRoute>} />
+          <Route path="/monitor" element={<Navigate to="/monitor-login" replace />} />
           <Route path="/monitor-login" element={<LocalOnlyRoute><PageTransition><MonitorLogin /></PageTransition></LocalOnlyRoute>} />
           <Route path="/monitor-dashboard" element={<LocalOnlyRoute><PageTransition><MonitorDashboard /></PageTransition></LocalOnlyRoute>} />
         </Routes>
